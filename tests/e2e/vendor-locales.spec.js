@@ -429,9 +429,10 @@ test("first-run buyer onboarding reaches truthful empty states and keeps its rol
 
   await page.getByTestId("nav-orders").click();
   await expect(shell).toHaveAttribute("data-workspace", "orders");
-  await expect(page.getByTestId("buyer-orders-empty")).toContainText(
-    "You haven’t placed any orders yet.",
-  );
+  // Order history opens seeded with one demo order (Ming's, lamb skewers);
+  // it stays session-only and carries no real order machinery.
+  await expect(page.getByTestId("buyer-orders-list")).toContainText("Lamb skewers (2)");
+  await expect(page.getByTestId("buyer-orders-list")).toContainText("Ming's Chinese Skewers");
   await expect(page.getByTestId("buyer-orders").locator("[data-order-id]")).toHaveCount(0);
 
   await page.getByTestId("nav-account").click();
@@ -542,7 +543,7 @@ test("buyer marketplace has no horizontal overflow at 320 and 390 pixels", async
 
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
-    for (const destination of ["nav-explore", "nav-orders", "nav-account"]) {
+    for (const destination of ["nav-explore", "nav-street-rules", "nav-orders", "nav-account"]) {
       await page.getByTestId(destination).click();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, "buyer " + destination + " at " + width + "px").toBeLessThanOrEqual(1);
@@ -561,7 +562,7 @@ test("seller marketplace has no horizontal overflow at 320 and 390 pixels", asyn
 
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
-    for (const destination of ["nav-dashboard", "nav-orders", "nav-get-verified", "nav-account"]) {
+    for (const destination of ["nav-dashboard", "nav-street-rules", "nav-orders", "nav-get-verified", "nav-account"]) {
       await page.getByTestId(destination).click();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, "vendor " + destination + " at " + width + "px").toBeLessThanOrEqual(1);
@@ -741,4 +742,125 @@ test("first-run vendor Yes confirms before opening Online Store and official Sho
   expect(calls).toContain("begin_shopify_signup");
   await expect.poll(() => page.evaluate(() => window.__SIDEWALK_E2E_OPENED_URLS__))
     .toEqual(["https://www.shopify.com/store-login"]);
+});
+
+test("street rules workspace reports without deciding and never requests a tile server", async ({ page }) => {
+  const attemptedRequests = [];
+  page.on("request", (request) => attemptedRequests.push(request.url()));
+  await forceSampleMode(page, { accountRole: "buyer", accountLocale: "en" });
+  await page.goto("/?workspace=street-rules&lang=en", { waitUntil: "domcontentloaded" });
+
+  const marketplace = resources.en.marketplace;
+  const workspace = page.getByTestId("buyer-street-rules");
+  await expect(workspace).toBeVisible();
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-workspace", "street-rules");
+  await expect(page.getByTestId("rules-authority-banner")).toContainText(marketplace.rulesAuthority);
+
+  // Map-first. Tiles are aborted by the offline harness, so the bundled
+  // vector floor and every restricted segment must render regardless.
+  await expect(page.getByTestId("rules-map-canvas")).toBeVisible();
+  await expect(page.locator(".rules-map-canvas.leaflet-container")).toHaveCount(1);
+  expect(
+    await page.locator(".rules-map-canvas .leaflet-overlay-pane path").count(),
+  ).toBeGreaterThan(100);
+
+  // The report panel is report-only, entered deterministically.
+  await page.getByTestId("rules-sample-block").click();
+  const report = page.getByTestId("rules-report");
+  await expect(report).toBeVisible();
+  await expect(report).toContainText(marketplace.ruleOnListTitle);
+  await expect(report).toContainText(marketplace.ruleNotADecision);
+  await expect(report).toContainText(marketplace.caveatScopeMobileFood);
+  await expect(report).toContainText(resources.en.common.modeBundledSnapshot);
+
+  // Sample vendors are fictional, labeled, and toggleable; a vendor card
+  // never offers commerce, only the rules report for that spot.
+  await expect(page.locator("[data-sample-vendor]").first()).toBeVisible();
+  await page.locator('[data-sample-vendor="sv-01"]').click();
+  const vendorCard = page.getByTestId("rules-vendor-card");
+  await expect(vendorCard).toBeVisible();
+  await expect(vendorCard).toContainText(marketplace.sampleVendorTitle);
+
+  // The demo menu adds session-only order entries; checkout is an explicit
+  // external handoff link (never an in-app payment button).
+  await expect(page.getByTestId("rules-vendor-menu")).toBeVisible();
+  await expect(vendorCard.getByRole("button", { name: /buy|checkout|order now|pay\b/i })).toHaveCount(0);
+  await vendorCard.locator(".rules-simulate-button").first().click();
+  const receipts = page.getByTestId("rules-demo-receipts");
+  await expect(receipts).toBeVisible();
+  await expect(receipts).toContainText(marketplace.orderTotal);
+  await expect(page.getByTestId("rules-checkout-link")).toHaveAttribute("href", /myshopify\.com/);
+
+  // The order flows into the buyer Orders workspace, and Explore's vendor
+  // cards deep-link back into a street-rules vendor profile.
+  await page.getByTestId("nav-orders").click();
+  const ordersList = page.getByTestId("buyer-orders-list");
+  await expect(ordersList).toBeVisible();
+  await expect(ordersList).toContainText(marketplace.orderTotal);
+  await expect(page.getByTestId("orders-checkout-link")).toHaveAttribute("href", /myshopify\.com/);
+  await page.getByTestId("nav-explore").click();
+  await expect(page.getByTestId("explore-vendor-grid")).toBeVisible();
+  await expect(page.getByTestId("marketplace-empty-state")).toBeVisible();
+  await page.getByTestId("buyer-explore").locator('[data-sample-vendor="sv-15"]').click();
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-workspace", "street-rules");
+  await expect(page.getByTestId("rules-vendor-card")).toContainText("Ming's Chinese Skewers");
+  await page.getByTestId("nav-street-rules").click();
+
+  await page.getByTestId("rules-vendors-toggle").click();
+  await expect(page.locator("[data-sample-vendor]")).toHaveCount(0);
+  await page.getByTestId("rules-vendors-toggle").click();
+
+  // The list view carries every entry and drives the same report panel.
+  await page.getByTestId("rules-view-list").click();
+  await expect(page.getByTestId("rules-list")).toBeVisible();
+  await page.getByTestId("rules-list").locator("button").first().click();
+  await expect(report).toBeVisible();
+
+  // Commerce and inventory guards extend to the new surface.
+  await expect(
+    workspace.getByRole("button", { name: /buy|checkout|order now/i }),
+  ).toHaveCount(0);
+  await expect(
+    workspace.locator("[data-store-id], [data-product-id], [data-order-id], [data-customer-id]"),
+  ).toHaveCount(0);
+  expect(await workspace.innerText()).not.toMatch(
+    /\b(?:common|vendor|console|safety|guidance|errors|proof|roadmap|marketplace)[.:][a-z][\w.-]+\b/,
+  );
+
+  // OSM tiles are the sole permitted external dependency (aborted here by
+  // the offline harness); everything else stays on this machine, and no
+  // commerce provider is ever contacted.
+  for (const url of attemptedRequests) {
+    const hostname = new URL(url).hostname;
+    // OSM tiles and the Google Fonts stylesheet are the only permitted
+    // external dependencies (both aborted by the offline harness).
+    if (hostname === "tile.openstreetmap.org") continue;
+    if (hostname === "fonts.googleapis.com" || hostname === "fonts.gstatic.com") continue;
+    expect(hostname, url).toMatch(/^(?:127\.0\.0\.1|localhost)$/);
+  }
+  expect(attemptedRequests.filter((url) => marketplaceProviderPattern().test(url))).toEqual([]);
+});
+
+test("street rules map stays inside the viewport at 320 and 390 pixels in Arabic", async ({ page }) => {
+  await forceSampleMode(page, { accountRole: "vendor", accountLocale: "ar" });
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/?workspace=street-rules&lang=ar", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("seller-street-rules")).toBeVisible();
+    await expect(page.getByTestId("rules-map-canvas")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await expect(page.locator(".rules-map-shell")).toHaveAttribute("dir", "ltr");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, "street rules at " + width + "px in Arabic").toBeLessThanOrEqual(1);
+  }
+});
+
+test("street rules framing follows the account role", async ({ page }) => {
+  await forceSampleMode(page, { accountRole: "vendor", accountLocale: "en" });
+  await page.goto("/?workspace=street-rules&lang=en", { waitUntil: "domcontentloaded" });
+  const seller = page.getByTestId("seller-street-rules");
+  await expect(seller).toBeVisible();
+  await expect(seller).toContainText(resources.en.marketplace.vendorRulesIntro);
+  await expect(seller).not.toContainText(resources.en.marketplace.buyerRulesIntro);
+  await expect(page.getByTestId("buyer-street-rules")).toHaveCount(0);
 });

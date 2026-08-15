@@ -20,6 +20,7 @@ export default {
   modeFixture: tr("SAMPLE DATA", "DATOS DE MUESTRA", "DONE YU MISAAL", "بيانات عينة", "নমুনা ডেটা", "样本数据", "DONNÉES EXEMPLES"),
   modeSimulated: tr("SIMULATED", "SIMULADO", "ÑU MEL NI", "محاكاة", "সিমুলেটেড", "模拟", "SIMULÉ"),
   modeUnavailable: tr("UNAVAILABLE", "NO DISPONIBLE", "JËFEKOO TU", "غير متاح", "অনুপলভ্য", "不可用", "INDISPONIBLE"),
+  modeBundledSnapshot: tr("PUBLISHED SNAPSHOT", "COPIA PUBLICADA", "NATAALU LIM BU ÑU SIIWAL", "نسخة منشورة", "প্রকাশিত অনুলিপি", "已发布快照", "COPIE PUBLIÉE"),
   sampleSource: tr("SAMPLE SOURCE", "FUENTE DE MUESTRA", "GÀLLU MISAAL", "مصدر تجريبي", "নমুনা উৎস", "样本来源", "SOURCE EXEMPLE"),
   dataset: tr("DATASET", "CONJUNTO DE DATOS", "MBOOLU DONE", "مجموعة البيانات", "ডেটাসেট", "数据集", "JEU DE DONNÉES"),
   asOf: tr("AS OF", "CONSULTADO", "BA", "حتى", "যাচাইয়ের সময়", "查询时间", "CONSULTÉ LE"),

@@ -134,9 +134,8 @@ test("desktop buyer shell is role-safe, empty, persistent, and never exposes leg
   await expectNoHorizontalOverflow(page, "desktop buyer Explore");
 
   await page.getByTestId("nav-orders").click();
-  await expect(page.getByTestId("buyer-orders-empty")).toContainText(
-    "You haven’t placed any orders yet.",
-  );
+  // Order history opens seeded with one demo order; no real order machinery.
+  await expect(page.getByTestId("buyer-orders-list")).toContainText("Ming's Chinese Skewers");
   await expect(page.getByTestId("buyer-orders").locator("[data-order-id]")).toHaveCount(0);
   await expectNoHorizontalOverflow(page, "desktop buyer Orders");
 

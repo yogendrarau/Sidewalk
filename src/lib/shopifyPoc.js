@@ -309,7 +309,9 @@ export function deriveSellingAccess(certificationStatus, shopifySetupState) {
 export function vendorWorkspacesFor(access) {
   const status = access?.certification_status ?? "unanswered";
   const selling = access?.selling_access_state ?? deriveSellingAccess(status, access?.shopify_setup_state);
-  const result = ["dashboard", "orders", "account"];
+  // "street-rules" is ungated: the published restricted-streets map is
+  // reference material available to every vendor state.
+  const result = ["dashboard", "street-rules", "orders", "account"];
   if (status === "not_verified") result.splice(2, 0, "get-verified");
   if (status === "self_attested_demo") result.splice(1, 0, "online-store");
   if (selling === "active_demo" && !result.includes("online-store")) result.splice(1, 0, "online-store");

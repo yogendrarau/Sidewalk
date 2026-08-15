@@ -210,6 +210,12 @@ describe("RTL-safe styling contract", () => {
     expect(/\bmargin-(?:left|right)\s*:/.test(css)).toBe(false);
     expect(/\bpadding-(?:left|right)\s*:/.test(css)).toBe(false);
     expect(/\bborder-(?:left|right)(?:-\w+)?\s*:/.test(css)).toBe(false);
+
+    // The marketplace surfaces (including street rules) hold the same bar.
+    const marketplaceCss = read("src/marketplace.css").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(/\bmargin-(?:left|right)\s*:/.test(marketplaceCss)).toBe(false);
+    expect(/\bpadding-(?:left|right)\s*:/.test(marketplaceCss)).toBe(false);
+    expect(/\bborder-(?:left|right)(?:-\w+)?\s*:/.test(marketplaceCss)).toBe(false);
   });
 
   it("includes explicit LTR isolation for source identifiers", () => {

@@ -1,0 +1,261 @@
+{
+  "generated_at": "2026-08-15T20:10:11.326Z",
+  "document_revision": "EHS334503E – 4.23",
+  "counts": {
+    "rows": 190,
+    "polyline": 172,
+    "corridor": 11,
+    "midpoint_pin": 7,
+    "unmatched": 0
+  },
+  "by_borough": {
+    "Manhattan": {
+      "polyline": 125,
+      "corridor": 4,
+      "midpoint_pin": 2,
+      "unmatched": 0
+    },
+    "Queens": {
+      "polyline": 13,
+      "corridor": 1,
+      "midpoint_pin": 0,
+      "unmatched": 0
+    },
+    "Bronx": {
+      "polyline": 1,
+      "corridor": 0,
+      "midpoint_pin": 0,
+      "unmatched": 0
+    },
+    "Brooklyn": {
+      "polyline": 33,
+      "corridor": 6,
+      "midpoint_pin": 5,
+      "unmatched": 0
+    }
+  },
+  "artifact_bytes": {
+    "meta.json": 1694,
+    "restricted-streets.rules.json": 102758,
+    "restricted-streets.geometry.json": 75107,
+    "nyc-borough-outlines.json": 27080
+  },
+  "non_polyline_rows": [
+    {
+      "id": "mfv-0035",
+      "tier": "corridor",
+      "borough": "Manhattan",
+      "street": "Broadway 2",
+      "street_label": "BROADWAY",
+      "from": "West 32nd Street",
+      "from_label": "W 32 ST",
+      "to": "West 52nd Street",
+      "to_label": "W 52 ST",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0044",
+      "tier": "midpoint_pin",
+      "borough": "Manhattan",
+      "street": "Fulton Street",
+      "street_label": "FULTON ST",
+      "from": "Broadway",
+      "from_label": "BROADWAY",
+      "to": "West Street",
+      "to_label": "WEST ST",
+      "note": "only the FROM intersection resolved"
+    },
+    {
+      "id": "mfv-0050",
+      "tier": "corridor",
+      "borough": "Manhattan",
+      "street": "Greenwich Street",
+      "street_label": "GREENWICH ST",
+      "from": "Thames Street",
+      "from_label": "THAMES ST",
+      "to": "Barclay Street",
+      "to_label": "BARCLAY ST",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0084",
+      "tier": "corridor",
+      "borough": "Queens",
+      "street": "41st Avenue",
+      "street_label": "41 AVE",
+      "from": "College Point Boulevard",
+      "from_label": "COLLEGE POINT BLVD",
+      "to": "Union Street",
+      "to_label": "UNION ST",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0102",
+      "tier": "corridor",
+      "borough": "Brooklyn",
+      "street": "18th Avenue",
+      "street_label": "18 AVE",
+      "from": "McDonald Avenue",
+      "from_label": "MCDONALD AVE",
+      "to": "68th Street",
+      "to_label": "68 ST",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0109",
+      "tier": "midpoint_pin",
+      "borough": "Brooklyn",
+      "street": "Bridge Street",
+      "street_label": "BRIDGE ST",
+      "from": "Fulton Street",
+      "from_label": "FULTON ST",
+      "to": "Myrtle Avenue",
+      "to_label": "MYRTLE AVE",
+      "note": "only the FROM intersection resolved"
+    },
+    {
+      "id": "mfv-0111",
+      "tier": "corridor",
+      "borough": "Brooklyn",
+      "street": "Church Avenue",
+      "street_label": "CHURCH AVE",
+      "from": "Coney Island Avenue",
+      "from_label": "CONEY ISLAND AVE",
+      "to": "Nostrand Avenue",
+      "to_label": "NOSTRAND AVE",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0113",
+      "tier": "corridor",
+      "borough": "Brooklyn",
+      "street": "Cropsey Avenue",
+      "street_label": "CROPSEY AVE",
+      "from": "Bay 50th Street",
+      "from_label": "BAY 50 ST",
+      "to": "Bay 54th Street",
+      "to_label": "BAY 54 ST",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0114",
+      "tier": "corridor",
+      "borough": "Brooklyn",
+      "street": "Cropsey Avenue",
+      "street_label": "CROPSEY AVE",
+      "from": "Bay 50th Street",
+      "from_label": "BAY 50 ST",
+      "to": "Bay 54th Street",
+      "to_label": "BAY 54 ST",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0115",
+      "tier": "midpoint_pin",
+      "borough": "Brooklyn",
+      "street": "DeKalb Avenue",
+      "street_label": "DEKALB AVE",
+      "from": "Fulton Street",
+      "from_label": "FULTON ST",
+      "to": "Flatbush Avenue",
+      "to_label": "FLATBUSH AVE EXTENSION+FLATBUSH AVE",
+      "note": "only the TO intersection resolved"
+    },
+    {
+      "id": "mfv-0118",
+      "tier": "corridor",
+      "borough": "Brooklyn",
+      "street": "Flatbush Avenue",
+      "street_label": "FLATBUSH AVE EXTENSION+FLATBUSH AVE",
+      "from": "Parkside Avenue",
+      "from_label": "PARKSIDE AVE",
+      "to": "Avenue I",
+      "to_label": "AVE I",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0123",
+      "tier": "corridor",
+      "borough": "Brooklyn",
+      "street": "Johnston Street",
+      "street_label": "JOHNSON ST",
+      "from": "Adams Street",
+      "from_label": "ADAMS ST",
+      "to": "Flatbush Avenue Extension",
+      "to_label": "FLATBUSH AVE EXTENSION",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0129",
+      "tier": "midpoint_pin",
+      "borough": "Brooklyn",
+      "street": "Montague Street",
+      "street_label": "MONTAGUE ST",
+      "from": "Court Street",
+      "from_label": "COURT ST",
+      "to": "The Promenade",
+      "to_label": null,
+      "note": "only the FROM intersection resolved"
+    },
+    {
+      "id": "mfv-0132",
+      "tier": "midpoint_pin",
+      "borough": "Brooklyn",
+      "street": "Red Hook Lane",
+      "street_label": "RED HOOK LN",
+      "from": "Fulton Street",
+      "from_label": "FULTON ST",
+      "to": "Livingston Street",
+      "to_label": "LIVINGSTON ST",
+      "note": "only the FROM intersection resolved"
+    },
+    {
+      "id": "mfv-0140",
+      "tier": "midpoint_pin",
+      "borough": "Brooklyn",
+      "street": "Willoughby Street",
+      "street_label": "WILLOUGHBY ST",
+      "from": "Adams Street",
+      "from_label": "ADAMS ST",
+      "to": "Flatbush Avenue Extension",
+      "to_label": "FLATBUSH AVE EXTENSION",
+      "note": "only the TO intersection resolved"
+    },
+    {
+      "id": "mfv-0141",
+      "tier": "midpoint_pin",
+      "borough": "Manhattan",
+      "street": "Dey Street",
+      "street_label": "DEY ST",
+      "from": "Greenwich Street",
+      "from_label": "GREENWICH ST",
+      "to": "Broadway",
+      "to_label": "BROADWAY",
+      "note": "only the TO intersection resolved"
+    },
+    {
+      "id": "mfv-0161",
+      "tier": "corridor",
+      "borough": "Manhattan",
+      "street": "43rd Street (East)",
+      "street_label": "E 43 ST+W 43 ST",
+      "from": "Third Avenue",
+      "from_label": "3 AVE",
+      "to": "Fifth Avenue",
+      "to_label": "5 AVE",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    },
+    {
+      "id": "mfv-0163",
+      "tier": "corridor",
+      "borough": "Manhattan",
+      "street": "44th Street (East)",
+      "street_label": "E 44 ST+W 44 ST",
+      "from": "Third Avenue",
+      "from_label": "3 AVE",
+      "to": "Fifth Avenue",
+      "to_label": "5 AVE",
+      "note": "street graph disconnected between cross streets; corridor approximation"
+    }
+  ]
+}

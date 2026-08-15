@@ -65,7 +65,7 @@ export default function Console() {
             </div>
             <div>
               <h1 className="font-semibold text-stone-900 tracking-tight leading-none">SIDEWALK</h1>
-              <p className="text-[10px] text-stone-400 uppercase tracking-widest mt-0.5">Caseworker console · AI demo assistant</p>
+              <p className="text-[10px] text-stone-400 uppercase tracking-widest mt-0.5">AI Support Console · AI demo assistant</p>
             </div>
           </div>
           {sessionCode && (
@@ -151,8 +151,8 @@ function StartView({ starting, onStart }) {
         Turn a frightening document into a source-linked next step.
       </h2>
       <p className="text-stone-500 leading-relaxed mb-8">
-        SIDEWALK is an AI demo assistant for street vendors. Start a demo session, scan the QR with a phone, and walk Rosa
-        through voice guidance, summons checking, and a sales paper trail — then watch it all appear here in the caseworker console.
+        SIDEWALK is an AI-powered navigation and preparation layer for street vendors. Start a demo session, scan the QR with a phone, and walk Rosa
+        through voice guidance, summons checking, and a sales paper trail — then inspect the AI-generated trace in the Support Console.
       </p>
       <button
         onClick={onStart}

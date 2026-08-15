@@ -11,9 +11,10 @@ import "@fontsource/noto-sans-sc/700.css";
 import {
   ArrowRight, Bell, BookOpen, Camera, Check, CheckCircle2, ChevronRight,
   CircleDollarSign, ClipboardCheck, FileCheck2, FileText, Globe2, MapPinned,
-  MessageCircle, Mic, Pause, Play, QrCode, ReceiptText, RefreshCw, RotateCcw,
-  Search, Send, ShieldCheck, ShoppingBag, Sparkles, Store, TriangleAlert,
-  Upload, UserRound, Volume2, X,
+  ExternalLink, HeartHandshake, Landmark, ListChecks, MessageCircle, Mic, Pause,
+  Phone, Play, QrCode, ReceiptText, RefreshCw, RotateCcw, Search, Send,
+  ShieldCheck, ShoppingBag, Sparkles, Store, TriangleAlert, Upload, UserRound,
+  Volume2, X,
 } from "lucide-react";
 import {
   DEFAULT_CONSOLE_LOCALE,
@@ -37,6 +38,42 @@ const MODE_KEYS = {
   simulated: "common:modeSimulated",
   unavailable: "common:modeUnavailable",
 };
+
+const HELP_ROUTES = [
+  {
+    id: "official",
+    icon: Landmark,
+    verified: true,
+    url: "https://www.nyc.gov/site/doh/business/permits-licenses.page",
+    phone: "311",
+    alternatePhone: "(212) 639-9675",
+    secondaryUrl: "https://www.nyc.gov/site/dca/businesses/license-checklist-general-vendor.page",
+    secondaryPhone: "(212) 487-4075",
+  },
+  {
+    id: "summons",
+    icon: FileText,
+    verified: true,
+    url: "https://www.nyc.gov/site/oath/help-center/help-center.page",
+    phone: "(212) 436-0845",
+    extraUrl: "https://www.nyc.gov/site/oath/help-center/email-the-help-center.page",
+  },
+  {
+    id: "legal",
+    icon: HeartHandshake,
+    verified: true,
+    url: "https://www.streetvendor.org/legal-assistance",
+    phone: "646-602-5679",
+  },
+  {
+    id: "business",
+    icon: MapPinned,
+    verified: true,
+    url: "https://nyc-business.nyc.gov/nycbusiness/business-services/initiatives/street-vending-in-nyc",
+    phone: "888-SBS-4NYC (888-727-4692)",
+    phoneHref: "8887274692",
+  },
+];
 
 const FALLBACK_CASE = {
   session: {
@@ -281,7 +318,7 @@ function Disclosure({ locale }) {
     <div className="disclosure-bar" lang={locale} dir={localeDirection(locale)}>
       <span className="disclosure-status" />
       <strong>{t("common:prototype")}</strong>
-      <span className="disclosure-divider" />
+      <span className="disclosure-divider" aria-hidden="true"> · </span>
       <span>{t("common:disclosure")}</span>
     </div>
   );
@@ -380,6 +417,18 @@ function GuidanceCard({ result, language, speechMode, onSpeak }) {
         {abstained && <TriangleAlert size={19} />}
         <p>{answerText}</p>
       </div>
+      {!abstained && (
+        <div data-testid="source-linked-checklist" className="guidance-checklist">
+          <div className="guidance-checklist-title"><ListChecks size={16} /><strong>{t("guidance:sourceLinkedChecklist")}</strong></div>
+          <ol>
+            <li>{t("guidance:checklistReview")}</li>
+            <li>{t("guidance:checklistPrepare")}</li>
+            <li>{t("guidance:checklistOfficial")}</li>
+          </ol>
+          <p><ShieldCheck size={14} /> {t("guidance:officialAuthority")}</p>
+          <span>{t("guidance:routineReviewOptional")}</span>
+        </div>
+      )}
       <div className="guidance-actions">
         <button className="listen-button" onClick={onSpeak}>
           <Volume2 size={15} /> {t("guidance:listen")}
@@ -398,6 +447,125 @@ function GuidanceCard({ result, language, speechMode, onSpeak }) {
         </small>
       </div>
     </article>
+  );
+}
+
+function HelpRouter({ language, result, vendor }) {
+  const { t } = useSurfaceTranslation(language, ["vendor", "guidance"]);
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const [showHandoff, setShowHandoff] = useState(false);
+  const selected = HELP_ROUTES.find((route) => route.id === selectedId);
+  const selectedPrefix = selected
+    ? "help" + selected.id.slice(0, 1).toUpperCase() + selected.id.slice(1)
+    : null;
+  const data = result && (result.data || result);
+  const abstained = Boolean(data && data.decision === "abstain");
+  const originalInput = data && (data.transcript_original || data.original_transcript || data.question || data.transcript);
+  const preliminaryStep = data && data.answer_text
+    ? data.answer_text
+    : abstained
+      ? t("guidance:abstainAnswer")
+      : t("guidance:knownAnswer");
+
+  function chooseRoute(id) {
+    setSelectedId(id);
+    setShowHandoff(false);
+  }
+
+  return (
+    <section data-testid="get-more-help" className="help-router">
+      <button
+        className="help-router-toggle"
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span><HeartHandshake size={18} /><span><strong>{t("vendor:getMoreHelp")}</strong><small>{t("vendor:getMoreHelpOptional")}</small></span></span>
+        <ChevronRight className="directional-icon" size={18} />
+      </button>
+      {open && (
+        <div className="help-router-body">
+          <p className="help-router-intro">{t("vendor:helpIntro")}</p>
+          <div className="help-route-grid" role="list">
+            {HELP_ROUTES.map((route) => {
+              const Icon = route.icon;
+              const prefix = "help" + route.id.slice(0, 1).toUpperCase() + route.id.slice(1);
+              return (
+                <button
+                  data-testid={"help-route-" + route.id}
+                  className={selectedId === route.id ? "selected" : ""}
+                  key={route.id}
+                  type="button"
+                  onClick={() => chooseRoute(route.id)}
+                >
+                  <Icon size={17} />
+                  <span>{t("vendor:" + prefix + "Label")}</span>
+                </button>
+              );
+            })}
+          </div>
+          {selected && selectedPrefix && (
+            <article data-testid="referral-destination" className="referral-card">
+              <div className="referral-card-head">
+                <div>
+                  <span>{t("vendor:potentialDestination")}</span>
+                  <h3>{t("vendor:" + selectedPrefix + "Destination")}</h3>
+                </div>
+                <span className={selected.verified ? "verified-route" : "unverified-route"}>
+                  {selected.verified ? t("vendor:officialContactVerified") : t("vendor:officialNeedsVerification")}
+                </span>
+              </div>
+              <dl className="referral-details">
+                <div><dt>{t("vendor:helpWhy")}</dt><dd>{t("vendor:" + selectedPrefix + "Why")}</dd></div>
+                <div><dt>{t("vendor:helpCan")}</dt><dd>{t("vendor:" + selectedPrefix + "Can")}</dd></div>
+                <div><dt>{t("vendor:helpCannot")}</dt><dd>{t("vendor:" + selectedPrefix + "Cannot")}</dd></div>
+                <div><dt>{t("vendor:helpBring")}</dt><dd>{t("vendor:" + selectedPrefix + "Bring")}</dd></div>
+              </dl>
+              {selected.id === "official" && <p className="agency-routing-note">{t("vendor:officialMerchandiseRoute")}</p>}
+              <span className="referral-contact-label">{t("vendor:helpContact")}</span>
+              <div className="referral-contact">
+                {selected.verified && selected.url ? (
+                  <a data-testid="official-referral-link" href={selected.url} target="_blank" rel="noreferrer">
+                    <ExternalLink size={14} /> {t("vendor:officialWebsite")}
+                  </a>
+                ) : (
+                  <span><TriangleAlert size={14} /> {t("vendor:officialNeedsVerification")}</span>
+                )}
+                {selected.phone && <a href={"tel:" + (selected.phoneHref || selected.phone.replace(/[^+\d]/g, ""))}><Phone size={14} /><bdi dir="ltr">{selected.phone}</bdi></a>}
+                {selected.alternatePhone && <a href={"tel:" + selected.alternatePhone.replace(/[^+\d]/g, "")}><Phone size={14} /> {t("vendor:outsideNyc")} <bdi dir="ltr">{selected.alternatePhone}</bdi></a>}
+                {selected.extraUrl && <a href={selected.extraUrl} target="_blank" rel="noreferrer"><ExternalLink size={14} /> {t("vendor:oathContactForm")}</a>}
+              </div>
+              {selected.secondaryUrl && (
+                <div className="secondary-agency-contact">
+                  <strong>{t("vendor:officialMerchandiseDestination")}</strong>
+                  <a data-testid="dcwp-official-referral-link" href={selected.secondaryUrl} target="_blank" rel="noreferrer"><ExternalLink size={14} /> {t("vendor:officialWebsite")}</a>
+                  <a href={"tel:" + selected.secondaryPhone.replace(/[^+\d]/g, "")}><Phone size={14} /><bdi dir="ltr">{selected.secondaryPhone}</bdi></a>
+                </div>
+              )}
+              <p className="referral-affiliation"><ShieldCheck size={14} /> {t("vendor:helpNoAffiliation")}</p>
+              <button data-testid="prepare-handoff" className="secondary-button wide" type="button" onClick={() => setShowHandoff(true)}>
+                <ClipboardCheck size={15} /> {t("vendor:prepareHandoff")}
+              </button>
+              {showHandoff && (
+                <div data-testid="handoff-preview" className="handoff-preview">
+                  <div><span>{t("vendor:handoffPreview")}</span><strong>{t("vendor:localPreviewOnly")}</strong></div>
+                  <dl>
+                    <div><dt>{t("vendor:handoffCategory")}</dt><dd>{t("vendor:" + selectedPrefix + "Label")}</dd></div>
+                    <div><dt>{t("vendor:handoffInput")}</dt><dd>“{originalInput || t("vendor:sampleQuestion")}”</dd></div>
+                    <div><dt>{t("vendor:handoffStep")}</dt><dd>{preliminaryStep}</dd></div>
+                    <div><dt>{t("vendor:handoffMissing")}</dt><dd>{canonicalVendorText(vendor && vendor.missing_item_key, t, "vendor:proofAddress")}</dd></div>
+                    <div><dt>{t("vendor:handoffDestination")}</dt><dd>{t("vendor:" + selectedPrefix + "Destination")}</dd></div>
+                    <div><dt>{t("vendor:handoffReview")}</dt><dd>{abstained ? t("vendor:reviewRecommended") : t("vendor:reviewOptional")}</dd></div>
+                  </dl>
+                  <p>{t("vendor:helpNoTransmit")}</p>
+                </div>
+              )}
+            </article>
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -579,6 +747,7 @@ function AskTab({ language, sessionId, vendor, latestEvaluation, onEvaluation, n
         </button>
       </section>
       <GuidanceCard result={result} language={language} speechMode={speechMode} onSpeak={speakResult} />
+      <HelpRouter language={language} result={result} vendor={vendor} />
     </div>
   );
 }
@@ -1130,6 +1299,7 @@ function VendorView({ sessionId, caseData, language, onLanguageChange, onCaseCha
         <span>{t("vendor:mobilePwa")}</span>
         <strong>{t("vendor:oneStory")}</strong>
         <p>{t("vendor:flowSummary")}</p>
+        <p data-testid="product-description" className="product-description">{t("common:productDescription")}</p>
       </div>
     </main>
   );
@@ -1212,6 +1382,7 @@ function RoadmapCards({ locale }) {
 
 function ConsoleView({ sessionId, caseData, locale, vendorLocale, onNewSession, onReset, refreshing }) {
   const { t } = useSurfaceTranslation(locale, ["common", "console", "vendor", "guidance"]);
+  const { t: vendorT } = useSurfaceTranslation(vendorLocale, ["vendor"]);
   const [selected, setSelected] = useState("Rosa M.");
   const latestEvaluation = caseData.evaluations && caseData.evaluations[0];
   const latestVerification = caseData.verifications && caseData.verifications[0];
@@ -1226,13 +1397,24 @@ function ConsoleView({ sessionId, caseData, locale, vendorLocale, onNewSession, 
       + encodeURIComponent(vendorLocale);
   const total = (caseData.evidence || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const vendorMeta = LOCALE_REGISTRY[vendorLocale] || LOCALE_REGISTRY.es;
+  const evaluationAbstained = Boolean(latestEvaluation && (latestEvaluation.abstention || latestEvaluation.decision === "abstain"));
+  const originalInput = latestEvaluation && (
+    latestEvaluation.transcript_original
+    || latestEvaluation.original_transcript
+    || latestEvaluation.question
+    || latestEvaluation.transcript
+  );
 
   return (
     <main data-testid="console-surface" className="console-view" lang={locale} dir={localeDirection(locale)}>
       <ConsoleSidebar locale={locale} />
       <section className="console-workspace">
         <header className="console-topbar">
-          <div><span className="eyebrow">{t("console:caseworkerView")}</span><h1>{t("console:rosaCase")}</h1></div>
+          <div className="console-positioning">
+            <span className="eyebrow">{t("console:caseworkerView")}</span>
+            <h1>{t("console:rosaCase")}</h1>
+            <p data-testid="product-description">{t("common:productDescription")}</p>
+          </div>
           <div className="console-actions">
             <span className="live-update"><span /> {t("console:autoRefresh")}</span>
             <button className="secondary-button" onClick={onReset} disabled={refreshing}><RotateCcw size={15} /> {t("console:reset")}</button>
@@ -1330,7 +1512,10 @@ function ConsoleView({ sessionId, caseData, locale, vendorLocale, onNewSession, 
                   <span className="trace-node coral"><BookOpen size={15} /></span>
                   <div><strong>{t("console:sourceAttached")}</strong><p>{t("guidance:sampleRulebook")}</p></div>
                 </div>
-                <div className="abstention-note"><TriangleAlert size={16} /> {t("console:abstention")}</div>
+                <div className={"abstention-note " + (evaluationAbstained ? "needs-review" : "routine-resolved")}>
+                  {evaluationAbstained ? <TriangleAlert size={16} /> : <CheckCircle2 size={16} />}
+                  {evaluationAbstained ? t("console:abstention") : t("guidance:routineReviewOptional")}
+                </div>
               </article>
               <article className="console-panel evidence-panel">
                 <div className="panel-heading">
@@ -1343,6 +1528,33 @@ function ConsoleView({ sessionId, caseData, locale, vendorLocale, onNewSession, 
                 <p className="safe-result-copy">{t("console:evidenceIllustrative")}</p>
               </article>
             </div>
+            <article data-testid="ai-review-summary" className="ai-review-summary">
+              <div className="panel-heading">
+                <div><span>{t("console:aiRecordPanel")}</span><h3>{t("console:aiGeneratedRecord")}</h3></div>
+                <Sparkles size={20} />
+              </div>
+              <div className="ai-review-grid">
+                <div>
+                  <span>{t("console:originalInput")}</span>
+                  <p>“{originalInput || vendorT("vendor:sampleQuestion")}”</p>
+                </div>
+                <div>
+                  <span>{t("console:missingInformation")}</span>
+                  <p>{canonicalVendorText(caseData.vendor && caseData.vendor.missing_item_key, t, "vendor:proofAddress")}</p>
+                </div>
+                <div>
+                  <span>{t("console:recommendedDestination")}</span>
+                  <p>{evaluationAbstained ? t("console:destinationLegalSupport") : t("console:destinationStreetVendorServices")}</p>
+                </div>
+                <div>
+                  <span>{t("console:reviewStatus")}</span>
+                  <p className={evaluationAbstained ? "review-recommended" : "review-optional"}>
+                    {evaluationAbstained ? t("console:reviewRecommended") : t("console:reviewOptional")}
+                  </p>
+                </div>
+              </div>
+              <p className="authority-reminder"><ShieldCheck size={15} /> {t("console:authorityReminder")}</p>
+            </article>
             <article className="nudge-preview">
               <span className="nudge-icon"><Bell size={20} /></span>
               <div>

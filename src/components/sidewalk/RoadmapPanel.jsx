@@ -14,7 +14,7 @@ const CARDS = [
   {
     id: "draft_packet",
     title: "Draft Application Packet",
-    desc: "Assemble a draft permit packet from the vendor's answers, stamped DEMO — NOT FILED until a caseworker reviews and submits it.",
+    desc: "Assemble a local draft permit packet from the vendor's answers, stamped DEMO — NOT FILED for the vendor to review before choosing an official next step.",
     image: SEED_ASSETS.draft_packet_image_url,
   },
   {
@@ -37,8 +37,8 @@ const CARDS = [
   },
   {
     id: "outreach",
-    title: "Caseworker Outreach Queue",
-    desc: "An approval queue where caseworkers review and clear vendor records before anything is sent or filed.",
+    title: "Optional Human Review Queue",
+    desc: "A consent-based escalation queue for unusual or high-consequence questions. Nothing is sent or filed automatically.",
     icon: BellRing,
   },
 ];

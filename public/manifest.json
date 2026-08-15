@@ -1,7 +1,7 @@
 {
-  "name": "SIDEWALK — Vendor Support Demo",
+  "name": "SIDEWALK — AI Vendor Navigation Demo",
   "short_name": "SIDEWALK",
-  "description": "A fictional hackathon prototype for multilingual vendor support.",
+  "description": "SIDEWALK is an AI-powered navigation and preparation layer for NYC street-vending processes. It helps vendors understand requirements, organize their information, and reach the right official service. Government agencies retain all authority over licenses, permits, filings, hearings, and eligibility decisions.",
   "start_url": "/?view=vendor&demo_session_id=ROSA-2026&lang=es",
   "scope": "/",
   "display": "standalone",

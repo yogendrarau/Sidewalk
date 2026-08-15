@@ -94,3 +94,51 @@ test("console renders without horizontal overflow on a laptop viewport", async (
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
+
+test("the default review surface is an AI trace with optional human escalation", async ({ page }) => {
+  await forceSampleMode(page);
+  await page.goto("/?view=console&demo_session_id=E2E-AI-REVIEW&lang=es", {
+    waitUntil: "domcontentloaded",
+  });
+
+  const consoleSurface = page.getByTestId("console-surface");
+  await expect(consoleSurface).toBeVisible();
+  await expect(page.getByTestId("console-language-select")).toHaveValue("en");
+  await expect(consoleSurface).toContainText(/AI SUPPORT CONSOLE/i);
+  await expect(consoleSurface).toContainText(/AI CASE REVIEW/i);
+  await expect(consoleSurface).not.toContainText(/\bcaseworker(?:s)?\b/i);
+  await expect(page.getByTestId("product-description")).toContainText(
+    resources.en.common.productDescription,
+  );
+
+  const summary = page.getByTestId("ai-review-summary");
+  await expect(summary).toBeVisible();
+  await expect(summary).toContainText(/Original input/i);
+  await expect(summary).toContainText(/Recommended official destination/i);
+  await expect(summary).toContainText(/Human review/i);
+  await expect(summary).toContainText(/Optional/i);
+  await expect(summary).not.toContainText(/Needs human\/legal review/i);
+  await expect(consoleSurface).not.toContainText(/Needs human(?:\/| or )legal review/i);
+});
+
+test("an exceptional abstention is marked for recommended review in the AI trace", async ({ page }) => {
+  await forceSampleMode(page);
+  await page.goto("/?view=vendor&demo_session_id=E2E-ESCALATION&lang=en&ui_lang=en", {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.getByRole("textbox", { name: resources.en.vendor.typeQuestion }).fill(
+    "Guarantee that this permit will be approved and represent me at the hearing.",
+  );
+  await page.getByRole("button", { name: resources.en.vendor.sendQuestion }).click();
+  await expect(page.getByTestId("guidance-result")).toHaveClass(/abstained/);
+
+  await page.getByRole("button", { name: resources.en.common.consoleView }).click();
+  const summary = page.getByTestId("ai-review-summary");
+  await expect(summary).toBeVisible();
+  await expect(summary).toContainText(/Recommended official destination/i);
+  await expect(summary).toContainText(/Street Vendor Project/i);
+  await expect(summary).toContainText(/Human review/i);
+  await expect(summary).toContainText(/Recommended/i);
+  await expect(summary).not.toContainText(/Human review.*Optional/i);
+});

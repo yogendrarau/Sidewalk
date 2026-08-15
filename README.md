@@ -1,18 +1,20 @@
 # SIDEWALK — Base44 Generation
 
-Judge-ready hackathon prototype exported from the authoritative Base44 sandbox.
+Judge-ready hackathon prototype developed in the authoritative Base44 sandbox.
+
+> SIDEWALK is an AI-powered navigation and preparation layer for NYC street-vending processes. It helps vendors understand requirements, organize their information, and reach the right official service. Government agencies retain all authority over licenses, permits, filings, hearings, and eligibility decisions.
 
 - Base44 app ID: `6a807abba4a26b462c198c81`
-- Base44 source commit: `45054d3f368d0b07f728cba60a870cc8a3feb582`
-- Export type: one-way source snapshot; this GitHub branch is not configured to sync changes back to Base44
-- Safety boundary: fictional demo data only; no real payments, filings, messages, or legal determinations
+- GitHub branch: `base-44-generation`
+- Safety boundary: fictional demo data only; no real payments, filings, referrals, messages, or legal determinations
 
 ## What is included
 
-- Spanish-first vendor PWA with Ask, Check, and My Sales flows
+- Seven-language vendor PWA with Ask, Check, My Sales, and optional official-help routing
 - Read-only NYC OATH public-record lookup with explicit provenance and failure states
 - Deterministic demo rulebook and exact-fixture AI fallbacks
-- Caseworker console, QR session launch, evidence trace, proof panel, and reset controls
+- AI Support Console, QR session launch, evidence trace, proof panel, and reset controls
+- Local handoff-summary preview with verified official destinations and no external transmission
 - Base44 entity schemas and Deno backend functions under `base44/`
 
 ## Run the frontend locally
@@ -36,4 +38,4 @@ Build verification:
 npm run build
 ```
 
-The live Base44 app remains the authoritative deployed implementation. This branch is the reviewable source snapshot requested for the hackathon repository.
+The Base44 sandbox remains the authoritative hosted implementation. This branch is its reviewable hackathon source checkpoint.

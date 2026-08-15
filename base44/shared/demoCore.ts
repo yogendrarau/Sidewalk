@@ -1,5 +1,5 @@
 // SIDEWALK hackathon prototype — deterministic demo core.
-// All legal conclusions come from the rulebook below, never from a model.
+// All preliminary guidance comes from the demo rulebook below, never from a model.
 // Shared by all demo backend functions.
 
 export const SUPPORTED_LOCALES = [
@@ -591,7 +591,7 @@ export function evalRunsSeed(sessionCode: string) {
   return [
     { demo_session_id: sessionCode, metric: "Identical facts → byte-identical traces", metric_key: "proof.eval.deterministic_trace", value: "Pass (3/3 runs)", value_key: "proof.value.pass_3_of_3", measured: true, notes: "Deterministic rulebook, no model dependency" },
     { demo_session_id: sessionCode, metric: "Missing fact or source always abstains", metric_key: "proof.eval.abstention", value: "Pass", value_key: "proof.value.pass", measured: true, notes: "Abstention path verified" },
-    { demo_session_id: sessionCode, metric: "Legal engine — no model/external dependency", metric_key: "proof.eval.no_model_legal", value: "Pass", value_key: "proof.value.pass", measured: true, notes: "Pure JS rulebook" },
+    { demo_session_id: sessionCode, metric: "Guidance rule engine — no model/external dependency", metric_key: "proof.eval.no_model_legal", value: "Pass", value_key: "proof.value.pass", measured: true, notes: "Pure JS demo rulebook" },
     { demo_session_id: sessionCode, metric: "Unclear ticket digits return null", metric_key: "proof.eval.unclear_ticket", value: "Pass", value_key: "proof.value.pass", measured: true, notes: "Extraction abstains on ambiguity" },
     { demo_session_id: sessionCode, metric: "Fixture fallback — exact hash only", metric_key: "proof.eval.exact_fixture_hash", value: "Pass", value_key: "proof.value.pass", measured: true, notes: "Unknown input never becomes sample data" },
     { demo_session_id: sessionCode, metric: "Live failures stay unavailable (never empty)", metric_key: "proof.eval.live_failure", value: "Pass", value_key: "proof.value.pass", measured: true, notes: "Network error → UNAVAILABLE badge" },

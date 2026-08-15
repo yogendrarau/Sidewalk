@@ -44,12 +44,22 @@ export const PROVENANCE_LABELS = {
   unavailable: { label: "UNAVAILABLE", className: "bg-rose-50 text-rose-700 border-rose-200", dot: "bg-rose-500" },
 };
 
+const SPEECH_TAGS = {
+  en: "en-US",
+  es: "es-US",
+  wo: "wo-SN",
+  ar: "ar-EG",
+  bn: "bn-BD",
+  "zh-Hans": "zh-CN",
+  fr: "fr-FR",
+};
+
 export function speak(text, locale) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   try {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = locale === "en" ? "en-US" : "es-ES";
+    u.lang = SPEECH_TAGS[locale] || SPEECH_TAGS.en;
     window.speechSynthesis.speak(u);
   } catch (e) {
     /* noop */
@@ -57,7 +67,7 @@ export function speak(text, locale) {
 }
 
 export const DISCLAIMER =
-  "Hackathon prototype · Fictional demo data · Not affiliated with NYC · Not legal advice · No real payments, filings, or messages.";
+  "Hackathon prototype · Fictional demo data · Not affiliated with NYC · Not legal advice · No real payments, filings, referrals, or messages.";
 export const FIRST_USE_WARNING =
   "Use only the provided demo materials. Do not enter personal, financial, immigration, or confidential information.";
 

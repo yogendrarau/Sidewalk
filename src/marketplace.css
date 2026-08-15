@@ -721,21 +721,6 @@
 
 .rules-workspace { display: flex; flex-direction: column; gap: 14px; min-inline-size: 0; }
 
-.rules-authority-banner {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 13px 15px;
-  border: 1px solid var(--mp-line);
-  border-radius: 14px;
-  background: var(--mp-cream);
-  color: var(--mp-ink);
-}
-.rules-authority-banner svg { flex-shrink: 0; margin-block-start: 2px; color: var(--mp-forest); }
-.rules-authority-banner div { display: flex; flex-direction: column; gap: 3px; min-inline-size: 0; }
-.rules-authority-banner strong { font-size: 13.5px; }
-.rules-authority-banner span { font-size: 12px; color: var(--mp-muted); }
-
 .rules-load-state {
   display: flex;
   align-items: center;

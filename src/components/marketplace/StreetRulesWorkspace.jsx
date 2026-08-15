@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
-import { Construction, ListChecks, MapPinned, ShieldCheck } from "lucide-react";
+import { Construction, ListChecks, MapPinned } from "lucide-react";
 import { useSurfaceTranslation, localeDirection } from "@/i18n";
 import { loadLegalityData, rowSchedule, rowSeason } from "@/lib/legality/data.js";
 import { nycWallClock } from "@/lib/legality/clock.js";
@@ -149,14 +149,6 @@ export default function StreetRulesWorkspace({
           <span className="marketplace-eyebrow">{t("marketplace:rulesEyebrow")}</span>
           <h1>{role === "buyer" ? t("marketplace:buyerRulesTitle") : t("marketplace:vendorRulesTitle")}</h1>
           <p>{role === "buyer" ? t("marketplace:buyerRulesIntro") : t("marketplace:vendorRulesIntro")}</p>
-        </div>
-      </div>
-
-      <div className="rules-authority-banner" data-testid="rules-authority-banner">
-        <ShieldCheck size={20} />
-        <div>
-          <strong>{t("marketplace:rulesAuthority")}</strong>
-          <span>{t("marketplace:rulesNoDetermination")}</span>
         </div>
       </div>
 

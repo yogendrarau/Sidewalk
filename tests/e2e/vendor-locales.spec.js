@@ -748,7 +748,6 @@ test("street rules workspace reports without deciding and never requests a tile 
   const workspace = page.getByTestId("buyer-street-rules");
   await expect(workspace).toBeVisible();
   await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-workspace", "street-rules");
-  await expect(page.getByTestId("rules-authority-banner")).toContainText(marketplace.rulesAuthority);
 
   // Map-first. Tiles are aborted by the offline harness, so the bundled
   // vector floor and every restricted segment must render regardless.

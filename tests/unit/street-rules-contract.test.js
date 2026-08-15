@@ -214,9 +214,8 @@ describe("street-rules source contract", () => {
     expect(workspace).not.toMatch(/loadStripe|Square\.payments|paypal\.Buttons/);
   });
 
-  it("renders the disclosure surface: authority banner, caveats, and sample entry point", () => {
+  it("renders the disclosure surface: caveats and sample entry point", () => {
     const workspace = read("src/components/marketplace/StreetRulesWorkspace.jsx");
-    expect(workspace).toMatch(/data-testid="rules-authority-banner"/);
     expect(workspace).toMatch(/data-testid="rules-sample-block"/);
     expect(workspace).toMatch(/rulesUnmappedNote/);
     const report = read("src/components/marketplace/StreetRuleReport.jsx");

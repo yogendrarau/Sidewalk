@@ -1,0 +1,36 @@
+{
+  "name": "DemoDocument",
+  "type": "object",
+  "properties": {
+    "demo_session_id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "default": "summons"
+    },
+    "source_image_url": {
+      "type": "string"
+    },
+    "sha256": {
+      "type": "string"
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "extracted",
+        "unclear"
+      ]
+    },
+    "ticket_number": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "demo_session_id"
+  ]
+}

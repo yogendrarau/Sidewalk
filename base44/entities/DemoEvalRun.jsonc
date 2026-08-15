@@ -1,0 +1,55 @@
+{
+  "name": "DemoEvalRun",
+  "description": "Measured or explicitly unmeasured prototype acceptance check.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 32
+    },
+    "metric": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "value": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "measured": {
+      "type": "boolean"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "demo_session_id",
+    "metric",
+    "value",
+    "measured"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "name": "DemoVerificationCheck",
+  "description": "Read-only public-record result or explicitly labeled sample/unavailable result.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 32
+    },
+    "ticket_number": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "normalized_ticket": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "found",
+        "not_found",
+        "unavailable"
+      ]
+    },
+    "dataset_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "record_data": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "demo_session_id",
+    "ticket_number",
+    "normalized_ticket",
+    "result",
+    "dataset_timestamp",
+    "provenance"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

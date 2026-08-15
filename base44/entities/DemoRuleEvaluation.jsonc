@@ -1,0 +1,47 @@
+{
+  "name": "DemoRuleEvaluation",
+  "type": "object",
+  "properties": {
+    "demo_session_id": {
+      "type": "string"
+    },
+    "question": {
+      "type": "string"
+    },
+    "locale": {
+      "type": "string",
+      "default": "es"
+    },
+    "intent": {
+      "type": "string"
+    },
+    "rulebook_hash": {
+      "type": "string"
+    },
+    "answer_key": {
+      "type": "string"
+    },
+    "answer_text": {
+      "type": "string"
+    },
+    "trace": {
+      "type": "string"
+    },
+    "missing_facts": {
+      "type": "array"
+    },
+    "source": {
+      "type": "string"
+    },
+    "abstention": {
+      "type": "boolean"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "demo_session_id",
+    "question"
+  ]
+}

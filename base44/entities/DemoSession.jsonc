@@ -1,0 +1,30 @@
+{
+  "name": "DemoSession",
+  "type": "object",
+  "properties": {
+    "demo_session_id": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "locale": {
+      "type": "string",
+      "default": "es"
+    },
+    "provider_modes": {
+      "type": "object"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reset_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "code"
+  ]
+}

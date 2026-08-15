@@ -1,0 +1,39 @@
+{
+  "name": "DemoVendor",
+  "type": "object",
+  "properties": {
+    "demo_session_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string",
+      "default": "es"
+    },
+    "vendor_type": {
+      "type": "string"
+    },
+    "has_sales_tax_certificate": {
+      "type": "boolean"
+    },
+    "case_summary": {
+      "type": "string"
+    },
+    "next_step": {
+      "type": "string"
+    },
+    "missing_item": {
+      "type": "string"
+    },
+    "is_fictional": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "demo_session_id",
+    "name"
+  ]
+}

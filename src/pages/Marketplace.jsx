@@ -14,7 +14,6 @@ import {
   LogOut,
   Search,
   ShieldCheck,
-  Sparkles,
   Store,
   UserRound,
 } from "lucide-react";
@@ -212,7 +211,6 @@ function RoleSelection({ locale, onLocaleChange, onSelect }) {
     <OnboardingFrame locale={locale} onLocaleChange={onLocaleChange} className="role-selection-onboarding">
       <main data-testid="role-selection" className="role-selection-shell">
         <div className="role-selection-copy">
-          <span className="marketplace-eyebrow"><Sparkles size={15} /> SIDEWALK MARKETPLACE</span>
           <h1>{t("marketplace:roleHeading")}</h1>
           <p>
             <TypewriterText
@@ -252,7 +250,6 @@ function RoleSelection({ locale, onLocaleChange, onSelect }) {
             <ArrowRight className="marketplace-directional" size={21} aria-hidden="true" />
           </button>
         </div>
-        <p className="role-selection-footnote"><LockKeyhole size={15} /> {t("marketplace:roleLockedHint")}</p>
       </main>
     </OnboardingFrame>
   );
@@ -271,7 +268,6 @@ function PrototypeAccountSetup({ locale, role, onLocaleChange, onBack, onCreate,
           <ArrowLeft className="marketplace-directional" size={17} /> {t("marketplace:backToRoles")}
         </button>
         <section className="prototype-account-card" aria-labelledby="prototype-account-title">
-          <div className="prototype-account-seal"><ShieldCheck size={28} /></div>
           <span className="marketplace-eyebrow">{t("marketplace:prototypeAccount")}</span>
           <h1 id="prototype-account-title">{t("marketplace:accountHeading")}</h1>
           <p className="prototype-account-intro">{t("marketplace:accountIntro")}</p>

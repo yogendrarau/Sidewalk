@@ -19,7 +19,7 @@ const Input = z.object({
 const Output = z.object({
   setup_state: z.literal("signup_started"),
   merchant_action_required: z.literal(true),
-  signup_url: z.literal("https://www.shopify.com/free-trial"),
+  signup_url: z.literal("https://www.shopify.com/store-login"),
   account_created: z.literal(false),
 }).strict();
 
@@ -39,9 +39,9 @@ Deno.serve(async (req) => {
     return jsonOk(parseShopifyOutput(Output, {
       setup_state: "signup_started",
       merchant_action_required: true,
-      signup_url: "https://www.shopify.com/free-trial",
+      signup_url: "https://www.shopify.com/store-login",
       account_created: false,
-    }), simulatedProvenance("Shopify-hosted signup handoff; no account was created or connected by SIDEWALK"));
+    }), simulatedProvenance("Shopify-hosted login or signup handoff; no account was created or connected by SIDEWALK"));
   } catch (error) {
     return jsonError(error, "SIDEWALK begin_shopify_signup");
   }

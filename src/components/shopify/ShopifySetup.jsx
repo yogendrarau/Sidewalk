@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ArrowUpRight, CircleAlert, Link2, Store, StoreIcon } from "lucide-react";
 import { useSurfaceTranslation } from "@/i18n";
-import { SHOPIFY_SIGNUP_URL, normalizeShopDomain } from "@/lib/shopifyPoc";
+import { SHOPIFY_LOGIN_URL, normalizeShopDomain } from "@/lib/shopifyPoc";
 import ShopifyDisclosure, { ShopifyModeBadge } from "./ShopifyDisclosure";
 
 export default function ShopifySetup({
@@ -23,7 +23,7 @@ export default function ShopifySetup({
     if (signupWindow) signupWindow.opener = null;
     const result = await onBeginSignup();
     if (result?.ok) {
-      if (signupWindow) signupWindow.location.replace(SHOPIFY_SIGNUP_URL);
+      if (signupWindow) signupWindow.location.replace(SHOPIFY_LOGIN_URL);
     } else signupWindow?.close();
   }
 

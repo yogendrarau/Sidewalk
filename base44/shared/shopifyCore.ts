@@ -115,7 +115,7 @@ type EntityHandler = {
 
 export type Base44ServiceClient = {
   auth: {
-    me: () => Promise<{ id?: string; role?: string }>;
+    me: () => Promise<{ id?: string; role?: string; account_role?: string }>;
   };
   asServiceRole: {
     entities: Record<string, EntityHandler>;
@@ -507,8 +507,28 @@ export async function requireVendorContext(
     2,
     0,
   );
-  const account = accounts[0];
-  if (!account || account.account_role !== "vendor" || account.is_fictional !== true) {
+  let account = accounts[0];
+  if (!account) {
+    // Defensive recovery for an authenticated client whose routing role was
+    // saved but whose parallel synthetic account write did not complete. The
+    // supplied prototype id is still bound below to one demo session and never
+    // authorizes prepared-store mutations.
+    let user: { id?: string; account_role?: string } | null = null;
+    try {
+      user = await (base44 as Base44ServiceClient).auth.me();
+    } catch {
+      user = null;
+    }
+    if (user?.id && user.account_role === "vendor") {
+      account = {
+        id: user.id,
+        prototype_account_id: prototypeAccountId,
+        account_role: "vendor",
+        is_fictional: true,
+      };
+    }
+  }
+  if (account?.account_role !== "vendor" || account.is_fictional !== true) {
     throw new ShopifyPocError("vendor_account_required", 403);
   }
 

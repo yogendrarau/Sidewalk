@@ -15,7 +15,7 @@
   overflow-x: clip;
   color: var(--mp-ink);
   background: var(--mp-cream);
-  font-family: "Noto Sans Variable", "Noto Sans Arabic", "Noto Sans Bengali", "Noto Sans SC", system-ui, sans-serif;
+  font-family: "Google Sans", "Noto Sans Arabic", "Noto Sans Bengali", "Noto Sans SC", system-ui, sans-serif;
 }
 
 .marketplace-root,
@@ -94,17 +94,19 @@
 .marketplace-brand.compact { font-size: 16px; }
 
 .marketplace-brand-mark {
-  display: grid;
   width: 35px;
   height: 35px;
-  place-items: center;
-  border-radius: 11px 11px 11px 3px;
-  color: white;
-  background: var(--mp-forest);
-  font-size: 19px;
-  letter-spacing: 0;
-  box-shadow: 0 6px 16px rgba(15, 86, 61, .18);
+  object-fit: contain;
 }
+
+.marketplace-brand-wordmark {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  margin-left: -12px;
+}
+
+.marketplace-brand.compact .marketplace-brand-wordmark { height: 14px; }
 
 .marketplace-language select {
   max-width: 152px;
@@ -205,6 +207,21 @@
   color: var(--mp-muted);
   font-size: clamp(15px, 2vw, 18px);
   line-height: 1.65;
+}
+
+.marketplace-typewriter-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-inline-start: 2px;
+  background: currentColor;
+  vertical-align: -0.15em;
+  animation: marketplace-caret-blink 0.9s step-end infinite;
+}
+
+@keyframes marketplace-caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
 .role-option-grid {
@@ -763,7 +780,7 @@
   .marketplace-disclosure-dot { margin-block-start: 3px; }
   .marketplace-onboarding-header { padding-block: 17px; }
   .marketplace-brand { gap: 7px; font-size: 14px; }
-  .marketplace-brand-mark { width: 31px; height: 31px; border-radius: 10px 10px 10px 3px; font-size: 16px; }
+  .marketplace-brand-mark { width: 31px; height: 31px; }
   .marketplace-language select { max-width: 125px; height: 36px; font-size: 11px; }
   .role-selection-shell { margin-block-start: 20px; }
   .role-selection-copy { text-align: start; }
@@ -775,7 +792,7 @@
   .prototype-account-summary dd { justify-content: flex-start; text-align: start; }
   .workspace-title-row { flex-direction: column; }
   .marketplace-header { grid-template-columns: auto minmax(0, 1fr) auto; padding-inline: 12px; }
-  .marketplace-header .marketplace-brand > span:last-child { display: none; }
+  .marketplace-header .marketplace-brand-wordmark { display: none; }
   .marketplace-header-role .role-chip { max-width: 115px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .marketplace-header-actions .marketplace-language select { width: 100px; padding-inline-start: 8px; }
   .marketplace-account-menu { width: 40px; justify-content: center; padding: 0; }
@@ -786,7 +803,7 @@
 @media (max-width: 350px) {
   .marketplace-onboarding-header,
   .role-selection-shell { width: calc(100% - 22px); }
-  .marketplace-onboarding-header .marketplace-brand > span:last-child { display: none; }
+  .marketplace-onboarding-header .marketplace-brand-wordmark { display: none; }
   .role-option-card { grid-template-columns: auto minmax(0, 1fr); gap: 12px; }
   .role-option-card > .marketplace-directional { display: none; }
   .role-option-content strong { font-size: 16px; }

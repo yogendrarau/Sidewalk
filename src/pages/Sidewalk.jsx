@@ -1,13 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { QRCodeSVG } from "qrcode.react";
-import "@fontsource-variable/noto-sans";
-import "@fontsource/noto-sans-arabic/400.css";
-import "@fontsource/noto-sans-arabic/700.css";
-import "@fontsource/noto-sans-bengali/400.css";
-import "@fontsource/noto-sans-bengali/700.css";
-import "@fontsource/noto-sans-sc/400.css";
-import "@fontsource/noto-sans-sc/700.css";
+import sidewalkMark from "@/assets/brand/sidewalk-mark.png";
+import sidewalkWordmark from "@/assets/brand/sidewalk-wordmark.png";
 import {
   ArrowRight, Bell, BookOpen, Camera, Check, CheckCircle2, ChevronRight,
   CircleDollarSign, ClipboardCheck, FileCheck2, FileText, Globe2, MapPinned,
@@ -223,8 +218,8 @@ function ModeBadge({ provenance, locale, compact = false }) {
 function Brand({ inverse = false }) {
   return (
     <div className={"brand-lockup" + (inverse ? " inverse" : "")}>
-      <span className="brand-symbol">S</span>
-      <span>SIDEWALK</span>
+      <img className="brand-symbol" src={sidewalkMark} alt="" />
+      <img className="brand-wordmark" src={sidewalkWordmark} alt="SIDEWALK" />
     </div>
   );
 }

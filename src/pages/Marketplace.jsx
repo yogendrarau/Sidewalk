@@ -30,7 +30,7 @@ import BuyerStorefront, { BuyerStoreCard } from "@/components/shopify/BuyerStore
 import CertificationGate, { CertificationDialog } from "@/components/shopify/CertificationGate";
 import VendorOnlineStore from "@/components/shopify/VendorOnlineStore";
 import { useShopifyPoc } from "@/components/shopify/useShopifyPoc";
-import { vendorWorkspacesFor } from "@/lib/shopifyPoc";
+import { SHOPIFY_LOGIN_URL, vendorWorkspacesFor } from "@/lib/shopifyPoc";
 import {
   DEFAULT_CONSOLE_LOCALE,
   LOCALE_REGISTRY,
@@ -306,11 +306,11 @@ function PrototypeAccountSetup({ locale, role, onLocaleChange, onBack, onCreate,
   );
 }
 
-function EmptyState({ testId, icon: Icon, image, eyebrow, title, body = null, secondary = null }) {
+function EmptyState({ testId, icon: Icon = null, image = null, eyebrow, title, body = null, secondary = null }) {
   return (
     <section data-testid={testId} className="marketplace-empty-card">
       <div className="marketplace-empty-icon">
-        {image ? <img src={image} alt="" /> : <Icon size={26} />}
+        {image ? <img src={image} alt="" /> : Icon ? <Icon size={26} /> : null}
       </div>
       <span className="marketplace-empty-eyebrow">{eyebrow}</span>
       <h2>{title}</h2>
@@ -673,6 +673,8 @@ export default function Marketplace({
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState(false);
   const [attestationOpen, setAttestationOpen] = useState(false);
+  const [attestationLaunching, setAttestationLaunching] = useState(false);
+  const attestationLaunchRef = useRef(false);
   const guardedRouteRef = useRef(null);
   const buyerStoreLoadRef = useRef(null);
 
@@ -797,6 +799,32 @@ export default function Marketplace({
     if (onRoleSelect) onRoleSelect(null);
   }
 
+  async function confirmAttestationAndOpenShopify() {
+    if (attestationLaunchRef.current) return;
+    attestationLaunchRef.current = true;
+    // Create the tab in the submit gesture so browsers do not treat the
+    // eventual Shopify navigation as an asynchronous popup.
+    const loginWindow = window.open("about:blank", "_blank");
+    if (loginWindow) loginWindow.opener = null;
+    let completed = false;
+    setAttestationLaunching(true);
+    try {
+      const attestation = await poc.confirmAttestation();
+      if (!attestation.ok) return;
+      // Persist the merchant-action-required state before leaving SIDEWALK.
+      const signup = await poc.beginSignup();
+      if (!signup.ok) return;
+      setAttestationOpen(false);
+      navigate("online-store");
+      if (loginWindow) loginWindow.location.replace(SHOPIFY_LOGIN_URL);
+      completed = true;
+    } finally {
+      if (!completed) loginWindow?.close();
+      attestationLaunchRef.current = false;
+      setAttestationLaunching(false);
+    }
+  }
+
   let content;
   if (activeAccount && activeRole) {
     content = (
@@ -835,15 +863,9 @@ export default function Marketplace({
       <CertificationDialog
         locale={surfaceLocale}
         open={attestationOpen}
-        busy={poc.busyAction === "certification-submit"}
+        busy={attestationLaunching || poc.busyAction === "certification-submit"}
         onCancel={() => setAttestationOpen(false)}
-        onConfirm={async () => {
-          const result = await poc.confirmAttestation();
-          if (result.ok) {
-            setAttestationOpen(false);
-            navigate("online-store");
-          }
-        }}
+        onConfirm={confirmAttestationAndOpenShopify}
       />
     </div>
   );

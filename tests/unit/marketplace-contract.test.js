@@ -2,19 +2,21 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   MARKETPLACE_ACCOUNT_ROLES,
   PROTOTYPE_ACCOUNT_STORAGE_KEY,
   clearPrototypeMarketplaceAccount,
   createPrototypeAccountRecord,
+  hydrateMarketplaceAccount,
   loadMarketplaceAccount,
   logoutMarketplaceAccount,
   parsePrototypeAccountRecord,
   readPendingMarketplaceRole,
   saveMarketplaceAccountRole,
   savePendingMarketplaceRole,
+  syncMarketplaceAccount,
 } from "../../src/lib/marketplaceAccount.js";
 
 const PROJECT_ROOT = fileURLToPath(new URL("../..", import.meta.url));
@@ -170,6 +172,126 @@ describe("marketplace account role contract", () => {
     expect(loadMarketplaceAccount({ storage })).toBeNull();
     await expect(result.sync).resolves.toMatchObject({ remote_cleanup: "unavailable" });
     expect(clearPrototypeMarketplaceAccount(storage)).toBe(false);
+  });
+
+  it("still upserts the synthetic vendor record after authenticated role persistence succeeds", async () => {
+    const storage = new MemoryStorage();
+    const now = new Date("2026-08-15T12:00:00.000Z");
+    const { account } = saveMarketplaceAccountRole("vendor", {
+      storage,
+      sync: false,
+      locale: "en",
+      now,
+      idFactory: () => "proto_22222222222222222222222222222222",
+    });
+    const invoke = vi.fn(async (name, body) => ({
+      ok: true,
+      data: {
+        schema_version: 1,
+        prototype_account_id: body.prototype_account_id,
+        account_role: body.account_role,
+        locale: body.locale,
+        is_fictional: true,
+        created_at: body.created_at,
+        updated_at: "2026-08-15T12:00:01.000Z",
+      },
+    }));
+    const client = {
+      auth: {
+        me: vi.fn(async () => ({ id: "base44-user-1", account_role: "vendor" })),
+        updateMe: vi.fn(async () => ({
+          id: "base44-user-1",
+          account_role: "vendor",
+          created_date: "2026-08-15T12:00:00.000Z",
+          updated_date: "2026-08-15T12:00:00.500Z",
+        })),
+      },
+      functions: { invoke },
+    };
+
+    const synced = await syncMarketplaceAccount(account, {
+      client,
+      storage,
+      timeoutMs: 100,
+    });
+
+    expect(client.auth.updateMe).toHaveBeenCalledWith({ account_role: "vendor" });
+    expect(invoke).toHaveBeenCalledWith("sync_marketplace_account", expect.objectContaining({
+      action: "upsert",
+      prototype_account_id: account.prototype_account_id,
+      account_role: "vendor",
+    }));
+    expect(synced).toMatchObject({
+      persistence: "base44_user",
+      sync_status: "synced",
+      prototype_account_id: account.prototype_account_id,
+    });
+  });
+
+  it("repairs the synthetic vendor record during hydration instead of returning the profile early", async () => {
+    const storage = new MemoryStorage();
+    const now = new Date("2026-08-15T12:00:00.000Z");
+    const { account } = saveMarketplaceAccountRole("vendor", {
+      storage,
+      sync: false,
+      locale: "en",
+      now,
+      idFactory: () => "proto_33333333333333333333333333333333",
+    });
+    const invoke = vi.fn(async (_name, body) => ({
+      ok: true,
+      data: {
+        schema_version: 1,
+        prototype_account_id: body.prototype_account_id,
+        account_role: body.account_role,
+        locale: body.locale,
+        is_fictional: true,
+        created_at: body.created_at,
+        updated_at: "2026-08-15T12:00:02.000Z",
+      },
+    }));
+    const client = {
+      auth: {
+        me: vi.fn(async () => ({ id: "base44-user-2", account_role: "vendor" })),
+        updateMe: vi.fn(async () => ({
+          id: "base44-user-2",
+          account_role: "vendor",
+          created_date: "2026-08-15T12:00:00.000Z",
+          updated_date: "2026-08-15T12:00:01.000Z",
+        })),
+      },
+      functions: { invoke },
+    };
+
+    const hydrated = await hydrateMarketplaceAccount({ client, storage, timeoutMs: 100 });
+
+    expect(invoke).toHaveBeenCalledWith("sync_marketplace_account", expect.objectContaining({
+      action: "upsert",
+      prototype_account_id: account.prototype_account_id,
+    }));
+    expect(hydrated).toMatchObject({
+      persistence: "base44_user",
+      sync_status: "synced",
+      prototype_account_id: account.prototype_account_id,
+    });
+  });
+
+  it("does not hydrate an authenticated profile role without a local prototype id", async () => {
+    const invoke = vi.fn();
+    const client = {
+      auth: {
+        me: vi.fn(async () => ({ id: "base44-user-3", account_role: "vendor" })),
+        updateMe: vi.fn(),
+      },
+      functions: { invoke },
+    };
+
+    await expect(hydrateMarketplaceAccount({
+      client,
+      storage: new MemoryStorage(),
+      timeoutMs: 100,
+    })).resolves.toBeNull();
+    expect(invoke).not.toHaveBeenCalled();
   });
 
   it("persists only a valid pending buyer/vendor selection", () => {

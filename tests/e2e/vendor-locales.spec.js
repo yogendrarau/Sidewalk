@@ -8,7 +8,12 @@ const LOCALES = ["en", "es", "wo", "ar", "bn", "zh-Hans", "fr"];
 
 async function forceSampleMode(
   page,
-  { safetySeen = true, accountRole = null, accountLocale = "es" } = {},
+  {
+    safetySeen = true,
+    accountRole = null,
+    accountLocale = "es",
+    bootstrapVendorSession = false,
+  } = {},
 ) {
   await page.addInitScript(
     ({ shouldSkipSafety, role, locale, storageKey, shopifyContextKey }) => {
@@ -43,6 +48,8 @@ async function forceSampleMode(
         }));
       }
       window.__SIDEWALK_SHOPIFY_TEST_INVOKE__ = async (name) => {
+        window.__SIDEWALK_SHOPIFY_E2E_CALLS__ = window.__SIDEWALK_SHOPIFY_E2E_CALLS__ || [];
+        window.__SIDEWALK_SHOPIFY_E2E_CALLS__.push(name);
         const access = JSON.parse(window.localStorage.getItem(accessKey));
         const provenance = { mode: "simulated", source: "Playwright fictional demo state", retrievedAt: new Date().toISOString() };
         const payload = () => ({
@@ -67,7 +74,7 @@ async function forceSampleMode(
           window.localStorage.setItem(accessKey, JSON.stringify(access));
           return { ok: true, data: payload(), provenance };
         }
-        if (name === "begin_shopify_signup") return { ok: true, data: { setup_state: "signup_started", merchant_action_required: true, signup_url: "https://www.shopify.com/free-trial" }, provenance };
+        if (name === "begin_shopify_signup") return { ok: true, data: { setup_state: "signup_started", merchant_action_required: true, signup_url: "https://www.shopify.com/store-login" }, provenance };
         return { ok: false, error: "e2e_unavailable", provenance: { ...provenance, mode: "unavailable" } };
       };
     },
@@ -79,14 +86,40 @@ async function forceSampleMode(
       shopifyContextKey: SHOPIFY_DEMO_CONTEXT_STORAGE_KEY,
     },
   );
+  const backendRequests = [];
   await page.route("**/*", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
     const isBackendRequest = ["fetch", "xhr"].includes(request.resourceType());
     const isExternalAsset = url.hostname !== "127.0.0.1" && url.hostname !== "localhost";
+    if (isBackendRequest) backendRequests.push({ method: request.method(), pathname: url.pathname });
+    if (bootstrapVendorSession && isBackendRequest && url.pathname.endsWith("/functions/start_demo_session")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: true,
+          data: {
+            demo_session_id: "E2E-FIRST-RUN",
+            session_code: "E2E-FIRST-RUN",
+            locale: accountLocale,
+            started_at: "2026-08-15T12:00:00.000Z",
+            qr_url: `/?view=vendor&demo_session_id=E2E-FIRST-RUN&lang=${encodeURIComponent(accountLocale)}`,
+          },
+          provenance: {
+            mode: "fixture",
+            source: "Playwright first-run session fixture",
+            retrievedAt: "2026-08-15T12:00:00.000Z",
+            fixtureId: "e2e-first-run",
+          },
+        }),
+      });
+      return;
+    }
     if (isBackendRequest || isExternalAsset) await route.abort("internetdisconnected");
     else await route.continue();
   });
+  return { backendRequests };
 }
 
 async function expectNoRawTranslationKeys(page) {
@@ -97,7 +130,12 @@ async function expectNoRawTranslationKeys(page) {
   );
 }
 
-async function createMarketplaceAccount(page, role, locale = "en") {
+async function createMarketplaceAccount(
+  page,
+  role,
+  locale = "en",
+  { injectVendorContext = true } = {},
+) {
   const marketplace = resources[locale].marketplace;
   const roleSelection = page.getByTestId("role-selection");
   await expect(roleSelection).toBeVisible();
@@ -121,7 +159,7 @@ async function createMarketplaceAccount(page, role, locale = "en") {
   const shell = page.getByTestId("marketplace-shell");
   await expect(shell).toBeVisible();
   await expect(shell).toHaveAttribute("data-role", role);
-  if (role === "vendor") {
+  if (role === "vendor" && injectVendorContext) {
     await page.evaluate(({ accountKey, contextKey }) => {
       const account = JSON.parse(window.localStorage.getItem(accountKey));
       window.localStorage.setItem(contextKey, JSON.stringify({
@@ -626,4 +664,81 @@ test("buyer explicitly opens the fictional store and reaches a no-charge sample 
   await expect(page.getByTestId("proof-surface")).toHaveCount(0);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+test("first-run vendor No persists the closed certification choice and opens Get Verified", async ({ page }) => {
+  const diagnostics = await forceSampleMode(page, {
+    accountLocale: "en",
+    bootstrapVendorSession: true,
+  });
+  await page.goto("/?lang=en", { waitUntil: "domcontentloaded" });
+  const shell = await createMarketplaceAccount(page, "vendor", "en", {
+    injectVendorContext: false,
+  });
+
+  await expect.poll(() => new URL(page.url()).searchParams.get("demo_session_id"))
+    .toBe("E2E-FIRST-RUN");
+  await expect(page.getByTestId("certification-gate"))
+    .toHaveAttribute("data-certification-status", "unanswered");
+  expect(diagnostics.backendRequests.filter(({ pathname }) =>
+    pathname.endsWith("/functions/start_demo_session"))).toHaveLength(1);
+
+  await page.getByTestId("certification-help").click();
+
+  await expect(shell).toHaveAttribute("data-workspace", "get-verified");
+  await expect(page.getByTestId("seller-get-verified")).toBeVisible();
+  await expect(page.getByTestId("certification-gate").getByRole("alert")).toHaveCount(0);
+  expect(await page.evaluate(() => window.__SIDEWALK_SHOPIFY_E2E_CALLS__)).toContain(
+    "set_certification_status",
+  );
+});
+
+test("first-run vendor Yes confirms before opening Online Store and official Shopify login", async ({ page }) => {
+  const diagnostics = await forceSampleMode(page, {
+    accountLocale: "en",
+    bootstrapVendorSession: true,
+  });
+  await page.goto("/?lang=en", { waitUntil: "domcontentloaded" });
+  const shell = await createMarketplaceAccount(page, "vendor", "en", {
+    injectVendorContext: false,
+  });
+
+  await expect.poll(() => new URL(page.url()).searchParams.get("demo_session_id"))
+    .toBe("E2E-FIRST-RUN");
+  expect(diagnostics.backendRequests.filter(({ pathname }) =>
+    pathname.endsWith("/functions/start_demo_session"))).toHaveLength(1);
+
+  await page.evaluate(() => {
+    window.__SIDEWALK_E2E_OPENED_URLS__ = [];
+    window.open = (url) => ({
+      opener: null,
+      closed: false,
+      close() { this.closed = true; },
+      location: {
+        replace(nextUrl) {
+          window.__SIDEWALK_E2E_OPENED_URLS__.push(String(nextUrl));
+        },
+      },
+      initialUrl: url,
+    });
+  });
+
+  await page.getByTestId("certification-yes").click();
+  const dialog = page.getByTestId("certification-dialog");
+  await expect(dialog).toBeVisible();
+  await expect(page.getByTestId("certification-submit")).toBeDisabled();
+  expect(await page.evaluate(() => window.__SIDEWALK_SHOPIFY_E2E_CALLS__ || []))
+    .not.toContain("confirm_certification_self_attestation");
+
+  await page.getByTestId("certification-confirmation").check();
+  await page.getByTestId("certification-submit").click();
+
+  await expect(dialog).toBeHidden();
+  await expect(shell).toHaveAttribute("data-workspace", "online-store");
+  await expect(page.getByTestId("vendor-online-store")).toBeVisible();
+  const calls = await page.evaluate(() => window.__SIDEWALK_SHOPIFY_E2E_CALLS__);
+  expect(calls).toContain("confirm_certification_self_attestation");
+  expect(calls).toContain("begin_shopify_signup");
+  await expect.poll(() => page.evaluate(() => window.__SIDEWALK_E2E_OPENED_URLS__))
+    .toEqual(["https://www.shopify.com/store-login"]);
 });

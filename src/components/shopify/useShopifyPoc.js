@@ -5,7 +5,7 @@ import {
   SAMPLE_MENU_ITEMS,
   SHOPIFY_DISCLOSURE_VERSION,
   SHOPIFY_FUNCTIONS,
-  SHOPIFY_SIGNUP_URL,
+  SHOPIFY_LOGIN_URL,
   createInitialShopifyState,
   createSampleActiveState,
   invokeShopifyFunction,
@@ -238,7 +238,7 @@ export function useShopifyPoc({ account, demoSessionId, locale, role }) {
     const validSignup = result.ok
       && result.data?.setup_state === "signup_started"
       && result.data?.merchant_action_required === true
-      && result.data?.signup_url === SHOPIFY_SIGNUP_URL;
+      && result.data?.signup_url === SHOPIFY_LOGIN_URL;
     const resolved = result.ok && !validSignup ? invalidServiceData(SHOPIFY_FUNCTIONS.beginSignup) : result;
     if (resolved.ok) {
       setState((current) => ({

@@ -550,6 +550,7 @@ export async function syncMarketplaceAccount(
   const record = recordFromAccount(account);
   if (!record) throw new TypeError("A valid prototype account is required.");
   const client = await resolveClient(requestedClient);
+  let authenticatedView = null;
 
   try {
     if (client?.auth?.me && client?.auth?.updateMe) {
@@ -559,8 +560,14 @@ export async function syncMarketplaceAccount(
         client.auth.updateMe({ account_role: record.account_role }),
         timeoutMs,
       );
-      const authenticatedView = toAuthenticatedView(updatedUser, account);
-      if (authenticatedView) return authenticatedView;
+      const nextAuthenticatedView = toAuthenticatedView(updatedUser, account);
+      if (nextAuthenticatedView) {
+        // Keep the authenticated routing role, but continue through the
+        // synthetic-record upsert below. Shopify's session-scoped vendor gate
+        // uses MarketplacePrototypeAccount to bind this opaque prototype id.
+        // Returning here would leave every certification action unauthorized.
+        authenticatedView = nextAuthenticatedView;
+      }
     }
   } catch {
     // Continue to the synthetic Base44 record; local state already exists.
@@ -579,11 +586,27 @@ export async function syncMarketplaceAccount(
     const syncedRecord = parsePrototypeAccountRecord(result.data);
     if (!syncedRecord) throw new Error("invalid_base44_account_response");
     writePrototypeRecord(syncedRecord, storage);
+    if (authenticatedView) {
+      return Object.freeze({
+        ...authenticatedView,
+        locale: syncedRecord.locale,
+        created_at: syncedRecord.created_at,
+        updated_at: syncedRecord.updated_at,
+        sync_status: "synced",
+      });
+    }
     return toPrototypeView(syncedRecord, {
       persistence: "base44_synthetic_and_local",
       syncStatus: "synced",
     });
   } catch {
+    if (authenticatedView) {
+      return Object.freeze({
+        ...authenticatedView,
+        sync_status: "account_only",
+        sync_error_code: "synthetic_account_unavailable",
+      });
+    }
     return toPrototypeView(record, {
       persistence: "prototype_local",
       syncStatus: "local_only",
@@ -611,14 +634,20 @@ export async function hydrateMarketplaceAccount(
       const user = await withTimeout(client.auth.me(), timeoutMs);
       if (!user) throw new Error("base44_user_unavailable");
       const profileView = toAuthenticatedView(user, localAccount);
-      if (profileView) return profileView;
-      if (localAccount && client?.auth?.updateMe) {
-        return await syncMarketplaceAccount(localAccount, {
+      if (localAccount) {
+        // A Base44 profile role alone is not enough for the Shopify POC:
+        // refreshes must also repair/upsert the synthetic account that binds
+        // the opaque prototype id to the vendor demo session.
+        return await syncMarketplaceAccount(profileView ?? localAccount, {
           client,
           storage,
           timeoutMs,
         });
       }
+      // Never hydrate a role-only Base44 profile into a broken marketplace
+      // account with a null prototype id. With no local no-PII record, the
+      // user returns to the explicit role/onboarding choice below.
+      if (profileView) return null;
     }
   } catch {
     // The local account remains the usable source for this offline-first flow.

@@ -238,6 +238,36 @@ describe("server-derived selling gate", () => {
     expect(connect).toMatch(/if\s*\(base44\s*&&\s*context\s*&&\s*operatorApproved\)/);
   });
 
+  it("accepts the authenticated vendor handoff without trusting a browser role or weakening session ownership", () => {
+    const core = read("base44/shared/shopifyCore.ts");
+    const accountLookup = core.indexOf('entity(base44, "MarketplacePrototypeAccount").filter');
+    const missingAccountFallback = core.indexOf("if (!account)", accountLookup);
+    const authenticatedUserLookup = core.indexOf("auth.me()", missingAccountFallback);
+    const authenticatedVendorGate = core.indexOf(
+      'user?.id && user.account_role === "vendor"',
+      authenticatedUserLookup,
+    );
+    const sessionOwnershipLookup = core.indexOf("const sessionRows = await scopedRecords", authenticatedVendorGate);
+    const crossOwnerRejection = core.indexOf(
+      "row.prototype_account_id !== prototypeAccountId",
+      sessionOwnershipLookup,
+    );
+
+    expect(accountLookup, "synthetic account remains the first authority").toBeGreaterThan(-1);
+    expect(missingAccountFallback, "authenticated fallback runs only when no synthetic account exists")
+      .toBeGreaterThan(accountLookup);
+    expect(authenticatedUserLookup, "fallback uses the request-bound Base44 identity")
+      .toBeGreaterThan(missingAccountFallback);
+    expect(authenticatedVendorGate, "fallback requires both an authenticated id and vendor role")
+      .toBeGreaterThan(authenticatedUserLookup);
+    expect(sessionOwnershipLookup, "session binding still runs after the fallback")
+      .toBeGreaterThan(authenticatedVendorGate);
+    expect(crossOwnerRejection, "a different prototype account remains rejected")
+      .toBeGreaterThan(sessionOwnershipLookup);
+    expect(core).toMatch(/account_role:\s*["']vendor["'][\s\S]{0,120}is_fictional:\s*true/);
+    expect(core).not.toMatch(/account\?\.account_role\s*===\s*["']vendor["'][\s\S]{0,160}auth\.me\s*\(\)/);
+  });
+
   it("makes the certification transition closed, explicit, and never an official verification", () => {
     const choose = functionSource("set_certification_status");
     const attest = functionSource("confirm_certification_self_attestation");

@@ -62,7 +62,7 @@ export const SHOPIFY_FUNCTIONS = Object.freeze({
 });
 
 export const SHOPIFY_DISCLOSURE_VERSION = "shopify-poc-v1";
-export const SHOPIFY_SIGNUP_URL = "https://www.shopify.com/free-trial";
+export const SHOPIFY_LOGIN_URL = "https://www.shopify.com/store-login";
 export const SHOPIFY_FIXTURE_ID = "rosa-shopify-store-v1";
 export const SHOPIFY_DEMO_CONTEXT_STORAGE_KEY = "sidewalk-shopify-demo-context-v1";
 

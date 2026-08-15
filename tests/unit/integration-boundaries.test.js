@@ -46,7 +46,7 @@ describe("Base44 session and locale contracts", () => {
 
   it("guards every session-scoped backend function", () => {
     const functionRoot = join(PROJECT_ROOT, "base44/functions");
-    const exempt = new Set(["start_demo_session"]);
+    const exempt = new Set(["start_demo_session", "answer-demo-question"]);
 
     for (const entry of readdirSync(functionRoot, { withFileTypes: true })) {
       if (!entry.isDirectory() || exempt.has(entry.name)) continue;
@@ -110,6 +110,13 @@ describe("Base44 session and locale contracts", () => {
     expect(setLocale).toMatch(/DemoSession\.update/);
     expect(setLocale).toMatch(/DemoVendor\.update/);
     expect(reset).toMatch(/rosaSeed\([\s\S]{0,160}\.locale/);
+  });
+
+  it("retires the stale hyphenated guidance endpoint", () => {
+    const retired = read("base44/functions/answer-demo-question/entry.ts");
+    expect(retired).toMatch(/status:\s*410/);
+    expect(retired).toMatch(/answer_demo_question/);
+    expect(retired).not.toMatch(/createClientFromRequest|requireSession|evaluateDemo/);
   });
 
   it("includes the selected vendor locale in generated QR URLs", () => {

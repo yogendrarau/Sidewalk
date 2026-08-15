@@ -19,7 +19,10 @@ export type IntegrationMode =
   | "live_ai"
   | "fixture"
   | "simulated"
-  | "unavailable";
+  | "unavailable"
+  // Real published public data committed into the app at build time (the
+  // street-rules snapshot). Not live, and NOT fictional sample data.
+  | "bundled_public_snapshot";
 
 export type Provenance = {
   mode: IntegrationMode;

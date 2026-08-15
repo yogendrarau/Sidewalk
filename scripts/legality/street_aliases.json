@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "borough_code": 1,
+      "printed": "Frankfurt Street",
+      "cscl_label": "FRANKFORT ST",
+      "reason": "source_typo",
+      "note": "DOHMH PDF prints 'Frankfurt'; CSCL and NYC signage use 'Frankfort'.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 1,
+      "printed": "Sixth Avenue",
+      "cscl_label": "AVE OF THE AMERICAS",
+      "reason": "renamed",
+      "note": "CSCL carries the avenue only under its ceremonial name; '6 AVE' returns no rows.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 3,
+      "printed": "Boardwalk",
+      "cscl_label": "BOARDWALK W",
+      "reason": "informal_name",
+      "note": "Riegelmann Boardwalk, western section (Coney Island). PDF says just 'Boardwalk'.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 3,
+      "printed": "Boardwalk",
+      "cscl_label": "BOARDWALK E",
+      "reason": "informal_name",
+      "note": "Riegelmann Boardwalk, eastern section (Brighton Beach). Both sections merge as candidates.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 3,
+      "printed": "Court Street/Cadman Plaza",
+      "cscl_label": "COURT ST",
+      "reason": "informal_name",
+      "note": "The Remsen-to-Pierrepont block is Court St in CSCL; Cadman Plaza W begins north of it.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 3,
+      "printed": "Court Street/Cadman Plaza",
+      "cscl_label": "CADMAN PLZ W",
+      "reason": "informal_name",
+      "note": "Merged with COURT ST so either intersection node can resolve.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 3,
+      "printed": "Cadman Plaza",
+      "cscl_label": "CADMAN PLZ W",
+      "reason": "abbreviation",
+      "note": "As a cross street of Pierrepont St. CSCL splits the plaza into W and E labels.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 3,
+      "printed": "Flatbush Avenue",
+      "cscl_label": "FLATBUSH AVE EXTENSION",
+      "reason": "contextual_terminus",
+      "note": "Downtown rows ending at 'Flatbush Avenue' meet the Extension; merged with the rule-resolved FLATBUSH AVE.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 4,
+      "printed": "Lippman Plaza",
+      "cscl_label": "LIPPMANN PLZ",
+      "reason": "source_typo",
+      "note": "PDF prints one N; CSCL uses 'LIPPMANN PLZ'.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 3,
+      "printed": "Johnston Street",
+      "cscl_label": "JOHNSON ST",
+      "reason": "source_typo",
+      "note": "No Johnston Street exists in Brooklyn CSCL; Johnson St runs between Adams St and Flatbush Ave Extension exactly as the row describes.",
+      "reviewed_at": "2026-08-15"
+    },
+    {
+      "borough_code": 1,
+      "printed": "West 59th Street",
+      "cscl_label": "CENTRAL PARK S",
+      "reason": "contextual_terminus",
+      "note": "Avenue of the Americas ends at Central Park South, which carries W 59th's line; merged with the rule-resolved W 59 ST.",
+      "reviewed_at": "2026-08-15"
+    }
+  ]
+}

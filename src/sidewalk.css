@@ -94,6 +94,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(230, 96, 66,
 .mode-fixture { color: #79601e; background: #fbf1ca; border-color: #e8d58e; }
 .mode-simulated { color: #a1402d; background: #fbe7e0; border-color: #efbdaf; }
 .mode-unavailable { color: #5e6762; background: #edf0ee; border-color: #cdd4d0; }
+.mode-bundled_public_snapshot { color: #14566b; background: #e3f1f6; border-color: #b3d6e2; }
 
 .primary-button, .secondary-button, .text-button {
   min-height: 42px;

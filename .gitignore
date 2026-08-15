@@ -32,3 +32,6 @@ playwright-report/
 .env
 .vite
 base44/.app.jsonc
+
+# Legality ETL download cache (regenerable)
+scripts/legality/cache/

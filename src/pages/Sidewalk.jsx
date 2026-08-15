@@ -37,6 +37,7 @@ const MODE_KEYS = {
   fixture: "common:modeFixture",
   simulated: "common:modeSimulated",
   unavailable: "common:modeUnavailable",
+  bundled_public_snapshot: "common:modeBundledSnapshot",
 };
 
 const HELP_ROUTES = [

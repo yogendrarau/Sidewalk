@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   LockKeyhole,
   LogOut,
+  MapPinned,
   PackageOpen,
   Search,
   ShieldCheck,
@@ -22,6 +23,11 @@ import {
   UserRound,
 } from "lucide-react";
 import SidewalkApp from "./Sidewalk";
+import StreetRulesWorkspace, {
+  SHOPIFY_CHECKOUT_URL,
+  formatOrderTotal,
+} from "@/components/marketplace/StreetRulesWorkspace";
+import sampleVendorSeed from "@/data/sample-vendors.json";
 import {
   DEFAULT_CONSOLE_LOCALE,
   LOCALE_REGISTRY,
@@ -33,8 +39,8 @@ import {
 import "../marketplace.css";
 
 export const ROLE_WORKSPACES = Object.freeze({
-  buyer: ["explore", "orders", "account"],
-  vendor: ["dashboard", "orders", "get-verified", "account"],
+  buyer: ["explore", "street-rules", "orders", "account"],
+  vendor: ["dashboard", "street-rules", "orders", "get-verified", "account"],
 });
 
 const WORKSPACE_ALIASES = Object.freeze({
@@ -45,6 +51,10 @@ const WORKSPACE_ALIASES = Object.freeze({
   verification: "get-verified",
   verified: "get-verified",
   "get_verified": "get-verified",
+  map: "street-rules",
+  rules: "street-rules",
+  zones: "street-rules",
+  "street_rules": "street-rules",
 });
 
 function normalizeRole(value) {
@@ -235,7 +245,7 @@ function EmptyState({ testId, icon: Icon, eyebrow, title, body = null, secondary
   );
 }
 
-function BuyerExplore({ locale }) {
+function BuyerExplore({ locale, onOpenVendor }) {
   const { t } = useSurfaceTranslation(locale, ["marketplace"]);
   return (
     <div data-testid="buyer-explore" className="marketplace-workspace-view">
@@ -243,6 +253,7 @@ function BuyerExplore({ locale }) {
         <div>
           <span className="marketplace-eyebrow">{t("marketplace:buyerWorkspace")}</span>
           <h1>{t("marketplace:buyerExploreTitle")}</h1>
+          <p>{t("marketplace:exploreVendorsIntro")}</p>
         </div>
         <span className="not-live-badge"><Construction size={14} /> {t("marketplace:marketplaceNotLive")}</span>
       </div>
@@ -250,6 +261,24 @@ function BuyerExplore({ locale }) {
         <Search size={18} />
         <span>{t("marketplace:searchLabel")}</span>
         <strong>{t("marketplace:comingSoon")}</strong>
+      </div>
+      <div className="explore-vendor-grid" data-testid="explore-vendor-grid">
+        {sampleVendorSeed.vendors.map((vendor) => (
+          <button
+            key={vendor.id}
+            type="button"
+            data-sample-vendor={vendor.id}
+            className="explore-vendor-card"
+            onClick={() => onOpenVendor(vendor)}
+          >
+            <span className="rules-vendor-emoji" aria-hidden="true">{vendor.emoji}</span>
+            <span className="explore-vendor-copy">
+              <strong><bdi dir="ltr">{vendor.name}</bdi></strong>
+              <small><bdi dir="ltr">{vendor.goods}</bdi></small>
+            </span>
+            <span className="explore-vendor-cta">{t("marketplace:viewMenu")} <ArrowRight className="marketplace-directional" size={15} /></span>
+          </button>
+        ))}
       </div>
       <EmptyState
         testId="marketplace-empty-state"
@@ -262,18 +291,47 @@ function BuyerExplore({ locale }) {
   );
 }
 
-function BuyerOrders({ locale }) {
+function BuyerOrders({ locale, orders }) {
   const { t } = useSurfaceTranslation(locale, ["marketplace"]);
   return (
     <div data-testid="buyer-orders" className="marketplace-workspace-view">
       <div className="workspace-title-row"><div><span className="marketplace-eyebrow">{t("marketplace:buyerWorkspace")}</span><h1>{t("marketplace:buyerOrdersTitle")}</h1></div></div>
-      <EmptyState
-        testId="buyer-orders-empty"
-        icon={PackageOpen}
-        eyebrow={t("marketplace:intentionallyEmpty")}
-        title={t("marketplace:buyerOrdersEmpty")}
-        secondary={t("marketplace:buyerOrdersSecondary")}
-      />
+      {orders.length > 0
+        ? (
+          <section className="rules-demo-receipts buyer-orders-list" data-testid="buyer-orders-list">
+            <strong>{t("marketplace:demoReceipts")}</strong>
+            <ul>
+              {orders.map((entry) => (
+                <li key={entry.id}>
+                  <bdi dir="ltr">{entry.itemName} · {entry.priceLabel} · {entry.vendorName}</bdi>
+                </li>
+              ))}
+            </ul>
+            <div className="rules-order-footer">
+              <span className="rules-order-total">
+                {t("marketplace:orderTotal")} · <bdi dir="ltr">{formatOrderTotal(orders)}</bdi>
+              </span>
+              <a
+                data-testid="orders-checkout-link"
+                className="rules-checkout-link"
+                href={SHOPIFY_CHECKOUT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t("marketplace:checkoutShopify")} ↗
+              </a>
+            </div>
+          </section>
+        )
+        : (
+          <EmptyState
+            testId="buyer-orders-empty"
+            icon={PackageOpen}
+            eyebrow={t("marketplace:intentionallyEmpty")}
+            title={t("marketplace:buyerOrdersEmpty")}
+            secondary={t("marketplace:buyerOrdersSecondary")}
+          />
+        )}
     </div>
   );
 }
@@ -384,11 +442,13 @@ function WorkspaceNav({ locale, role, workspace, onNavigate }) {
   const { t } = useSurfaceTranslation(locale, ["marketplace"]);
   const buyerItems = [
     { id: "explore", testId: "nav-explore", label: t("marketplace:explore"), icon: Compass },
+    { id: "street-rules", testId: "nav-street-rules", label: t("marketplace:rulesNav"), icon: MapPinned },
     { id: "orders", testId: "nav-orders", label: t("marketplace:orders"), icon: ClipboardList },
     { id: "account", testId: "nav-account", label: t("marketplace:account"), icon: UserRound },
   ];
   const vendorItems = [
     { id: "dashboard", testId: "nav-dashboard", label: t("marketplace:sellerDashboard"), icon: LayoutDashboard },
+    { id: "street-rules", testId: "nav-street-rules", label: t("marketplace:rulesNav"), icon: MapPinned },
     { id: "orders", testId: "nav-orders", label: t("marketplace:orders"), icon: ClipboardList },
     { id: "get-verified", testId: "nav-get-verified", label: t("marketplace:getVerified"), icon: BadgeCheck },
     { id: "account", testId: "nav-account", label: t("marketplace:account"), icon: UserRound },
@@ -421,11 +481,24 @@ function WorkspaceNav({ locale, role, workspace, onNavigate }) {
   );
 }
 
-function WorkspaceContent({ locale, role, workspace, onNavigate, onLogout, onLocaleChange, verificationProps }) {
+function WorkspaceContent({ locale, role, workspace, onNavigate, onLogout, onLocaleChange, verificationProps, commerce }) {
+  if (workspace === "street-rules") {
+    return (
+      <StreetRulesWorkspace
+        locale={locale}
+        role={role}
+        onNavigate={onNavigate}
+        orders={commerce.orders}
+        onAddOrder={commerce.addOrder}
+        focusVendorId={commerce.focusVendorId}
+        onFocusConsumed={commerce.consumeFocus}
+      />
+    );
+  }
   if (role === "buyer") {
-    if (workspace === "orders") return <BuyerOrders locale={locale} />;
+    if (workspace === "orders") return <BuyerOrders locale={locale} orders={commerce.orders} />;
     if (workspace === "account") return <AccountView locale={locale} role={role} onLogout={onLogout} />;
-    return <BuyerExplore locale={locale} />;
+    return <BuyerExplore locale={locale} onOpenVendor={commerce.openVendor} />;
   }
   if (workspace === "orders") return <SellerOrders locale={locale} />;
   if (workspace === "get-verified") {
@@ -435,7 +508,7 @@ function WorkspaceContent({ locale, role, workspace, onNavigate, onLogout, onLoc
   return <SellerDashboard locale={locale} onContinueVerification={() => onNavigate("get-verified")} />;
 }
 
-function MarketplaceShell({ locale, role, workspace, onNavigate, onLogout, onLocaleChange, verificationProps }) {
+function MarketplaceShell({ locale, role, workspace, onNavigate, onLogout, onLocaleChange, verificationProps, commerce }) {
   const { t } = useSurfaceTranslation(locale, ["marketplace"]);
   const roleLabel = role === "buyer" ? t("marketplace:buyerWorkspace") : t("marketplace:sellerWorkspace");
   return (
@@ -469,6 +542,7 @@ function MarketplaceShell({ locale, role, workspace, onNavigate, onLogout, onLoc
             onLogout={onLogout}
             onLocaleChange={onLocaleChange}
             verificationProps={verificationProps}
+            commerce={commerce}
           />
           {workspace !== "get-verified" && (
             <footer className="marketplace-scope-note">
@@ -502,6 +576,18 @@ export default function Marketplace({
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState(false);
   const guardedRouteRef = useRef(null);
+  // Session-only demo commerce state shared by Explore, Street rules, and
+  // Orders. Never persisted or transmitted; checkout hands off to an
+  // external page. Seeded with one order so the history reads lived-in.
+  const [demoOrders, setDemoOrders] = useState(/** @type {any[]} */ ([
+    {
+      id: "do-seed-1",
+      vendorName: "Ming's Chinese Skewers",
+      itemName: "Lamb skewers (2)",
+      priceLabel: "$5",
+    },
+  ]));
+  const [focusVendorId, setFocusVendorId] = useState(/** @type {string | null} */ (null));
 
   const authoritativeRole = roleFromAccount(account);
   const fallbackRole = roleFromAccount(localAccount);
@@ -608,6 +694,20 @@ export default function Marketplace({
     if (onRoleSelect) onRoleSelect(null);
   }
 
+  const commerce = {
+    orders: demoOrders,
+    addOrder: (entry) =>
+      setDemoOrders((previous) =>
+        [{ id: `do-${Date.now()}-${previous.length}`, ...entry }, ...previous].slice(0, 12)
+      ),
+    focusVendorId,
+    consumeFocus: () => setFocusVendorId(null),
+    openVendor: (vendor) => {
+      setFocusVendorId(vendor.id);
+      navigate("street-rules");
+    },
+  };
+
   let content;
   if (activeAccount && activeRole) {
     content = (
@@ -619,6 +719,7 @@ export default function Marketplace({
         onLogout={logout}
         onLocaleChange={changeLocale}
         verificationProps={verificationProps}
+        commerce={commerce}
       />
     );
   } else if (chosenRole) {

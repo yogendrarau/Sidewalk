@@ -228,6 +228,10 @@ describe("truthful marketplace shell contract", () => {
       "Store setup coming soon.",
       "New orders will appear here once your store is live.",
       "Continue verification preparation",
+      "Only the city can decide where vending is allowed.",
+      "This spot is not on the list SIDEWALK has.",
+      "Not appearing on this list does not establish that vending is allowed here.",
+      "SIDEWALK reports what the published list says. It does not decide whether vending is allowed here, and it is not legal advice.",
     ]) {
       expect(sources, `marketplace copy: ${copy}`).toContain(copy);
     }

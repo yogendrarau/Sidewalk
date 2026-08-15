@@ -1,0 +1,501 @@
+{
+  "schema_version": 1,
+  "meta": {
+    "is_fictional": true,
+    "note": "Fictional demonstration vendors and menus for the SIDEWALK hackathon prototype. Names, locations, goods, and prices are invented; none correspond to a real business. Purchases are simulated only — no money, receipts, or obligations exist.",
+    "provenance": {
+      "mode": "simulated",
+      "source": "SIDEWALK fictional demo seed",
+      "retrievedAt": "2026-08-15T00:00:00.000Z"
+    }
+  },
+  "vendors": [
+    {
+      "id": "sv-15",
+      "name": "Ming's Chinese Skewers",
+      "goods": "Chuan'r — grilled skewers",
+      "emoji": "🍢",
+      "lat": 40.7549,
+      "lng": -73.984,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-15-m1",
+          "name": "Lamb skewers (2)",
+          "price_label": "$5",
+          "emoji": "🍢",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-15-m2",
+          "name": "Chicken skewers (3)",
+          "price_label": "$6",
+          "emoji": "🍗",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-15-m3",
+          "name": "Cumin beef skewer",
+          "price_label": "$4",
+          "emoji": "🥩",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-15-m4",
+          "name": "Grilled corn",
+          "price_label": "$3",
+          "emoji": "🌽",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-01",
+      "name": "Rosa's Tamales",
+      "goods": "Tamales & champurrado",
+      "emoji": "🫔",
+      "lat": 40.7359,
+      "lng": -73.9911,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-01-m1",
+          "name": "Pork tamal",
+          "price_label": "$4",
+          "emoji": "🫔",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-01-m2",
+          "name": "Rajas tamal",
+          "price_label": "$4",
+          "emoji": "🌶️",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-01-m3",
+          "name": "Champurrado",
+          "price_label": "$3",
+          "emoji": "☕",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-02",
+      "name": "Sunny Halal",
+      "goods": "Chicken over rice",
+      "emoji": "🍛",
+      "lat": 40.757,
+      "lng": -73.9807,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-02-m1",
+          "name": "Chicken over rice",
+          "price_label": "$9",
+          "emoji": "🍛",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-02-m2",
+          "name": "Falafel wrap",
+          "price_label": "$7",
+          "emoji": "🥙",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-02-m3",
+          "name": "Baklava",
+          "price_label": "$3",
+          "emoji": "🍯",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-03",
+      "name": "Mango Rey",
+      "goods": "Cut fruit & mango con chile",
+      "emoji": "🥭",
+      "lat": 40.7596,
+      "lng": -73.8301,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-03-m1",
+          "name": "Mango con chile",
+          "price_label": "$5",
+          "emoji": "🥭",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-03-m2",
+          "name": "Fruit cup",
+          "price_label": "$4",
+          "emoji": "🍉",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-03-m3",
+          "name": "Coco frío",
+          "price_label": "$4",
+          "emoji": "🥥",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-04",
+      "name": "Arepa Lane",
+      "goods": "Arepas & cachapas",
+      "emoji": "🫓",
+      "lat": 40.7466,
+      "lng": -73.8915,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-04-m1",
+          "name": "Arepa de queso",
+          "price_label": "$6",
+          "emoji": "🫓",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-04-m2",
+          "name": "Cachapa",
+          "price_label": "$8",
+          "emoji": "🌽",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-04-m3",
+          "name": "Papelón limeade",
+          "price_label": "$3",
+          "emoji": "🥤",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-05",
+      "name": "Churro Cielo",
+      "goods": "Churros & hot chocolate",
+      "emoji": "🍩",
+      "lat": 40.7498,
+      "lng": -73.8628,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-05-m1",
+          "name": "Churros (3)",
+          "price_label": "$4",
+          "emoji": "🍩",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-05-m2",
+          "name": "Hot chocolate",
+          "price_label": "$3",
+          "emoji": "☕",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-05-m3",
+          "name": "Dulce dip",
+          "price_label": "$1",
+          "emoji": "🍮",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-06",
+      "name": "Empanada Express",
+      "goods": "Empanadas",
+      "emoji": "🥟",
+      "lat": 40.6454,
+      "lng": -74.0121,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-06-m1",
+          "name": "Beef empanada",
+          "price_label": "$3",
+          "emoji": "🥟",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-06-m2",
+          "name": "Guava & cheese",
+          "price_label": "$3",
+          "emoji": "🧀",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-06-m3",
+          "name": "Trio box",
+          "price_label": "$8",
+          "emoji": "🍱",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-07",
+      "name": "Coney Dogs",
+      "goods": "Hot dogs & lemonade",
+      "emoji": "🌭",
+      "lat": 40.576,
+      "lng": -73.9819,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-07-m1",
+          "name": "Classic dog",
+          "price_label": "$4",
+          "emoji": "🌭",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-07-m2",
+          "name": "Chili cheese dog",
+          "price_label": "$6",
+          "emoji": "🧀",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-07-m3",
+          "name": "Lemonade",
+          "price_label": "$3",
+          "emoji": "🍋",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-08",
+      "name": "Dumpling Duo",
+      "goods": "Pork & chive dumplings",
+      "emoji": "🥟",
+      "lat": 40.6905,
+      "lng": -73.984,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-08-m1",
+          "name": "Pork & chive (6)",
+          "price_label": "$7",
+          "emoji": "🥟",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-08-m2",
+          "name": "Veggie (6)",
+          "price_label": "$6",
+          "emoji": "🥬",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-08-m3",
+          "name": "Chili oil extra",
+          "price_label": "$1",
+          "emoji": "🌶️",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-09",
+      "name": "Harlem Shake Cart",
+      "goods": "Smoothies & juices",
+      "emoji": "🥤",
+      "lat": 40.8075,
+      "lng": -73.9451,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-09-m1",
+          "name": "Mango smoothie",
+          "price_label": "$6",
+          "emoji": "🥤",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-09-m2",
+          "name": "Green juice",
+          "price_label": "$7",
+          "emoji": "🥬",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-09-m3",
+          "name": "Ginger shot",
+          "price_label": "$3",
+          "emoji": "🫚",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-10",
+      "name": "Kebab Korner",
+      "goods": "Lamb kebabs",
+      "emoji": "🍢",
+      "lat": 40.8618,
+      "lng": -73.8983,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-10-m1",
+          "name": "Lamb kebab",
+          "price_label": "$8",
+          "emoji": "🍢",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-10-m2",
+          "name": "Chicken kebab",
+          "price_label": "$7",
+          "emoji": "🍗",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-10-m3",
+          "name": "Rice plate",
+          "price_label": "$10",
+          "emoji": "🍚",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-11",
+      "name": "Piragua Paco",
+      "goods": "Shaved ice",
+      "emoji": "🍧",
+      "lat": 40.8163,
+      "lng": -73.9171,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-11-m1",
+          "name": "Cherry piragua",
+          "price_label": "$3",
+          "emoji": "🍧",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-11-m2",
+          "name": "Coco piragua",
+          "price_label": "$3",
+          "emoji": "🥥",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-11-m3",
+          "name": "Tamarindo",
+          "price_label": "$3",
+          "emoji": "🟤",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-12",
+      "name": "Ferry Coffee Co.",
+      "goods": "Coffee & pastries",
+      "emoji": "☕",
+      "lat": 40.6438,
+      "lng": -74.0776,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-12-m1",
+          "name": "Cortado",
+          "price_label": "$4",
+          "emoji": "☕",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-12-m2",
+          "name": "Cold brew",
+          "price_label": "$5",
+          "emoji": "🧊",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-12-m3",
+          "name": "Croissant",
+          "price_label": "$4",
+          "emoji": "🥐",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-13",
+      "name": "Nutty Nate's",
+      "goods": "Honey-roasted nuts",
+      "emoji": "🥜",
+      "lat": 40.7184,
+      "lng": -73.9878,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-13-m1",
+          "name": "Honey almonds",
+          "price_label": "$5",
+          "emoji": "🥜",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-13-m2",
+          "name": "Cashew mix",
+          "price_label": "$6",
+          "emoji": "🌰",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-13-m3",
+          "name": "Peanut brittle",
+          "price_label": "$4",
+          "emoji": "🍬",
+          "is_fictional": true
+        }
+      ]
+    },
+    {
+      "id": "sv-14",
+      "name": "Momo Mia",
+      "goods": "Tibetan momos",
+      "emoji": "🥡",
+      "lat": 40.8493,
+      "lng": -73.9339,
+      "is_fictional": true,
+      "menu": [
+        {
+          "id": "sv-14-m1",
+          "name": "Beef momos (8)",
+          "price_label": "$9",
+          "emoji": "🥡",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-14-m2",
+          "name": "Veggie momos (8)",
+          "price_label": "$8",
+          "emoji": "🥦",
+          "is_fictional": true
+        },
+        {
+          "id": "sv-14-m3",
+          "name": "Butter tea",
+          "price_label": "$3",
+          "emoji": "🍵",
+          "is_fictional": true
+        }
+      ]
+    }
+  ]
+}

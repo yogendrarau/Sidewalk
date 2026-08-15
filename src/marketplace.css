@@ -287,17 +287,6 @@
 .role-option-content span { color: var(--mp-muted); font-size: 13px; line-height: 1.55; }
 .role-option-card > .marketplace-directional { color: var(--mp-forest); }
 
-.role-selection-footnote {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  margin: 22px 0 0;
-  color: var(--mp-muted);
-  font-size: 12px;
-  text-align: center;
-}
-
 .prototype-account-shell {
   position: relative;
   z-index: 2;
@@ -322,23 +311,11 @@
   margin-block-start: 12px;
   padding: clamp(24px, 6vw, 45px);
   border: 1px solid rgba(15, 86, 61, .15);
-  border-radius: 29px;
+  border-radius: 14px;
   background: rgba(255, 254, 250, .96);
-  box-shadow: 0 28px 70px rgba(28, 58, 45, .13);
 }
 
 .prototype-account-card h1 { font-size: clamp(32px, 6vw, 47px); }
-
-.prototype-account-seal {
-  display: grid;
-  width: 57px;
-  height: 57px;
-  margin-block-end: 21px;
-  place-items: center;
-  border-radius: 18px;
-  color: var(--mp-forest);
-  background: var(--mp-mint);
-}
 
 .prototype-warning {
   display: flex;
@@ -790,7 +767,6 @@
   .role-option-icon { width: 42px; height: 42px; }
   .role-option-icon img { width: 42px; height: 42px; }
   .role-option-image { width: 42px; height: 42px; }
-  .prototype-account-card { border-radius: 22px; }
   .prototype-account-summary > div { grid-template-columns: 1fr; gap: 6px; }
   .prototype-account-summary dd { justify-content: flex-start; text-align: start; }
   .workspace-title-row { flex-direction: column; }

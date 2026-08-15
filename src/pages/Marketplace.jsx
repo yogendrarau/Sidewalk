@@ -113,23 +113,6 @@ function Brand() {
   );
 }
 
-function PrototypeDisclosure({ locale }) {
-  const { t } = useSurfaceTranslation(locale, ["common"]);
-  return (
-    <div
-      data-testid="prototype-disclosure"
-      className="marketplace-disclosure"
-      lang={locale}
-      dir={localeDirection(locale)}
-    >
-      <span className="marketplace-disclosure-dot" aria-hidden="true" />
-      <strong>{t("common:prototype")}</strong>
-      <span aria-hidden="true"> · </span>
-      <span>{t("common:disclosure")}</span>
-    </div>
-  );
-}
-
 function TypewriterText({ texts, typeSpeedMs = 38, deleteSpeedMs = 20, pauseMs = 1600 }) {
   const phrases = useMemo(
     () => (Array.isArray(texts) ? texts : [texts]).filter(Boolean),
@@ -205,7 +188,6 @@ function LanguageSelect({ locale, onChange }) {
 function OnboardingFrame({ locale, onLocaleChange, children, className = "" }) {
   return (
     <div className={"marketplace-onboarding" + (className ? " " + className : "")} lang={locale} dir={localeDirection(locale)}>
-      <PrototypeDisclosure locale={locale} />
       <header className="marketplace-onboarding-header">
         <Brand />
         <LanguageSelect locale={locale} onChange={onLocaleChange} />
@@ -687,7 +669,6 @@ function MarketplaceShell({ locale, role, workspace, onNavigate, onLogout, onLoc
       lang={locale}
       dir={localeDirection(locale)}
     >
-      <PrototypeDisclosure locale={locale} />
       <header data-testid="marketplace-header" className="marketplace-header">
         <Brand />
         <div className="marketplace-header-role"><span className={"role-chip " + role}>{roleLabel}</span></div>

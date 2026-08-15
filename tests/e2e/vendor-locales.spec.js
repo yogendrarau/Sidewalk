@@ -280,11 +280,6 @@ test("routine guidance stays self-service and exceptional questions abstain", as
     waitUntil: "domcontentloaded",
   });
 
-  const disclosure = await page.getByTestId("prototype-disclosure").textContent();
-  expect(disclosure.replace(/\s+/g, " ").trim()).toBe(
-    "Hackathon prototype · Fictional demo data · Not affiliated with NYC · Not legal advice · No real payments, filings, referrals, or messages.",
-  );
-
   await page.getByTestId("sample-question").click();
   const routineResult = page.getByTestId("guidance-result");
   await expect(routineResult).toBeVisible();

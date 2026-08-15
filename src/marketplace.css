@@ -91,8 +91,6 @@
   letter-spacing: .12em;
 }
 
-.marketplace-brand.compact { font-size: 16px; }
-
 .marketplace-brand-mark {
   width: 35px;
   height: 35px;
@@ -105,8 +103,6 @@
   object-fit: contain;
   margin-left: -12px;
 }
-
-.marketplace-brand.compact .marketplace-brand-wordmark { height: 14px; }
 
 .marketplace-language select {
   max-width: 152px;
@@ -582,25 +578,21 @@
   justify-content: center;
   padding: clamp(27px, 7vw, 65px) 20px;
   border: 1px solid var(--mp-line);
-  border-radius: 23px;
-  background:
-    linear-gradient(rgba(255,255,255,.88), rgba(255,255,255,.88)),
-    radial-gradient(circle at 50% 15%, var(--mp-mint), transparent 40%);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .88);
   text-align: center;
-  box-shadow: 0 12px 35px rgba(23, 36, 30, .04);
 }
 
 .marketplace-empty-icon {
   display: grid;
-  width: 66px;
-  height: 66px;
-  margin-block-end: 17px;
+  width: 64px;
+  height: 64px;
+  margin-block-end: 15px;
   place-items: center;
-  border-radius: 21px;
   color: var(--mp-forest);
-  background: var(--mp-mint);
-  box-shadow: 0 9px 24px rgba(15, 86, 61, .12);
 }
+
+.marketplace-empty-icon img { width: 64px; height: 64px; object-fit: contain; }
 
 .marketplace-empty-eyebrow { color: var(--mp-coral); font-size: 9px; font-weight: 900; letter-spacing: .13em; }
 .marketplace-empty-card h2 { max-width: 610px; margin: 9px 0; font-size: clamp(21px, 4vw, 31px); line-height: 1.25; }
@@ -622,16 +614,16 @@
   gap: 10px;
   padding: 15px;
   border: 1px solid var(--mp-line);
-  border-radius: 17px;
+  border-radius: 12px;
   background: white;
-  box-shadow: 0 8px 25px rgba(23, 36, 30, .04);
 }
 
 .seller-metric-card.store-card,
 .seller-metric-card.verification-card { grid-column: span 2; }
 .seller-metric-card.store-card { background: #fffaf0; }
 .seller-metric-card.verification-card { background: #edf7f1; }
-.seller-metric-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; color: var(--mp-forest); background: var(--mp-mint); }
+.seller-metric-icon { display: grid; width: 22px; height: 22px; place-items: center; color: var(--mp-forest); }
+.seller-metric-icon img { width: 26px; height: 26px; object-fit: contain; }
 .seller-metric-card > div { display: grid; min-width: 0; gap: 4px; }
 .seller-metric-card small { color: var(--mp-muted); font-size: 11px; }
 .seller-metric-card strong { overflow-wrap: anywhere; font-size: 22px; line-height: 1.15; }
@@ -644,13 +636,13 @@
   gap: 13px;
   margin-block-start: 13px;
   padding: 18px;
-  border-radius: 19px;
+  border-radius: 13px;
   color: white;
-  background: linear-gradient(135deg, var(--mp-forest) 0%, var(--mp-forest-dark) 100%);
-  box-shadow: 0 15px 35px rgba(15, 86, 61, .2);
+  background: var(--mp-forest-dark);
 }
 
-.verification-cta-icon { display: grid; width: 45px; height: 45px; place-items: center; border-radius: 14px; color: var(--mp-forest-dark); background: var(--mp-lime); }
+.verification-cta-icon { display: grid; width: 48px; height: 48px; place-items: center; }
+.verification-cta-icon img { width: 48px; height: 48px; object-fit: contain; }
 .verification-cta-card h2 { margin: 1px 0 5px; font-size: 17px; }
 .verification-cta-card p { margin: 0; color: rgba(255,255,255,.78); font-size: 11px; line-height: 1.5; }
 .verification-cta-card button {
@@ -707,12 +699,12 @@
   max-width: 680px;
   padding: clamp(20px, 4vw, 31px);
   border: 1px solid var(--mp-line);
-  border-radius: 22px;
+  border-radius: 14px;
   background: white;
-  box-shadow: 0 12px 35px rgba(23, 36, 30, .05);
 }
 
-.account-avatar { display: grid; width: 59px; height: 59px; margin-block-end: 14px; place-items: center; border-radius: 19px; color: var(--mp-forest); background: var(--mp-mint); }
+.account-avatar { display: grid; width: 56px; height: 56px; margin-block-end: 14px; place-items: center; color: var(--mp-forest); }
+.account-avatar img { width: 56px; height: 56px; object-fit: contain; }
 .account-profile-heading { margin-block-end: 18px; }
 .account-profile-heading > span { display: block; color: var(--mp-coral); font-size: 9px; font-weight: 900; letter-spacing: .12em; }
 .account-profile-heading strong { display: block; margin-block-start: 5px; font-size: 23px; }

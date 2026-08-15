@@ -2,10 +2,18 @@
   "properties": {
     "role": {
       "type": "string",
-      "description": "The role of the user in the app",
+      "description": "Base44 authorization role. Do not use this field for marketplace routing.",
       "enum": [
         "admin",
         "user"
+      ]
+    },
+    "account_role": {
+      "type": "string",
+      "description": "Marketplace experience selected by the user. This is a routing preference, never an authorization role.",
+      "enum": [
+        "buyer",
+        "vendor"
       ]
     }
   },

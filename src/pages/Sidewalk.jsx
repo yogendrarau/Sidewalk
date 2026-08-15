@@ -1026,7 +1026,7 @@ function parseLocalizedAmount(transcript) {
   return twelve.some((phrase) => normalized.includes(phrase)) ? 12 : null;
 }
 
-function SalesTab({ language, sessionId, evidence, onEvidence, notify }) {
+function SalesTab({ language, sessionId, evidence, onEvidence, notify, allowDemoCheckout = true }) {
   const { t } = useSurfaceTranslation(language, ["vendor", "errors", "common"]);
   const [cashDraft, setCashDraft] = useState(12);
   const [cashInput, setCashInput] = useState("12");
@@ -1165,7 +1165,7 @@ function SalesTab({ language, sessionId, evidence, onEvidence, notify }) {
           <bdi dir="ltr"><strong>{formatMoney(total)}</strong></bdi>
           <small>{t("common:recordsCount", { count: evidence.length })}</small>
         </div>
-        <div className="mini-qr"><QrCode size={38} /><span>{t("vendor:storeQr")}</span></div>
+        {allowDemoCheckout && <div className="mini-qr"><QrCode size={38} /><span>{t("vendor:storeQr")}</span></div>}
       </div>
       <div className="cash-actions">
         <button className="primary-button" onClick={startCashVoice} disabled={busy}><Mic size={17} /> {t("vendor:logCash")}</button>
@@ -1182,13 +1182,15 @@ function SalesTab({ language, sessionId, evidence, onEvidence, notify }) {
         </label>
         <button data-testid="sample-cash-sale" className="secondary-button" onClick={playSampleCash}>{t("vendor:useCashSample")}</button>
       </div>
-      <article className="demo-checkout-card">
-        <div className="checkout-visual"><Store size={26} /></div>
-        <div><span>{t("vendor:demoStorefront")}</span><strong>{t("vendor:rosaTamales")}</strong><small>{t("vendor:noMoney")}</small></div>
-        <button disabled={busy || checkoutDone} onClick={demoCheckout}>
-          {checkoutDone ? <Check size={17} /> : <ArrowRight className="directional-icon" size={17} />}
-        </button>
-      </article>
+      {allowDemoCheckout && (
+        <article className="demo-checkout-card">
+          <div className="checkout-visual"><Store size={26} /></div>
+          <div><span>{t("vendor:demoStorefront")}</span><strong>{t("vendor:rosaTamales")}</strong><small>{t("vendor:noMoney")}</small></div>
+          <button disabled={busy || checkoutDone} onClick={demoCheckout}>
+            {checkoutDone ? <Check size={17} /> : <ArrowRight className="directional-icon" size={17} />}
+          </button>
+        </article>
+      )}
       <div data-testid="evidence-list" className="evidence-list">
         <div className="section-heading"><span>{t("vendor:evidenceLedger")}</span><small>{t("vendor:evidenceCaveat")}</small></div>
         {evidence.map((item, index) => <EvidenceRow key={item.id || index} item={item} language={language} />)}
@@ -1211,7 +1213,7 @@ function SalesTab({ language, sessionId, evidence, onEvidence, notify }) {
   );
 }
 
-function VendorView({ sessionId, caseData, language, onLanguageChange, onCaseChange, notify }) {
+function VendorView({ sessionId, caseData, language, onLanguageChange, onCaseChange, notify, embedded = false }) {
   const { t } = useSurfaceTranslation(language, ["vendor", "common"]);
   const [tab, setTab] = useState("ask");
   const latestEvaluation = caseData.evaluations && caseData.evaluations[0];
@@ -1280,6 +1282,7 @@ function VendorView({ sessionId, caseData, language, onLanguageChange, onCaseCha
               evidence={caseData.evidence || []}
               onEvidence={addEvidence}
               notify={notify}
+              allowDemoCheckout={!embedded}
             />
           )}
         </div>
@@ -1675,10 +1678,18 @@ function Toast({ toast }) {
   );
 }
 
-export default function SidewalkApp() {
+export default function SidewalkApp({
+  embedded = false,
+  initialLocale = null,
+  onLocaleChange = null,
+  allowInternalViews = false,
+}) {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
-  const initialView = ["vendor", "console", "proof"].includes(params.get("view")) ? params.get("view") : "vendor";
-  const requestedVendorLocale = normalizeLocale(params.get("lang"));
+  const internalViewsEnabled = allowInternalViews && !embedded;
+  const initialView = internalViewsEnabled && ["vendor", "console", "proof"].includes(params.get("view"))
+    ? params.get("view")
+    : "vendor";
+  const requestedVendorLocale = normalizeLocale(initialLocale) || normalizeLocale(params.get("lang"));
   const storedConsoleLocale = normalizeLocale(window.localStorage.getItem("sidewalk-console-locale"));
   const requestedConsoleLocale = normalizeLocale(params.get("ui_lang"));
   const initialSession = params.get("demo_session_id") || params.get("session") || INITIAL_SESSION;
@@ -1693,7 +1704,7 @@ export default function SidewalkApp() {
   const [safetyOpen, setSafetyOpen] = useState(() => window.sessionStorage.getItem("sidewalk-safety-seen") !== "yes");
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
-  const activeLocale = view === "vendor" ? vendorLocale : consoleLocale;
+  const activeLocale = embedded || view === "vendor" ? vendorLocale : consoleLocale;
   const { t } = useSurfaceTranslation(activeLocale, ["errors"]);
 
   function notify(message, type) {
@@ -1725,7 +1736,9 @@ export default function SidewalkApp() {
     try {
       const [casePayload, proofPayload] = await Promise.all([
         invokeFunction("get_demo_case", { demo_session_id: targetSession }),
-        invokeFunction("get_demo_proof", { demo_session_id: targetSession }),
+        !internalViewsEnabled
+          ? Promise.resolve(null)
+          : invokeFunction("get_demo_proof", { demo_session_id: targetSession }),
       ]);
       if (!casePayload || !casePayload.ok) throw new Error(casePayload && casePayload.error ? casePayload.error : "case_unavailable");
       const loadedLocale = normalizeLocale(casePayload.data && casePayload.data.session && casePayload.data.session.locale)
@@ -1773,6 +1786,19 @@ export default function SidewalkApp() {
     window.localStorage.setItem("sidewalk-console-locale", consoleLocale);
   }, [consoleLocale]);
 
+  useEffect(() => {
+    if (!embedded) return;
+    const nextLocale = normalizeLocale(initialLocale);
+    if (!nextLocale || nextLocale === vendorLocale) return;
+    setVendorLocale(nextLocale);
+    setCaseData((current) => ({
+      ...current,
+      session: { ...current.session, locale: nextLocale },
+      vendor: { ...current.vendor, language: nextLocale },
+    }));
+    persistVendorLocale(nextLocale);
+  }, [embedded, initialLocale, vendorLocale]);
+
   function changeView(nextView) {
     setView(nextView);
     const next = new URL(window.location.href);
@@ -1798,6 +1824,7 @@ export default function SidewalkApp() {
     next.searchParams.set("demo_session_id", sessionId);
     window.history.replaceState({}, "", next);
     persistVendorLocale(nextLocale);
+    if (onLocaleChange) onLocaleChange(nextLocale);
   }
 
   function changeConsoleLocale(value) {
@@ -1852,16 +1879,23 @@ export default function SidewalkApp() {
   }
 
   return (
-    <div className="sidewalk-app" lang={activeLocale} dir={localeDirection(activeLocale)}>
-      <Disclosure locale={activeLocale} />
-      <GlobalHeader
-        view={view}
-        onViewChange={changeView}
-        sessionId={sessionId}
-        backendState={backendState}
-        locale={activeLocale}
-        onConsoleLocaleChange={changeConsoleLocale}
-      />
+    <div
+      data-testid={embedded ? "embedded-verification" : "sidewalk-legacy-demo"}
+      className={"sidewalk-app" + (embedded ? " sidewalk-embedded" : "")}
+      lang={activeLocale}
+      dir={localeDirection(activeLocale)}
+    >
+      {!embedded && <Disclosure locale={activeLocale} />}
+      {internalViewsEnabled && (
+        <GlobalHeader
+          view={view}
+          onViewChange={changeView}
+          sessionId={sessionId}
+          backendState={backendState}
+          locale={activeLocale}
+          onConsoleLocaleChange={changeConsoleLocale}
+        />
+      )}
       {view === "vendor" && (
         <VendorView
           sessionId={sessionId}
@@ -1870,9 +1904,10 @@ export default function SidewalkApp() {
           onLanguageChange={changeVendorLocale}
           onCaseChange={setCaseData}
           notify={notify}
+          embedded={embedded}
         />
       )}
-      {view === "console" && (
+      {internalViewsEnabled && view === "console" && (
         <ConsoleView
           sessionId={sessionId}
           caseData={caseData}
@@ -1883,7 +1918,7 @@ export default function SidewalkApp() {
           refreshing={refreshing}
         />
       )}
-      {view === "proof" && <ProofView sessionId={sessionId} proofData={proofData} locale={consoleLocale} />}
+      {internalViewsEnabled && view === "proof" && <ProofView sessionId={sessionId} proofData={proofData} locale={consoleLocale} />}
       <SafetyDialog open={safetyOpen} onContinue={continueSafety} locale={activeLocale} />
       <Toast toast={toast} />
     </div>

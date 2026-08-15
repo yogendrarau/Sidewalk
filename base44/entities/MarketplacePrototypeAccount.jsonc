@@ -1,0 +1,86 @@
+{
+  "name": "MarketplacePrototypeAccount",
+  "description": "Synthetic, no-PII marketplace role records for the SIDEWALK hackathon prototype.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1,
+      "description": "Prototype account contract version."
+    },
+    "prototype_account_id": {
+      "type": "string",
+      "pattern": "^proto_[0-9a-f]{32}$",
+      "description": "Random opaque prototype identifier generated in the browser; not a user identity."
+    },
+    "account_role": {
+      "type": "string",
+      "enum": [
+        "buyer",
+        "vendor"
+      ],
+      "description": "Marketplace routing preference only; never an authorization role."
+    },
+    "locale": {
+      "type": "string",
+      "enum": [
+        "en",
+        "es",
+        "wo",
+        "ar",
+        "bn",
+        "zh-Hans",
+        "fr"
+      ],
+      "default": "es",
+      "description": "Supported interface locale; no free-form text is accepted."
+    },
+    "is_fictional": {
+      "type": "boolean",
+      "default": true,
+      "description": "Always true for this prototype-only record."
+    },
+    "prototype_created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Client account creation timestamp, validated and normalized by the backend gateway."
+    },
+    "last_synced_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Most recent successful synthetic-account synchronization."
+    }
+  },
+  "required": [
+    "schema_version",
+    "prototype_account_id",
+    "account_role",
+    "locale",
+    "is_fictional",
+    "prototype_created_at",
+    "last_synced_at"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

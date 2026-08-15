@@ -1,4 +1,4 @@
-# SIDEWALK — Base44 Generation
+# SIDEWALK — Two-Sided Marketplace Prototype
 
 Judge-ready hackathon prototype developed in the authoritative Base44 sandbox.
 
@@ -10,12 +10,16 @@ Judge-ready hackathon prototype developed in the authoritative Base44 sandbox.
 
 ## What is included
 
-- Seven-language vendor PWA with Ask, Check, My Sales, and optional official-help routing
+- Buyer/vendor role selection followed by a clearly labeled fictional prototype-account flow
+- Role-persisted buyer and seller workspaces with intentional empty and zero states
+- Seller “Get Verified” area that embeds the existing seven-language preparation PWA without exposing console or proof navigation
+- Seven-language vendor preparation with Ask, Check, My Sales, and optional official-help routing
 - Read-only NYC OATH public-record lookup with explicit provenance and failure states
 - Deterministic demo rulebook and exact-fixture AI fallbacks
-- AI Support Console, QR session launch, evidence trace, proof panel, and reset controls
 - Local handoff-summary preview with verified official destinations and no external transmission
-- Base44 entity schemas and Deno backend functions under `base44/`
+- Base44 role/profile schemas and Deno backend functions under `base44/`
+
+There are no marketplace vendor stores, product listings, customers, orders, checkout, payments, messages, fulfillment, or delivery features in this iteration. The legacy verification demo's visibly simulated evidence records remain isolated from marketplace totals.
 
 ## Run the frontend locally
 

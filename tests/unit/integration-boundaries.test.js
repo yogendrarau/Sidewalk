@@ -46,7 +46,14 @@ describe("Base44 session and locale contracts", () => {
 
   it("guards every session-scoped backend function", () => {
     const functionRoot = join(PROJECT_ROOT, "base44/functions");
-    const exempt = new Set(["start_demo_session", "answer-demo-question"]);
+    const exempt = new Set([
+      "start_demo_session",
+      "answer-demo-question",
+      // Marketplace accounts are deliberately pre-session and contain only an
+      // opaque prototype id plus closed synthetic role/locale fields. Their
+      // separate admin-RLS gateway is asserted in marketplace-contract.test.js.
+      "sync_marketplace_account",
+    ]);
 
     for (const entry of readdirSync(functionRoot, { withFileTypes: true })) {
       if (!entry.isDirectory() || exempt.has(entry.name)) continue;

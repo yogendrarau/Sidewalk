@@ -1,15 +1,36 @@
 import { expect, test } from "@playwright/test";
 
 import { resources } from "../../src/i18n/resources.js";
+import { PROTOTYPE_ACCOUNT_STORAGE_KEY } from "../../src/lib/marketplaceAccount.js";
 
 const LOCALES = ["en", "es", "wo", "ar", "bn", "zh-Hans", "fr"];
 
-async function forceSampleMode(page, { safetySeen = true } = {}) {
-  if (safetySeen) {
-    await page.addInitScript(() => {
-      window.sessionStorage.setItem("sidewalk-safety-seen", "yes");
-    });
-  }
+async function forceSampleMode(
+  page,
+  { safetySeen = true, accountRole = null, accountLocale = "es" } = {},
+) {
+  await page.addInitScript(
+    ({ shouldSkipSafety, role, locale, storageKey }) => {
+      if (shouldSkipSafety) window.sessionStorage.setItem("sidewalk-safety-seen", "yes");
+      if (role) {
+        window.localStorage.setItem(storageKey, JSON.stringify({
+          schema_version: 1,
+          prototype_account_id: "proto_eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          account_role: role,
+          locale,
+          is_fictional: true,
+          created_at: "2026-08-15T12:00:00.000Z",
+          updated_at: "2026-08-15T12:00:00.000Z",
+        }));
+      }
+    },
+    {
+      shouldSkipSafety: safetySeen,
+      role: accountRole,
+      locale: accountLocale,
+      storageKey: PROTOTYPE_ACCOUNT_STORAGE_KEY,
+    },
+  );
   await page.route("**/*", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -28,11 +49,46 @@ async function expectNoRawTranslationKeys(page) {
   );
 }
 
+async function createMarketplaceAccount(page, role) {
+  const marketplace = resources.en.marketplace;
+  const roleSelection = page.getByTestId("role-selection");
+  await expect(roleSelection).toBeVisible();
+  await expect(roleSelection).toContainText(marketplace.roleHeading);
+  await expect(roleSelection).toContainText(marketplace.buyDescription);
+  await expect(roleSelection).toContainText(marketplace.sellDescription);
+
+  await page.getByTestId("role-option-" + role).click();
+  const setup = page.getByTestId("prototype-account-setup");
+  await expect(setup).toBeVisible();
+  await expect(setup).toContainText(marketplace.accountHeading);
+  await expect(setup).toContainText(marketplace.accountIntro);
+  await expect(page.getByTestId("prototype-role")).toContainText(
+    role === "buyer" ? marketplace.buyerRole : marketplace.vendorRole,
+  );
+  await expect(
+    setup.locator('input[type="email"], input[type="password"], input[name*="phone"]'),
+  ).toHaveCount(0);
+  await page.getByTestId("create-prototype-account").click();
+
+  const shell = page.getByTestId("marketplace-shell");
+  await expect(shell).toBeVisible();
+  await expect(shell).toHaveAttribute("data-role", role);
+  return shell;
+}
+
+function marketplaceProviderPattern() {
+  return /(?:api\.stripe\.com|paypal\.com\/sdk|squareup(?:sandbox)?\.com|api\.twilio\.com|shopify\.com\/api|api\.shippo\.com|api\.easypost\.com)/i;
+}
+
 for (const locale of LOCALES) {
   test(`${locale} completes the offline sample journey`, async ({ page }) => {
-    await forceSampleMode(page, { safetySeen: false });
+    await forceSampleMode(page, {
+      safetySeen: false,
+      accountRole: "vendor",
+      accountLocale: locale,
+    });
     await page.goto(
-      `/?view=vendor&demo_session_id=E2E-LOCALE&lang=${encodeURIComponent(locale)}`,
+      `/?workspace=get-verified&demo_session_id=E2E-LOCALE&lang=${encodeURIComponent(locale)}`,
       { waitUntil: "domcontentloaded" },
     );
 
@@ -86,10 +142,10 @@ for (const locale of LOCALES) {
 }
 
 test("vendor layout renders without horizontal overflow at target widths", async ({ page }) => {
-  await forceSampleMode(page);
+  await forceSampleMode(page, { accountRole: "vendor", accountLocale: "ar" });
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: width < 700 ? 844 : 1000 });
-    await page.goto("/?view=vendor&demo_session_id=E2E-WIDTH&lang=ar", {
+    await page.goto("/?workspace=get-verified&demo_session_id=E2E-WIDTH&lang=ar", {
       waitUntil: "domcontentloaded",
     });
     await expect(page.getByTestId("vendor-surface")).toBeVisible();
@@ -98,9 +154,9 @@ test("vendor layout renders without horizontal overflow at target widths", async
   }
 });
 
-test("vendor locale survives refresh, console reset, and the return journey", async ({ page }) => {
-  await forceSampleMode(page);
-  await page.goto("/?view=vendor&demo_session_id=E2E-PERSIST&lang=es", {
+test("vendor role and verification locale survive refresh without exposing internal views", async ({ page }) => {
+  await forceSampleMode(page, { accountRole: "vendor", accountLocale: "es" });
+  await page.goto("/?workspace=get-verified&demo_session_id=E2E-PERSIST&lang=es", {
     waitUntil: "domcontentloaded",
   });
   const selector = page.getByTestId("vendor-language-select");
@@ -109,27 +165,22 @@ test("vendor locale survives refresh, console reset, and the return journey", as
   await expect(page).toHaveURL(/(?:\?|&)lang=fr(?:&|$)/);
 
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "vendor");
   await expect(page.getByTestId("vendor-language-select")).toHaveValue("fr");
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-
-  await page.getByRole("button", { name: resources.fr.common.consoleView }).click();
-  await expect(page.getByTestId("console-surface")).toBeVisible();
-  const qrUrl = await page.getByTestId("vendor-qr").getAttribute("data-qr-url");
-  const parsedQrUrl = new URL(qrUrl);
-  expect(parsedQrUrl.searchParams.get("demo_session_id")).toBe("E2E-PERSIST");
-  expect(parsedQrUrl.searchParams.get("lang")).toBe("fr");
-  await page.getByRole("button", { name: resources.en.console.reset }).click();
-  await page.getByRole("button", { name: resources.en.common.vendorView }).click();
-  await expect(page.getByTestId("vendor-language-select")).toHaveValue("fr");
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: resources.fr.common.consoleView })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: resources.fr.common.proofView })).toHaveCount(0);
 });
 
 test("routine guidance stays self-service and exceptional questions abstain", async ({ page }) => {
-  await forceSampleMode(page);
-  await page.goto("/?view=vendor&demo_session_id=E2E-SELF-SERVICE&lang=en", {
+  await forceSampleMode(page, { accountRole: "vendor", accountLocale: "en" });
+  await page.goto("/?workspace=get-verified&demo_session_id=E2E-SELF-SERVICE&lang=en", {
     waitUntil: "domcontentloaded",
   });
 
-  const disclosure = await page.locator(".disclosure-bar").textContent();
+  const disclosure = await page.getByTestId("prototype-disclosure").textContent();
   expect(disclosure.replace(/\s+/g, " ").trim()).toBe(
     "Hackathon prototype · Fictional demo data · Not affiliated with NYC · Not legal advice · No real payments, filings, referrals, or messages.",
   );
@@ -159,8 +210,8 @@ test("help routing explains verified destinations and prepares a local-only hand
       attemptedRequests.push(request.url());
     }
   });
-  await forceSampleMode(page);
-  await page.goto("/?view=vendor&demo_session_id=E2E-REFERRALS&lang=en", {
+  await forceSampleMode(page, { accountRole: "vendor", accountLocale: "en" });
+  await page.goto("/?workspace=get-verified&demo_session_id=E2E-REFERRALS&lang=en", {
     waitUntil: "domcontentloaded",
   });
 
@@ -241,4 +292,172 @@ test("help routing explains verified destinations and prepares a local-only hand
   await expect(handoff).toContainText(resources.en.vendor.helpNoTransmit);
   await expect(handoff.getByRole("button")).toHaveCount(0);
   expect(attemptedRequests).toHaveLength(requestCountBeforeHelp);
+});
+
+test("first-run buyer onboarding reaches truthful empty states and keeps its role", async ({ page }) => {
+  const attemptedProviderRequests = [];
+  page.on("request", (request) => {
+    if (marketplaceProviderPattern().test(request.url())) attemptedProviderRequests.push(request.url());
+  });
+  await forceSampleMode(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await expect(page.getByTestId("marketplace-root")).toBeVisible();
+  const shell = await createMarketplaceAccount(page, "buyer");
+  await expect(shell).toHaveAttribute("data-workspace", "explore");
+  await expect(page.getByTestId("buyer-navigation")).toBeVisible();
+  await expect(page.getByTestId("vendor-navigation")).toHaveCount(0);
+  await expect(page.getByTestId("buyer-explore")).toContainText(
+    resources.en.marketplace.buyerExploreTitle,
+  );
+  await expect(page.getByTestId("marketplace-empty-state")).toContainText(
+    resources.en.marketplace.buyerEmpty,
+  );
+  await expect(page.getByTestId("marketplace-empty-state")).toContainText(
+    resources.en.marketplace.buyerEmptySecondary,
+  );
+  await expect(
+    page.getByTestId("buyer-explore").getByRole("button", { name: /buy|checkout|order now/i }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByTestId("buyer-explore").locator("[data-store-id], [data-product-id], [data-order-id]"),
+  ).toHaveCount(0);
+
+  await page.getByTestId("nav-orders").click();
+  await expect(shell).toHaveAttribute("data-workspace", "orders");
+  await expect(page.getByTestId("buyer-orders-empty")).toContainText(
+    "You haven’t placed any orders yet.",
+  );
+  await expect(page.getByTestId("buyer-orders").locator("[data-order-id]")).toHaveCount(0);
+
+  await page.getByTestId("nav-account").click();
+  await expect(page.getByTestId("account-role")).toContainText(/buyer/i);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "buyer");
+  await expect(page.getByTestId("role-selection")).toHaveCount(0);
+
+  await page.goto("/?workspace=seller-dashboard", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "buyer");
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-workspace", "explore");
+  await expect(page.getByTestId("seller-dashboard")).toHaveCount(0);
+  await expect(page.getByTestId("vendor-navigation")).toHaveCount(0);
+  expect(attemptedProviderRequests).toEqual([]);
+
+  await page.getByTestId("nav-account").click();
+  await page.getByTestId("logout").click();
+  await expect(page.getByTestId("role-selection")).toBeVisible();
+});
+
+test("first-run vendor onboarding keeps zero metrics and embeds verification preparation", async ({ page }) => {
+  const attemptedProviderRequests = [];
+  page.on("request", (request) => {
+    if (marketplaceProviderPattern().test(request.url())) attemptedProviderRequests.push(request.url());
+  });
+  await forceSampleMode(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const shell = await createMarketplaceAccount(page, "vendor");
+  await expect(shell).toHaveAttribute("data-workspace", "dashboard");
+  await expect(page.getByTestId("vendor-navigation")).toBeVisible();
+  await expect(page.getByTestId("buyer-navigation")).toHaveCount(0);
+  const dashboard = page.getByTestId("seller-dashboard");
+  await expect(dashboard).toBeVisible();
+  await expect(page.getByTestId("seller-store-status")).toContainText("Store setup coming soon.");
+  await expect(page.getByTestId("seller-orders-count")).toHaveText("0");
+  await expect(page.getByTestId("seller-sales-total")).toHaveText("$0.00");
+  await expect(page.getByTestId("seller-products-count")).toHaveText("0");
+  await expect(page.getByTestId("seller-verification-status")).toContainText(
+    resources.en.marketplace.officialDecisionPending,
+  );
+  await expect(dashboard).toContainText(resources.en.marketplace.noActivityNote);
+  await expect(
+    dashboard.locator("[data-customer-id], [data-order-id], [data-product-id], [data-store-id]"),
+  ).toHaveCount(0);
+
+  await page.getByTestId("nav-orders").click();
+  await expect(page.getByTestId("seller-orders-empty")).toContainText(
+    "New orders will appear here once your store is live.",
+  );
+  await expect(
+    page.getByTestId("seller-orders").getByRole("button", {
+      name: /fulfill|refund|message|pay|deliver/i,
+    }),
+  ).toHaveCount(0);
+
+  await page.getByTestId("nav-dashboard").click();
+  await page.getByTestId("continue-verification").click();
+  await expect(shell).toHaveAttribute("data-workspace", "get-verified");
+  await expect(page.getByTestId("seller-get-verified")).toBeVisible();
+  await expect(page.getByTestId("embedded-verification")).toBeVisible();
+  await expect(page.getByTestId("vendor-surface")).toBeVisible();
+  await expect(page.getByTestId("vendor-tab-ask")).toBeVisible();
+  await expect(page.getByTestId("vendor-tab-check")).toBeVisible();
+  await expect(page.getByTestId("vendor-tab-sales")).toBeVisible();
+  await expect(page.getByTestId("get-more-help")).toBeVisible();
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: resources.en.common.consoleView })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: resources.en.common.proofView })).toHaveCount(0);
+
+  await page.getByTestId("sample-question").click();
+  await expect(page.getByTestId("source-linked-checklist")).toBeVisible();
+  await page.getByTestId("nav-account").click();
+  await expect(page.getByTestId("account-role")).toContainText(/vendor/i);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "vendor");
+  await expect(page.getByTestId("role-selection")).toHaveCount(0);
+
+  await page.goto("/?workspace=explore", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "vendor");
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-workspace", "dashboard");
+  await expect(page.getByTestId("buyer-explore")).toHaveCount(0);
+  await expect(page.getByTestId("buyer-navigation")).toHaveCount(0);
+  expect(attemptedProviderRequests).toEqual([]);
+});
+
+test("buyer marketplace has no horizontal overflow at 320 and 390 pixels", async ({ page }) => {
+  await forceSampleMode(page);
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("role-selection")).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
+      "role selection at " + width + "px",
+    ).toBeLessThanOrEqual(1);
+    await page.getByTestId("role-option-buyer").click();
+    await expect(page.getByTestId("prototype-account-setup")).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
+      "prototype account setup at " + width + "px",
+    ).toBeLessThanOrEqual(1);
+    await page.getByTestId("account-setup-back").click();
+  }
+
+  await createMarketplaceAccount(page, "buyer");
+
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    for (const destination of ["nav-explore", "nav-orders", "nav-account"]) {
+      await page.getByTestId(destination).click();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, "buyer " + destination + " at " + width + "px").toBeLessThanOrEqual(1);
+    }
+  }
+});
+
+test("seller marketplace has no horizontal overflow at 320 and 390 pixels", async ({ page }) => {
+  await forceSampleMode(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await createMarketplaceAccount(page, "vendor");
+
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    for (const destination of ["nav-dashboard", "nav-orders", "nav-get-verified", "nav-account"]) {
+      await page.getByTestId(destination).click();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, "vendor " + destination + " at " + width + "px").toBeLessThanOrEqual(1);
+    }
+  }
 });

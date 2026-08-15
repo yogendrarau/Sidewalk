@@ -332,6 +332,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(230, 96, 66,
 .vendor-side-note p { max-width: 360px; margin: 22px 0 0; color: #536158; font-size: 16px; line-height: 1.55; }
 .vendor-side-note .product-description { margin-top: 16px; padding-top: 15px; border-top: 1px solid rgba(15, 86, 61, .18); font-size: 11px; line-height: 1.55; }
 
+/* Marketplace "Get Verified" reuses the vendor preparation surface without
+   exposing the legacy console/proof chrome or assuming a full-page viewport. */
+.sidewalk-embedded { min-height: 0; background: transparent; }
+.sidewalk-embedded .vendor-view { min-height: 0; padding: 0; display: block; overflow: visible; background: transparent; }
+.sidewalk-embedded .vendor-phone { height: 760px; max-height: none; margin-inline: auto; }
+.sidewalk-embedded .vendor-side-note,
+.sidewalk-embedded .vendor-ambient { display: none; }
+
 .console-view { min-height: calc(100vh - 104px); display: grid; grid-template-columns: 218px 1fr; background: #f4f1e7; }
 .console-sidebar { min-height: calc(100vh - 104px); position: sticky; top: 104px; align-self: start; padding: 25px 16px 18px; display: flex; flex-direction: column; background: var(--sw-green-dark); color: white; }
 .console-brand { display: grid; gap: 12px; padding: 0 8px 25px; }

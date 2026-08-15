@@ -18,127 +18,129 @@ async function forceSampleMode(page) {
   });
 }
 
-for (const locale of LOCALES) {
-  test(`${locale} renders the complete console and proof surfaces`, async ({ page }) => {
-    await forceSampleMode(page);
-    const encodedLocale = encodeURIComponent(locale);
-    await page.goto(
-      `/?view=console&demo_session_id=E2E-CONSOLE&lang=es&ui_lang=${encodedLocale}`,
-      { waitUntil: "domcontentloaded" },
-    );
-    await expect(page.getByTestId("console-surface")).toBeVisible();
-    await expect(page.getByTestId("console-language-select")).toHaveValue(locale);
-    await expect(page.locator("html")).toHaveAttribute("lang", locale);
-    await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-    await expect(page.getByTestId("console-surface")).toContainText(
-      resources[locale].console.caseworkerView,
-    );
-
-    await page.goto(
-      `/?view=proof&demo_session_id=E2E-CONSOLE&lang=es&ui_lang=${encodedLocale}`,
-      { waitUntil: "domcontentloaded" },
-    );
-    await expect(page.getByTestId("proof-surface")).toBeVisible();
-    await expect(page.locator("html")).toHaveAttribute("lang", locale);
-    await expect(page.getByTestId("proof-surface")).toContainText(resources[locale].proof.titleA);
-    const text = await page.getByTestId("proof-surface").innerText();
-    await expect(page.getByTestId("proof-surface")).toContainText(
-      resources[locale].roadmap.broaderVision,
-    );
-    expect(text).not.toMatch(
-      /\b(?:common|vendor|console|safety|guidance|errors|proof|roadmap)[.:][a-z][\w.-]+\b/,
-    );
-  });
+async function createMarketplaceAccount(page, role) {
+  await expect(page.getByTestId("role-selection")).toBeVisible();
+  await page.getByTestId("role-option-" + role).click();
+  await expect(page.getByTestId("prototype-account-setup")).toBeVisible();
+  await expect(page.getByTestId("prototype-role")).toContainText(
+    role === "buyer"
+      ? resources.en.marketplace.buyerRole
+      : resources.en.marketplace.vendorRole,
+  );
+  await page.getByTestId("create-prototype-account").click();
+  const shell = page.getByTestId("marketplace-shell");
+  await expect(shell).toBeVisible();
+  await expect(shell).toHaveAttribute("data-role", role);
+  return shell;
 }
 
-test("console locale stays independent from the vendor locale and persists", async ({ page }) => {
-  await forceSampleMode(page);
-  await page.goto("/?view=console&demo_session_id=E2E-CONSOLE&lang=es&ui_lang=fr", {
-    waitUntil: "domcontentloaded",
-  });
-
-  await expect(page.getByTestId("console-surface")).toBeVisible();
-  await expect(page.getByTestId("console-language-select")).toHaveValue("fr");
-  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-
-  await page.evaluate(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete("ui_lang");
-    window.history.replaceState({}, "", url);
-  });
-  await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.getByTestId("console-language-select")).toHaveValue("fr");
-
-  await page.goto("/?view=vendor&demo_session_id=E2E-CONSOLE&lang=es", {
-    waitUntil: "domcontentloaded",
-  });
-  await expect(page.getByTestId("vendor-language-select")).toHaveValue("es");
-  await expect(page.locator("html")).toHaveAttribute("lang", "es");
-
-  await page.goto("/?view=console&demo_session_id=E2E-CONSOLE&lang=es&ui_lang=ar", {
-    waitUntil: "domcontentloaded",
-  });
-  await expect(page.getByTestId("console-language-select")).toHaveValue("ar");
-  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
-  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByTestId("console-surface")).toHaveCSS("direction", "rtl");
-});
-
-test("console renders without horizontal overflow on a laptop viewport", async ({ page }) => {
-  await forceSampleMode(page);
-  await page.goto("/?view=console&demo_session_id=E2E-CONSOLE&ui_lang=ar", {
-    waitUntil: "domcontentloaded",
-  });
-  await expect(page.getByTestId("console-surface")).toBeVisible();
+async function expectNoHorizontalOverflow(page, label) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  expect(overflow).toBeLessThanOrEqual(1);
+  expect(overflow, label).toBeLessThanOrEqual(1);
+}
+
+test("first-run role chooser is fully localized across all seven locales", async ({ page }) => {
+  await forceSampleMode(page);
+  await page.goto("/?lang=en", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-root")).toBeVisible();
+  await expect(page.getByTestId("role-selection")).toBeVisible();
+
+  for (const locale of LOCALES) {
+    await page.getByTestId("marketplace-language-select").selectOption(locale);
+    await expect(page.getByTestId("marketplace-language-select")).toHaveValue(locale);
+    await expect(page.locator("html")).toHaveAttribute("lang", locale);
+    await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+    const roleSelection = page.getByTestId("role-selection");
+    await expect(roleSelection).toContainText(resources[locale].marketplace.roleHeading);
+    await expect(roleSelection).toContainText(resources[locale].marketplace.buyChoice);
+    await expect(roleSelection).toContainText(resources[locale].marketplace.buyDescription);
+    await expect(roleSelection).toContainText(resources[locale].marketplace.sellChoice);
+    await expect(roleSelection).toContainText(resources[locale].marketplace.sellDescription);
+    const text = await roleSelection.innerText();
+    expect(text).not.toMatch(
+      /\b(?:common|vendor|console|safety|guidance|errors|proof|roadmap|marketplace)[.:][a-z][\w.-]+\b/,
+    );
+  }
 });
 
-test("the default review surface is an AI trace with optional human escalation", async ({ page }) => {
+test("desktop buyer shell is role-safe, empty, persistent, and never exposes legacy tools", async ({ page }) => {
   await forceSampleMode(page);
-  await page.goto("/?view=console&demo_session_id=E2E-AI-REVIEW&lang=es", {
-    waitUntil: "domcontentloaded",
-  });
+  await page.goto("/?lang=en", { waitUntil: "domcontentloaded" });
+  const shell = await createMarketplaceAccount(page, "buyer");
 
-  const consoleSurface = page.getByTestId("console-surface");
-  await expect(consoleSurface).toBeVisible();
-  await expect(page.getByTestId("console-language-select")).toHaveValue("en");
-  await expect(consoleSurface).toContainText(/AI SUPPORT CONSOLE/i);
-  await expect(consoleSurface).toContainText(/AI CASE REVIEW/i);
-  await expect(consoleSurface).not.toContainText(/\bcaseworker(?:s)?\b/i);
-  await expect(page.getByTestId("product-description")).toContainText(
-    resources.en.common.productDescription,
+  await expect(shell).toHaveAttribute("data-workspace", "explore");
+  await expect(page.getByTestId("buyer-navigation")).toBeVisible();
+  await expect(page.getByTestId("vendor-navigation")).toHaveCount(0);
+  await expect(page.getByTestId("marketplace-empty-state")).toContainText(
+    "Vendor stores will appear here as they join SIDEWALK.",
   );
+  await expect(
+    page.getByTestId("buyer-explore").locator("[data-store-id], [data-product-id]"),
+  ).toHaveCount(0);
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
+  await expectNoHorizontalOverflow(page, "desktop buyer Explore");
 
-  const summary = page.getByTestId("ai-review-summary");
-  await expect(summary).toBeVisible();
-  await expect(summary).toContainText(/Original input/i);
-  await expect(summary).toContainText(/Recommended official destination/i);
-  await expect(summary).toContainText(/Human review/i);
-  await expect(summary).toContainText(/Optional/i);
-  await expect(summary).not.toContainText(/Needs human\/legal review/i);
-  await expect(consoleSurface).not.toContainText(/Needs human(?:\/| or )legal review/i);
+  await page.getByTestId("nav-orders").click();
+  await expect(page.getByTestId("buyer-orders-empty")).toContainText(
+    "You haven’t placed any orders yet.",
+  );
+  await expect(page.getByTestId("buyer-orders").locator("[data-order-id]")).toHaveCount(0);
+  await expectNoHorizontalOverflow(page, "desktop buyer Orders");
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "buyer");
+  await page.goto("/?workspace=get-verified", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "buyer");
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-workspace", "explore");
+  await expect(page.getByTestId("seller-get-verified")).toHaveCount(0);
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
 });
 
-test("an exceptional abstention is marked for recommended review in the AI trace", async ({ page }) => {
+test("desktop seller shell has exact zero metrics and preserves verification without legacy tools", async ({ page }) => {
   await forceSampleMode(page);
-  await page.goto("/?view=vendor&demo_session_id=E2E-ESCALATION&lang=en&ui_lang=en", {
-    waitUntil: "domcontentloaded",
-  });
+  await page.goto("/?lang=en", { waitUntil: "domcontentloaded" });
+  const shell = await createMarketplaceAccount(page, "vendor");
 
-  await page.getByRole("textbox", { name: resources.en.vendor.typeQuestion }).fill(
-    "Guarantee that this permit will be approved and represent me at the hearing.",
+  await expect(shell).toHaveAttribute("data-workspace", "dashboard");
+  await expect(page.getByTestId("buyer-navigation")).toHaveCount(0);
+  await expect(page.getByTestId("seller-store-status")).toContainText("Store setup coming soon.");
+  await expect(page.getByTestId("seller-orders-count")).toHaveText("0");
+  await expect(page.getByTestId("seller-sales-total")).toHaveText("$0.00");
+  await expect(page.getByTestId("seller-products-count")).toHaveText("0");
+  await expect(page.getByTestId("seller-dashboard")).toContainText(
+    resources.en.marketplace.noActivityNote,
   );
-  await page.getByRole("button", { name: resources.en.vendor.sendQuestion }).click();
-  await expect(page.getByTestId("guidance-result")).toHaveClass(/abstained/);
+  await expectNoHorizontalOverflow(page, "desktop seller Dashboard");
 
-  await page.getByRole("button", { name: resources.en.common.consoleView }).click();
-  const summary = page.getByTestId("ai-review-summary");
-  await expect(summary).toBeVisible();
-  await expect(summary).toContainText(/Recommended official destination/i);
-  await expect(summary).toContainText(/Street Vendor Project/i);
-  await expect(summary).toContainText(/Human review/i);
-  await expect(summary).toContainText(/Recommended/i);
-  await expect(summary).not.toContainText(/Human review.*Optional/i);
+  await page.getByTestId("nav-orders").click();
+  await expect(page.getByTestId("seller-orders-empty")).toContainText(
+    "New orders will appear here once your store is live.",
+  );
+  await expect(page.getByTestId("seller-orders").locator("[data-order-id]")).toHaveCount(0);
+  await expectNoHorizontalOverflow(page, "desktop seller Orders");
+
+  await page.getByTestId("nav-get-verified").click();
+  await expect(page.getByTestId("seller-get-verified")).toContainText(
+    resources.en.marketplace.verificationTitle,
+  );
+  await expect(page.getByTestId("embedded-verification")).toBeVisible();
+  await expect(page.getByTestId("vendor-surface")).toBeVisible();
+  await expect(page.getByTestId("vendor-language-select")).toBeVisible();
+  await expect(page.getByTestId("get-more-help")).toBeVisible();
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: resources.en.common.consoleView })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: resources.en.common.proofView })).toHaveCount(0);
+  await expectNoHorizontalOverflow(page, "desktop seller Get Verified");
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "vendor");
+  await page.goto("/?workspace=explore", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-role", "vendor");
+  await expect(page.getByTestId("marketplace-shell")).toHaveAttribute("data-workspace", "dashboard");
+  await expect(page.getByTestId("buyer-explore")).toHaveCount(0);
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
 });

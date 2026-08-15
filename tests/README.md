@@ -5,8 +5,9 @@ The automated suite is intentionally split between deterministic contracts and a
 - `unit/i18n.test.js` verifies the seven-locale registry, namespace/key parity, interpolation parity, and non-empty catalogs.
 - `unit/demoCore.test.js` proves all localized preparation questions produce the same rule decision, trace, and hash; verifies abstention and localized `$12` parsing; and hashes the bundled speech fixtures.
 - `unit/integration-boundaries.test.js` checks session scoping, locale schemas, exact-hash speech fallback, RTL-safe styling, and the absence of payment, messaging, filing, or outreach provider initialization.
+- `unit/marketplace-contract.test.js` checks the dedicated buyer/vendor account-role schema, closed prototype persistence record, Base44 sync gateway, exact empty-state copy, absence of commerce entities, and absence of commerce-provider initialization.
 - `unit/self-service-contract.test.js` locks the required product positioning, AI Support Console framing, optional-review boundary, referral destinations, and local-only handoff language.
-- `e2e/*.spec.js` blocks network calls and exercises each language in clearly visible sample mode, including Ask, Check, My Sales, Arabic RTL, console independence, persistence, referral routing, routine self-service, exceptional abstention, and target viewport widths.
+- `e2e/*.spec.js` blocks network calls and exercises first-run role selection, buyer/vendor persistence and role-safe routing, intentional buyer empty states, seller zero metrics, embedded verification preparation, all seven vendor-language journeys, referral routing, routine self-service, exceptional abstention, hidden internal console/proof surfaces, and 320/390/desktop overflow checks.
 
 Run locally with:
 

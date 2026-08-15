@@ -1,7 +1,7 @@
 /** P4 loop coverage: cash log (spoken + digit), evidence grading, letter reader, radar, bi-temporal memory. */
 import { describe, it, expect } from "vitest";
 import { log_cash_sale } from "../src/functions/log_cash_sale.js";
-import { route_inbound } from "../src/functions/route_inbound.js";
+import { route_inbound } from "../src/functions/assistant_route.js";
 import { read_letter } from "../src/functions/read_letter.js";
 import { scam_radar } from "../src/functions/scam_radar.js";
 import { shopify_webhook } from "../src/functions/shopify_webhook.js";

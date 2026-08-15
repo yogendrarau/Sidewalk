@@ -12,4 +12,3 @@ if (existsSync(envPath)) {
 }
 
 export const env = (k: string, dflt = ""): string => process.env[k] ?? dflt;
-export const CHANNELS = () => env("SIDEWALK_CHANNELS", "web").split(",").map((s) => s.trim());

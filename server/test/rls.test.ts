@@ -45,12 +45,12 @@ describe("Gate 0 — cross-tenant isolation on every RLS entity", () => {
   });
 
   it("FLS strips sensitive fields for non-admin readers", () => {
-    entities.create(sys, "Vendor", { vendor_id: "vendor-a", display_name: "Rosa", wa_phone_hash: "h4sh" });
+    entities.create(sys, "Vendor", { vendor_id: "vendor-a", display_name: "Rosa", base44_user_id: "u_secret" });
     const rows = entities.list(orgWithGrant, "Vendor");
     const rosa = rows.find((r) => r.display_name === "Rosa")!;
-    expect(rosa.wa_phone_hash).toBeUndefined();
+    expect(rosa.base44_user_id).toBeUndefined();
     const admin = entities.list({ kind: "org", org_id: "org-x", grants: ["vendor-a"], admin: true }, "Vendor");
-    expect(admin.find((r) => r.display_name === "Rosa")!.wa_phone_hash).toBe("h4sh");
+    expect(admin.find((r) => r.display_name === "Rosa")!.base44_user_id).toBe("u_secret");
   });
 
   it("forbidden fields (invariant 3) are rejected at the layer", () => {

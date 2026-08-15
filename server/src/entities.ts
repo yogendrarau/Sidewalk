@@ -17,8 +17,7 @@ export type Ctx =
 type Rls = "vendor" | "org" | "public";
 
 const SCHEMA: Record<string, { rls: Rls; fls?: string[] }> = {
-  Vendor: { rls: "vendor", fls: ["wa_phone_hash"] },
-  ChannelIdentity: { rls: "vendor", fls: ["address_hash"] },
+  Vendor: { rls: "vendor", fls: ["base44_user_id"] },
   CaseFile: { rls: "vendor" },
   DocumentImage: { rls: "vendor" },
   ExtractedField: { rls: "vendor" },
@@ -26,14 +25,20 @@ const SCHEMA: Record<string, { rls: Rls; fls?: string[] }> = {
   VerificationCheck: { rls: "vendor" },
   Fact: { rls: "vendor" },
   Deadline: { rls: "vendor" },
-  Storefront: { rls: "vendor" },
+  AppNotification: { rls: "vendor" },
+  Storefront: { rls: "vendor" }, // public reads go through publicStorefront() ONLY
+  CatalogItem: { rls: "vendor" }, // public reads go through publicItem() ONLY
+  CommerceOrder: { rls: "vendor", fls: ["fulfillment_code_hash"] },
   EvidenceRecord: { rls: "vendor" },
   GuardEvent: { rls: "vendor" },
   Message: { rls: "vendor" },
+  MerchantFeedback: { rls: "vendor" },
   AreaSignal: { rls: "public" }, // aggregate only, no vendor refs — by design
   RulebookVersion: { rls: "public" },
   EvalRun: { rls: "public" },
   ReferralPartner: { rls: "public" },
+  WebhookReceipt: { rls: "public" }, // replay-protection + provenance ledger: ids and verdicts only
+  AutomationRun: { rls: "public" }, // scheduled-automation proof for /demo/platform
   Org: { rls: "org" },
   OutreachDraft: { rls: "org" },
 };
@@ -135,6 +140,32 @@ export const entities = {
     return n;
   },
 };
+
+/**
+ * Public shopper projections (v3 §8 commerce loop): anonymous reads see ONLY these
+ * allowlisted fields — never case data, documents, phone, exact location, or shopper PII.
+ * Fail closed: anything not named here is dropped, whatever gets added to the row later.
+ */
+export const PUBLIC_STOREFRONT_FIELDS = [
+  "slug", "public_name", "langs", "category", "open_state", "pickup_note", "public_nta",
+] as const;
+export const PUBLIC_ITEM_FIELDS = [
+  "title_by_lang", "description_by_lang", "price", "currency", "image_url", "availability", "sort_order",
+] as const;
+export const PUBLIC_ORDER_FIELDS = [
+  // served ONLY on the token-capability order page — possession of the secret token is the authorization
+  "order_number", "items", "total", "currency", "fulfillment", "pickup_window", "placed_at", "pickup_code",
+] as const;
+
+function project(row: Record<string, unknown> | null, allow: readonly string[]): Record<string, unknown> | null {
+  if (!row) return null;
+  const out: Record<string, unknown> = {};
+  for (const k of allow) if (row[k] !== undefined) out[k] = row[k];
+  return out;
+}
+export const publicStorefront = (row: Record<string, unknown> | null) => project(row, PUBLIC_STOREFRONT_FIELDS);
+export const publicItem = (row: Record<string, unknown> | null) => project(row, PUBLIC_ITEM_FIELDS);
+export const publicOrder = (row: Record<string, unknown> | null) => project(row, PUBLIC_ORDER_FIELDS);
 
 /** Signed expiring URLs for documents (invariant 4). */
 const MEDIA_SECRET = process.env.MEDIA_SECRET ?? "sidewalk-media-dev";

@@ -1,5 +1,5 @@
 // Minimal shell cache — network-first for API, cache-first for static shell.
-const SHELL = "sidewalk-shell-v2";
+const SHELL = "sidewalk-shell-v3";
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(SHELL).then((c) => c.addAll(["/", "/manifest.webmanifest", "/icon.svg"])));
   self.skipWaiting();

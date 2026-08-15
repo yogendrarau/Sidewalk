@@ -1,7 +1,9 @@
 /**
- * route_inbound (§9): persist → transcribe if audio → guard_screen → intent (deterministic
- * keyword match; constrained decode when a gateway model is available) → dispatch.
- * Unknown → clarifying question. The planner sees guard LABELS only, never flagged raw text.
+ * assistant_route (v3 §9): persist structured app event → transcribe if audio → guard_screen →
+ * intent (deterministic keyword match; constrained decode when a gateway model is available)
+ * → dispatch. Unknown → one clarifying question. The planner sees guard LABELS only.
+ * Commerce voice ops (sold-out, price, cancel) only PROPOSE — the confirm gates (invariant 9)
+ * live on the write endpoints, so voice can never bypass them.
  */
 import { z } from "zod";
 import { defineFn } from "./_fn.js";
@@ -37,6 +39,7 @@ type In = z.infer<typeof Input>;
 export type Intent =
   | "eligibility_question" | "document_submission" | "summons_check" | "broker_check"
   | "placement_check" | "status_query" | "storefront_request" | "scam_forward"
+  | "catalog_update" | "store_open_state" | "order_status"
   | "cash_log" | "letter" | "smalltalk_other" | "unknown";
 
 export type RouteOut = {
@@ -55,6 +58,10 @@ const INTENT_RES: Array<[Intent, RegExp]> = [
   ["cash_log", /(efectivo|cash).{0,20}\$?\s?\d|\$\s?[\d,]+.{0,25}(efectivo|cash|hoy|today)/i],
   ["broker_check", /(broker|gestor|tramitador|te consigo|me ofrece|se llama).{0,80}(licencia|license|permiso|permit)/i],
   ["scam_forward", /(me mandaron|forward|reenv[ií]o|recib[ií] este mensaje|someone sent)/i],
+  // commerce voice ops go BEFORE storefront_request/eligibility so "se acabaron los tamales" routes right
+  ["catalog_update", /(agotad[oa]s?|se acab(ó|o|aron)|sold out|no (me )?quedan?|ya no hay|nuevo producto|new (product|item)|a[ñn]ad(e|ir|o)|add (an? )?(product|item)|cambiar? (el )?precio|change (the )?price|sube el precio|otra vez disponible|back in stock|disponible de nuevo)/i],
+  ["store_open_state", /(cierr[oa]|cerrar) (la )?tienda|close (the |my )?store|abr(o|ir|e) (la )?tienda|open (the |my )?store|estoy cerrando|closing up|pausa(r)? (la )?tienda/i],
+  ["order_status", /\b(pedidos?|orders?|orden(es)?)\b.{0,40}(nuevo|new|listo|ready|hoy|today|recoger|pickup|picked|acept|estado|status|hay|tengo|any)|((listo|ready|acept[oa]).{0,30}\b(pedido|order|orden)\b)/i],
   ["storefront_request", /(tienda|storefront|qr|pagos con tarjeta|card payments|payment link|shopify|vender en l[ií]nea)/i],
   ["status_query", /(estado|status|mi caso|my case|c[oó]mo va|donde va|expediente)/i],
   ["placement_check", /(d[oó]nde (puedo|me puedo)|where can i (stand|sell)|esquina|corner|crosswalk|subway|near the|clear path|cart (size|dim)|ubicaci[oó]n|spot|parar|restricted street)/i],
@@ -91,7 +98,7 @@ async function explain(input: In, key: string, params: Record<string, unknown>, 
   return res.data;
 }
 
-export const route_inbound = defineFn<In, RouteOut>("route_inbound", Input, async (input) => {
+export const assistant_route = defineFn<In, RouteOut>("assistant_route", Input, async (input) => {
   const ctx: Ctx = { kind: "vendor", vendor_id: input.vendor_id };
   const rb = loadRulebook();
 
@@ -304,11 +311,67 @@ export const route_inbound = defineFn<In, RouteOut>("route_inbound", Input, asyn
 
     case "storefront_request": {
       const confirmAsk = {
-        en: "I can set up your storefront: a payment page and a QR poster for card sales that count as grade-A evidence. Setting up payments needs your explicit OK — tap Confirm in the app.",
-        es: "Puedo crear su tienda: una página de pagos y un póster QR para ventas con tarjeta que cuentan como evidencia grado A. Activar pagos necesita su confirmación explícita — toque Confirmar en la aplicación.",
+        en: "I can publish your store: shoppers scan your QR, see your menu in their language, and pay by card — those sales count as grade-A evidence. Publishing needs your explicit OK — tap Confirm in My Store.",
+        es: "Puedo publicar su tienda: los clientes escanean su QR, ven su menú en su idioma y pagan con tarjeta — esas ventas cuentan como evidencia grado A. Publicar necesita su confirmación — toque Confirmar en Mi Tienda.",
       } as Record<string, string>;
       const text = confirmAsk[input.lang] ?? confirmAsk.en;
-      return finish({ text, sentences: [text], citations: [], gate_report: { pass: true, sentences: [] }, tier: "template", lang_used: input.lang, lang_fallback: false }, { propose: "provision_storefront" });
+      return finish({ text, sentences: [text], citations: [], gate_report: { pass: true, sentences: [] }, tier: "template", lang_used: input.lang, lang_fallback: false }, { propose: "provision_storefront", route: "/app/store" });
+    }
+
+    case "catalog_update": {
+      // Voice NEVER writes the catalog directly — it proposes; the confirm gate lives on the write endpoint.
+      const text0 = (input.text ?? "").toLowerCase();
+      const items = entities.list(ctx, "CatalogItem", { vendor_id: input.vendor_id });
+      const match = items.find((it) => {
+        const titles = Object.values((it.title_by_lang as Record<string, string>) ?? {}).join(" ").toLowerCase();
+        return titles.split(/\s+/).some((w) => w.length > 3 && text0.includes(w));
+      });
+      const wantsAvailable = /otra vez|de nuevo|back in stock|again|disponible/.test(text0) && !/no |agotad|se acab|sold out/.test(text0);
+      const soldOut = !wantsAvailable && /agotad|se acab|sold out|no (me )?quedan?|ya no hay/.test(text0);
+      const title = match ? String(Object.values((match.title_by_lang as Record<string, string>) ?? {})[0] ?? "") : null;
+      const msgs = {
+        found_sold: { es: `Entendido: marcar “${title}” como agotado. Confirme en la aplicación para publicar el cambio.`, en: `Got it: mark “${title}” as sold out. Confirm in the app to publish the change.` },
+        found_avail: { es: `Entendido: “${title}” disponible otra vez. Confirme en la aplicación para publicar el cambio.`, en: `Got it: “${title}” available again. Confirm in the app to publish the change.` },
+        no_item: { es: "¿Qué producto? Abra Mi Tienda y toque el producto, o diga el nombre.", en: "Which product? Open My Store and tap the item, or say its name." },
+      };
+      const key = match ? (soldOut ? "found_sold" : "found_avail") : "no_item";
+      const text = (msgs[key] as Record<string, string>)[input.lang] ?? (msgs[key] as Record<string, string>).en;
+      return finish(
+        { text, sentences: [text], citations: [], gate_report: { pass: true, sentences: [] }, tier: "template", lang_used: input.lang, lang_fallback: false },
+        match
+          ? { propose: "set_availability", item_id: match.id, title, availability: soldOut ? "sold_out" : "available", route: "/app/store" }
+          : { route: "/app/store" },
+      );
+    }
+
+    case "store_open_state": {
+      const closing = /cierr|cerrar|close|closing|pausa/i.test(input.text ?? "");
+      const store = entities.list(ctx, "Storefront", { vendor_id: input.vendor_id })[0];
+      if (store) entities.update(ctx, "Storefront", store.id, { open_state: closing ? "closed" : "open" });
+      const msgs = closing
+        ? { es: "Listo — su tienda está cerrada. Los clientes verán “cerrado” hasta que la abra.", en: "Done — your store is closed. Shoppers see “closed” until you open it." }
+        : { es: "Listo — su tienda está abierta y aceptando pedidos.", en: "Done — your store is open and taking orders." };
+      const text = (msgs as Record<string, string>)[input.lang] ?? msgs.en;
+      return finish(
+        { text, sentences: [text], citations: [], gate_report: { pass: true, sentences: [] }, tier: "template", lang_used: input.lang, lang_fallback: false },
+        { open_state: closing ? "closed" : "open" },
+      );
+    }
+
+    case "order_status": {
+      const orders = entities.list(ctx, "CommerceOrder", { vendor_id: input.vendor_id })
+        .filter((o) => ["new", "accepted", "ready"].includes(String(o.fulfillment)))
+        .sort((a, b) => String(b.placed_at).localeCompare(String(a.placed_at)));
+      const n = orders.length;
+      const line = (o: (typeof orders)[number]) => `${o.order_number} $${Number(o.total).toFixed(2)} (${o.fulfillment})`;
+      const msgs = n
+        ? { es: `Tiene ${n} pedido${n > 1 ? "s" : ""} activo${n > 1 ? "s" : ""}: ${orders.slice(0, 3).map(line).join("; ")}. Toque un pedido en Mi Tienda para avanzarlo.`, en: `You have ${n} active order${n > 1 ? "s" : ""}: ${orders.slice(0, 3).map(line).join("; ")}. Tap an order in My Store to move it forward.` }
+        : { es: "No hay pedidos activos ahora. Su QR está listo para el próximo cliente.", en: "No active orders right now. Your QR is ready for the next shopper." };
+      const text = (msgs as Record<string, string>)[input.lang] ?? msgs.en;
+      return finish(
+        { text, sentences: [text], citations: [], gate_report: { pass: true, sentences: [] }, tier: "template", lang_used: input.lang, lang_fallback: false },
+        { orders: orders.slice(0, 5).map((o) => ({ id: o.id, order_number: o.order_number, fulfillment: o.fulfillment, total: o.total })), route: "/app/store" },
+      );
     }
 
     case "eligibility_question": {
@@ -383,3 +446,6 @@ export const route_inbound = defineFn<In, RouteOut>("route_inbound", Input, asyn
     }
   }
 });
+
+/** Back-compat alias for the eval runner and older tests. */
+export const route_inbound = assistant_route;

@@ -9,6 +9,7 @@ export default defineConfig({
     proxy: {
       "/api": "http://localhost:4477",
       "/media": "http://localhost:4477",
+      "/shop-media": "http://localhost:4477",
       "/pay": "http://localhost:4477",
     },
   },

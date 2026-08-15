@@ -64,6 +64,17 @@ export const SCHEMAS: Record<string, { name: string; properties: Record<string, 
       doc_category: { type: "string", description: "dcwp_fine | tax | license_notice | other" },
     },
   },
+  menu: {
+    name: "menu",
+    properties: {
+      items_json: {
+        type: "string",
+        description:
+          'JSON array of menu items exactly as printed: [{"title": string, "price_usd": number|null}]. price_usd is null unless a price is clearly printed for that item — never infer one.',
+      },
+      currency: { type: "string", description: "currency symbol/code if printed, null otherwise" },
+    },
+  },
   cart_voucher: {
     name: "cart_voucher",
     properties: {

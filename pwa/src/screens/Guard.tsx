@@ -1,23 +1,37 @@
-/** Check (§10 screen 3): summons photo / paste message / share location / photograph any letter. */
+/**
+ * Guard (§10.1 #3): photograph a summons, type a ticket number, paste a suspicious message,
+ * photograph any letter, placement check. Verdicts come from city records — never an AI score.
+ * One-tap feedback chips (§3.4) feed the console correction queue.
+ */
 import { useRef, useState } from "react";
-import { sendInbound, uploadMedia, type Reply } from "../api";
+import { api, sendInbound, uploadMedia, type Reply } from "../api";
 import { t } from "../i18n";
 import { speak } from "../speech";
 
 type Result = { reply: Reply["reply"]; guard: Reply["guard"]; intent: string };
 
-export default function Check({ lang }: { lang: string }) {
+export function logFeedbackLocal(flow: string, rating: string) {
+  try {
+    const log = JSON.parse(localStorage.getItem("sidewalk_fb") ?? "[]") as Array<{ flow: string; rating: string; at: string }>;
+    log.unshift({ flow, rating, at: new Date().toISOString() });
+    localStorage.setItem("sidewalk_fb", JSON.stringify(log.slice(0, 20)));
+  } catch { /* history is best-effort */ }
+}
+
+export default function Guard({ lang }: { lang: string }) {
   const [result, setResult] = useState<Result | null>(null);
   const [busy, setBusy] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [ticket, setTicket] = useState("");
+  const [fbSent, setFbSent] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const purposeRef = useRef<"summons" | "letter">("summons");
 
   async function run(payload: Record<string, unknown>) {
     setBusy(true);
     setResult(null);
+    setFbSent(false);
     try {
       const res = await sendInbound(payload);
       if (res.ok) {
@@ -45,6 +59,12 @@ export default function Check({ lang }: { lang: string }) {
       () => void run({ kind: "location", lat: 40.7484, lon: -73.9857 }),
       { timeout: 4000 },
     );
+  };
+
+  const sendFeedback = async (rating: "helpful" | "wrong" | "confusing") => {
+    await api("/api/feedback", { flow: "guard", rating, context_ref: result?.intent }).catch(() => {});
+    logFeedbackLocal("guard", rating);
+    setFbSent(true);
   };
 
   const verdictColor = result
@@ -89,19 +109,40 @@ export default function Check({ lang }: { lang: string }) {
       {busy && <p className="animate-pulse pt-2 text-center text-stone-500">🛡️ …</p>}
 
       {result && (
-        <section className={`msg-in rounded-3xl border-2 p-4 shadow ${verdictColor}`}>
-          <p className="whitespace-pre-wrap text-[15px] leading-snug">{result.reply.text.replace(/\[\d+\]/g, "")}</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <button onClick={() => speak(result.reply.sentences, lang)} className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-bold text-leaf">▶︎ 🔊</button>
-            {result.reply.citations.map((c) => (
-              <span key={c.idx} className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold text-amber-900">§ {c.citation.slice(0, 60)}</span>
-            ))}
-            {result.reply.freshness && (
-              <span className="rounded-full bg-sky-100 px-2.5 py-1 text-[10px] text-sky-800">🕐 {t("data_as_of", lang)} {result.reply.freshness.slice(0, 10)}</span>
+        <>
+          <section className={`msg-in rounded-3xl border-2 p-4 shadow ${verdictColor}`}>
+            <p className="whitespace-pre-wrap text-[15px] leading-snug">{result.reply.text.replace(/\[\d+\]/g, "")}</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <button onClick={() => speak(result.reply.sentences, lang)} className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-bold text-leaf">▶︎ 🔊</button>
+              {result.reply.citations.map((c) => (
+                <span key={c.idx} className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold text-amber-900">§ {c.citation.slice(0, 60)}</span>
+              ))}
+              {result.reply.freshness && (
+                <span className="rounded-full bg-sky-100 px-2.5 py-1 text-[10px] text-sky-800">🕐 {t("data_as_of", lang)} {result.reply.freshness.slice(0, 10)}</span>
+              )}
+              {result.guard.scam_pattern && <span className="rounded-full bg-chili px-2.5 py-1 text-[10px] font-bold text-white">⚠️ {result.guard.scam_pattern}</span>}
+            </div>
+          </section>
+
+          {/* one-tap feedback (§3.4) */}
+          <section className="msg-in rounded-2xl bg-white p-3 shadow-sm">
+            {fbSent ? (
+              <p className="text-center text-sm font-semibold text-emerald-800">✓ {t("fb_thanks", lang)}</p>
+            ) : (
+              <>
+                <p className="mb-2 text-center text-xs font-bold uppercase text-stone-400">{t("was_helpful", lang)}</p>
+                <div className="flex gap-2">
+                  {([["helpful", "👍", t("fb_helpful", lang)], ["wrong", "👎", t("fb_wrong", lang)], ["confusing", "🤔", t("fb_confusing", lang)]] as const).map(([r, icon, label]) => (
+                    <button key={r} onClick={() => void sendFeedback(r)}
+                      className="flex-1 rounded-xl border-2 border-stone-200 py-2 text-sm font-bold active:scale-95 active:bg-stone-50">
+                      {icon} {label}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
-            {result.guard.scam_pattern && <span className="rounded-full bg-chili px-2.5 py-1 text-[10px] font-bold text-white">⚠️ {result.guard.scam_pattern}</span>}
-          </div>
-        </section>
+          </section>
+        </>
       )}
 
       <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden"

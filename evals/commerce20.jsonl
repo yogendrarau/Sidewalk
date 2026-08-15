@@ -1,0 +1,20 @@
+{"id":"c01","name":"Provisioning the same vendor twice returns the same slug","check":"provision_idempotent_slug"}
+{"id":"c02","name":"Provisioning retry leaves exactly one Storefront row","check":"provision_idempotent_single_row"}
+{"id":"c03","name":"Provisioning without confirm:true is blocked with zero rows written","check":"provision_gate_blocks"}
+{"id":"c04","name":"Catalog write without confirm:true is blocked (403)","check":"catalog_gate_no_confirm"}
+{"id":"c05","name":"Catalog write without an explicit numeric price is schema-rejected","check":"catalog_gate_price_required"}
+{"id":"c06","name":"Client-tampered checkout price is ignored; the server catalog prices the order","check":"checkout_price_tamper_ignored"}
+{"id":"c07","name":"Checkout with qty 2 totals exactly 2x the server price","check":"checkout_qty2_server_total"}
+{"id":"c08","name":"Checkout of a sold_out item is rejected","check":"checkout_sold_out_rejected"}
+{"id":"c09","name":"Checkout against a closed store is rejected","check":"checkout_closed_store_rejected"}
+{"id":"c10","name":"Invalid webhook HMAC gets 401 and writes nothing","check":"webhook_invalid_hmac_wall"}
+{"id":"c11","name":"Replayed webhook delivery (same id) dedupes to one order and one grade-A record","check":"webhook_replay_same_id_deduped"}
+{"id":"c12","name":"Same order under a new webhook id still yields exactly one order","check":"webhook_same_order_new_id_deduped"}
+{"id":"c13","name":"Order cancel without confirm_cancel is blocked (403)","check":"cancel_gate_blocks"}
+{"id":"c14","name":"Order cancel with confirm_cancel:true succeeds","check":"cancel_confirmed_cancels"}
+{"id":"c15","name":"Invalid order-status transitions are rejected","check":"order_invalid_transition_rejected"}
+{"id":"c16","name":"Public shop page returns only allowlisted fields (fail closed)","check":"shop_projection_allowlisted"}
+{"id":"c17","name":"Discover hides non-opted-in stores and stays allowlisted","check":"discover_optin_and_allowlisted"}
+{"id":"c18","name":"CommerceOrder rows carry zero shopper PII fields","check":"commerce_order_no_shopper_pii"}
+{"id":"c19","name":"Cash-log evidence stays grade B; a card webhook never upgrades it","check":"cash_stays_grade_b"}
+{"id":"c20","name":"Cold QR scan to completed checkout lands under 2 seconds","check":"qr_to_checkout_under_2s"}

@@ -1,4 +1,4 @@
-/** Six-question screener (§10) → track assignment + checklist. Every step tappable, no reading required. */
+/** Six-question screener + "launch your store now?" (§10.1) → track + checklist + useful first result. */
 import { useState } from "react";
 import { api, setLang, getLang } from "../api";
 import { t, LANG_NAMES, T1, T2 } from "../i18n";
@@ -15,22 +15,24 @@ const Btn = ({ children, onClick, active }: { children: React.ReactNode; onClick
   </button>
 );
 
-export default function Onboard({ onDone }: { onDone: (firstQuestion: string) => void }) {
+export default function Onboard({ onDone }: { onDone: (firstQuestion: string, launchStore: boolean) => void }) {
   const [step, setStep] = useState(0);
   const [lang, setL] = useState(getLang());
   const [kind, setKind] = useState<"food" | "merchandise" | null>(null);
   const [years, setYears] = useState<string | null>(null);
   const [cart, setCart] = useState<string | null>(null);
   const [docs, setDocs] = useState<string[]>([]);
+  const [borough, setBorough] = useState<string>("");
   const [busy, setBusy] = useState(false);
 
   const next = () => setStep((s) => s + 1);
 
-  const finish = async (borough: string) => {
+  const finish = async (launchStore: boolean) => {
     setBusy(true);
     await api("/api/onboard", {
       lang, vending_kind: kind ?? "food", years_vending: years, cart_status: cart,
       documents_on_hand: docs, borough, display_name: "", radar_opt_in: true,
+      launch_store_now: launchStore,
     });
     const greeting: Record<string, string> = {
       es: "Hola. Soy Sidewalk, su trabajador de caso. Pregúnteme lo que quiera — hablando o escribiendo.",
@@ -45,7 +47,7 @@ export default function Onboard({ onDone }: { onDone: (firstQuestion: string) =>
       ar: "هل أستطيع الحصول على رخصة إذا كنت أبيع الطعام؟",
       zh: "我卖食品能拿到执照吗？",
     };
-    onDone(kind === "merchandise" ? "" : firstQ[lang] ?? firstQ.es);
+    onDone(kind === "merchandise" ? "" : firstQ[lang] ?? firstQ.es, launchStore);
   };
 
   const steps: React.ReactNode[] = [
@@ -110,8 +112,15 @@ export default function Onboard({ onDone }: { onDone: (firstQuestion: string) =>
     <div key="b" className="space-y-3">
       <h2 className="text-2xl font-extrabold">🗽 {t("onboard_borough", lang)}</h2>
       {["Queens", "Brooklyn", "Manhattan", "Bronx", "Staten Island"].map((b) => (
-        <Btn key={b} onClick={() => void finish(b)}>{b}</Btn>
+        <Btn key={b} active={borough === b} onClick={() => { setBorough(b); next(); }}>{b}</Btn>
       ))}
+    </div>,
+    // 6 — launch a store now? (§10.1 — ends with a useful result, never a generic dashboard)
+    <div key="s" className="space-y-3">
+      <h2 className="text-2xl font-extrabold">🏪 {t("onboard_launch", lang)}</h2>
+      <p className="text-sm text-stone-500">{t("store_explain", lang)}</p>
+      <Btn onClick={() => void finish(true)}>🚀 {t("launch_yes", lang)}</Btn>
+      <Btn onClick={() => void finish(false)}>🕐 {t("launch_later", lang)}</Btn>
     </div>,
   ];
 

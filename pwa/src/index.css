@@ -26,6 +26,18 @@ body { background: var(--color-cream); color: var(--color-ink); font-family: var
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+.sheet-in { animation: sheet-up 0.28s cubic-bezier(0.32, 0.72, 0.33, 1); }
+
+/* motion only confirms causality — and respects reduced-motion (§10.4) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @media print {
   .no-print { display: none !important; }
   body { background: white; }

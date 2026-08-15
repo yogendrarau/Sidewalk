@@ -25,20 +25,20 @@ type Packet = {
   };
 };
 
-const STEP_LABEL: Record<string, Record<string, string>> = {
+export const STEP_LABEL: Record<string, Record<string, string>> = {
   nys_sales_tax_certificate: { es: "Certificado de impuestos del estado", en: "State sales tax certificate" },
   food_protection_course: { es: "Curso de protección de alimentos", en: "Food protection course" },
   submit_license_application: { es: "Presentar la solicitud", en: "Submit the application" },
   await_general_window_2027: { es: "Esperar la ventana 2027", en: "Wait for the 2027 window" },
 };
-const DOC_LABEL: Record<string, Record<string, string>> = {
+export const DOC_LABEL: Record<string, Record<string, string>> = {
   identity_document: { es: "Identidad (pasaporte extranjero OK)", en: "Identity (foreign passport OK)" },
   proof_of_address: { es: "Comprobante de domicilio", en: "Proof of address" },
   nys_sales_tax_certificate: { es: "Certificado de impuestos", en: "Tax certificate" },
   food_protection_certificate: { es: "Certificado del curso", en: "Course certificate" },
   commissary_agreement: { es: "Acuerdo de comisaría", en: "Commissary agreement" },
 };
-const lbl = (map: Record<string, Record<string, string>>, k: string, lang: string) => map[k]?.[lang] ?? map[k]?.en ?? k;
+export const lbl = (map: Record<string, Record<string, string>>, k: string, lang: string) => map[k]?.[lang] ?? map[k]?.en ?? k;
 
 export default function MyCase({ lang }: { lang: string }) {
   const [data, setData] = useState<CaseData | null>(null);

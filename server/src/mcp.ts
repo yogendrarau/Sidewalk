@@ -45,7 +45,8 @@ export function callMcpTool(ctx: Ctx, name: string, args: Record<string, unknown
         case: entities.list(ctx, "CaseFile", { vendor_id: vendorId })[0] ?? null,
         documents: docs.map((d) => ({ id: d.id, doc_type: d.doc_type ?? d.doc_type_claimed, quarantine_state: d.quarantine_state })),
         fields: entities.list(ctx, "ExtractedField", { vendor_id: vendorId }).map((f) => ({
-          field: f.schema_field, value: f.corrected_value ?? f.value, confidence: f.value_confidence, tier: f.model_tier,
+          id: f.id, field: f.schema_field, value: f.corrected_value ?? f.value, confidence: f.value_confidence,
+          tier: f.model_tier, human_corrected: f.human_corrected === true,
         })),
         deadlines: entities.list(ctx, "Deadline", { vendor_id: vendorId }).map((d) => ({ kind: d.kind, due_at: d.due_at })),
         evidence_summary: {

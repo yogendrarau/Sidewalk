@@ -1,4 +1,4 @@
-/** Chat (§10 screen 1): hold-to-record, camera, playback, citation chips. */
+/** Assistant (§10.1 sheet): hold-to-record, camera, playback, citation chips, proposed actions. */
 import { useEffect, useRef, useState } from "react";
 import { api, sendInbound, uploadMedia, type Reply } from "../api";
 import { t, isT1 } from "../i18n";
@@ -13,9 +13,13 @@ type Msg = {
   guard?: Reply["guard"];
   sentences?: string[];
   audio_urls?: string[];
+  action?: { route: string; label: string };
 };
 
-export default function Chat({ lang, seed, onSeedConsumed }: { lang: string; seed: string | null; onSeedConsumed: () => void }) {
+export default function Chat({ lang, seed, onSeedConsumed, onClose, onNavigate }: {
+  lang: string; seed: string | null; onSeedConsumed: () => void;
+  onClose?: () => void; onNavigate?: (route: string) => void;
+}) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -60,9 +64,13 @@ export default function Chat({ lang, seed, onSeedConsumed }: { lang: string; see
       if (res.ok) {
         const r = res.data.reply;
         const audio = res.tts && "audio_urls" in res.tts ? (res.tts.audio_urls as string[]) : undefined;
+        const act = res.data.actions as { propose?: string; route?: string } | undefined;
+        const action = act?.route
+          ? { route: String(act.route), label: act.propose === "provision_storefront" ? t("publish_store", lang) : t("my_store", lang) }
+          : undefined;
         setMsgs((m) => [...m, {
           role: "sidewalk", text: r.text, citations: r.citations, freshness: r.freshness,
-          tier: r.tier, guard: res.data.guard, sentences: r.sentences, audio_urls: audio,
+          tier: r.tier, guard: res.data.guard, sentences: r.sentences, audio_urls: audio, action,
         }]);
         speak(r.sentences, lang, audio);
       } else {
@@ -107,6 +115,10 @@ export default function Chat({ lang, seed, onSeedConsumed }: { lang: string; see
           <h1 className="text-lg font-black leading-tight text-forest">Sidewalk</h1>
           <p className="text-[11px] text-stone-500">{isT1(lang) ? t("reviewed", lang) : t("auto_translated", lang)}</p>
         </div>
+        {onClose && (
+          <button onClick={onClose} aria-label={t("cancel", lang)}
+            className="ms-auto grid h-9 w-9 place-items-center rounded-full bg-stone-100 text-lg font-bold text-stone-500 active:scale-95">✕</button>
+        )}
       </header>
 
       <div className="flex-1 space-y-3 px-4 py-4">
@@ -148,6 +160,12 @@ export default function Chat({ lang, seed, onSeedConsumed }: { lang: string; see
                     <b>{t("sources", lang)} [{c.idx}]:</b> {c.citation}
                   </div>
                 ) : null,
+              )}
+              {m.action && onNavigate && (
+                <button onClick={() => onNavigate(m.action!.route)}
+                  className="mt-2 w-full rounded-xl bg-mango py-2.5 text-sm font-bold text-white active:scale-95">
+                  🏪 {m.action.label} →
+                </button>
               )}
             </div>
           </div>

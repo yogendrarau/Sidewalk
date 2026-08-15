@@ -1,0 +1,46 @@
+{
+  "name": "VendorSellingAccess",
+  "description": "Prototype-only selling gate for a fictional vendor session; never an NYC verification record.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": { "type": "string", "minLength": 6, "maxLength": 32 },
+    "prototype_account_id": { "type": "string", "pattern": "^proto_[0-9a-f]{32}$" },
+    "vendor_key": { "type": "string", "enum": ["rosa-v1"] },
+    "certification_status": {
+      "type": "string",
+      "enum": ["unanswered", "not_verified", "self_attested_demo"],
+      "default": "unanswered"
+    },
+    "selling_access_state": {
+      "type": "string",
+      "enum": ["locked_needs_status", "locked_needs_certification", "locked_needs_shopify", "active_demo"],
+      "default": "locked_needs_status"
+    },
+    "ordering_status": {
+      "type": "string",
+      "enum": ["active", "paused"],
+      "default": "paused"
+    },
+    "attested_at": { "type": "string", "format": "date-time" },
+    "disclosure_version": { "type": "string", "maxLength": 64 },
+    "is_fictional": { "type": "boolean", "default": true },
+    "reset_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "required": [
+    "demo_session_id",
+    "prototype_account_id",
+    "vendor_key",
+    "certification_status",
+    "selling_access_state",
+    "ordering_status",
+    "is_fictional",
+    "updated_at"
+  ],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

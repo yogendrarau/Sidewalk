@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Rosa's fictional menu board, page one</title>
+  <desc id="desc">A watermarked Spanish menu board made only for the SIDEWALK hackathon demonstration.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173f35"/>
+      <stop offset="1" stop-color="#08251f"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-opacity=".35"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="#f4e8d2"/>
+  <g transform="rotate(-1 600 450)" filter="url(#shadow)">
+    <rect x="90" y="70" width="1020" height="760" rx="32" fill="url(#background)" stroke="#a96b32" stroke-width="22"/>
+    <rect x="122" y="102" width="956" height="696" rx="18" fill="none" stroke="#f0c783" stroke-width="3" opacity=".65"/>
+    <text x="600" y="190" text-anchor="middle" fill="#fff4db" font-family="Georgia, serif" font-size="74" font-weight="700">MENÚ DE ROSA</text>
+    <text x="600" y="238" text-anchor="middle" fill="#e9c678" font-family="Arial, sans-serif" font-size="26" letter-spacing="5">PÁGINA 1 · DEMOSTRACIÓN</text>
+    <g fill="#fff9e8" font-family="Arial, sans-serif" font-size="50">
+      <text x="190" y="350">Tacos de pollo</text><text x="1000" y="350" text-anchor="end">$5.00</text>
+      <text x="190" y="455">Tamales</text><text x="1000" y="455" text-anchor="end">$4.00</text>
+      <text x="190" y="560">Agua de jamaica</text><text x="1000" y="560" text-anchor="end">$3.00</text>
+    </g>
+    <g stroke="#f0c783" stroke-width="3" opacity=".55">
+      <path d="M190 382H1000"/><path d="M190 487H1000"/><path d="M190 592H1000"/>
+    </g>
+    <text x="600" y="700" text-anchor="middle" fill="#d6b46e" font-family="Arial, sans-serif" font-size="24">Precios ficticios · No se vende comida real</text>
+  </g>
+  <g transform="rotate(-24 600 450)" opacity=".23">
+    <rect x="-120" y="388" width="1440" height="124" fill="#ffdf90"/>
+    <text x="600" y="470" text-anchor="middle" fill="#572d12" font-family="Arial, sans-serif" font-size="54" font-weight="800" letter-spacing="8">FICTICIA · HACKATHON · NO REAL</text>
+  </g>
+</svg>

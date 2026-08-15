@@ -24,6 +24,16 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   try {
     const session = await requireSession(base44, demoSessionId);
+    const sellingAccessRows = await base44.asServiceRole.entities.VendorSellingAccess.filter(
+      { demo_session_id: demoSessionId },
+      "-updated_date",
+      2,
+      0,
+    );
+    const prototypeAccountId = sellingAccessRows.length === 1 &&
+        typeof sellingAccessRows[0].prototype_account_id === "string"
+      ? sellingAccessRows[0].prototype_account_id
+      : null;
     await Promise.all([
       base44.asServiceRole.entities.DemoEvalRun.deleteMany({ demo_session_id: demoSessionId }),
       base44.asServiceRole.entities.DemoEvidenceRecord.deleteMany({ demo_session_id: demoSessionId }),
@@ -31,6 +41,13 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.DemoRuleEvaluation.deleteMany({ demo_session_id: demoSessionId }),
       base44.asServiceRole.entities.DemoDocument.deleteMany({ demo_session_id: demoSessionId }),
       base44.asServiceRole.entities.DemoVendor.deleteMany({ demo_session_id: demoSessionId }),
+      base44.asServiceRole.entities.ShopifyCartSession.deleteMany({ demo_session_id: demoSessionId }),
+      base44.asServiceRole.entities.ShopifyOrderSnapshot.deleteMany({ demo_session_id: demoSessionId }),
+      base44.asServiceRole.entities.MenuItemMapping.deleteMany({ demo_session_id: demoSessionId }),
+      base44.asServiceRole.entities.MenuImport.deleteMany({ demo_session_id: demoSessionId }),
+      base44.asServiceRole.entities.VendorMediaAsset.deleteMany({ demo_session_id: demoSessionId }),
+      base44.asServiceRole.entities.ShopifyMerchantConnection.deleteMany({ demo_session_id: demoSessionId }),
+      base44.asServiceRole.entities.VendorSellingAccess.deleteMany({ demo_session_id: demoSessionId }),
     ]);
 
     const seed = rosaSeed(demoSessionId, session.locale);
@@ -39,6 +56,19 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.DemoDocument.create(seed.document),
       base44.asServiceRole.entities.DemoEvidenceRecord.bulkCreate(seed.evidence),
       base44.asServiceRole.entities.DemoEvalRun.bulkCreate(evalRunsSeed(demoSessionId)),
+      ...(prototypeAccountId
+        ? [base44.asServiceRole.entities.VendorSellingAccess.create({
+          demo_session_id: demoSessionId,
+          prototype_account_id: prototypeAccountId,
+          vendor_key: "rosa-v1",
+          certification_status: "unanswered",
+          selling_access_state: "locked_needs_status",
+          ordering_status: "paused",
+          is_fictional: true,
+          reset_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })]
+        : []),
     ]);
 
     const resetAt = new Date().toISOString();

@@ -7,9 +7,10 @@ import errors from "./catalogs/errors";
 import proof from "./catalogs/proof";
 import roadmap from "./catalogs/roadmap";
 import marketplace from "./catalogs/marketplace";
+import shopify from "./catalogs/shopify";
 import { LOCALE_ORDER } from "./catalogs/helpers";
 
-export const NAMESPACES = ["common", "vendor", "console", "safety", "guidance", "errors", "proof", "roadmap", "marketplace"];
+export const NAMESPACES = ["common", "vendor", "console", "safety", "guidance", "errors", "proof", "roadmap", "marketplace", "shopify"];
 
 const catalogs = {
   common,
@@ -21,6 +22,7 @@ const catalogs = {
   proof,
   roadmap,
   marketplace,
+  shopify,
 };
 
 export const resources = Object.fromEntries(LOCALE_ORDER.map((locale) => [

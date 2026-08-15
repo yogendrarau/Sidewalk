@@ -1,0 +1,36 @@
+{
+  "name": "MenuItemMapping",
+  "description": "Session-scoped idempotency mapping for products created in the prepared Shopify test store.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": { "type": "string", "minLength": 6, "maxLength": 32 },
+    "prototype_account_id": { "type": "string", "pattern": "^proto_[0-9a-f]{32}$" },
+    "menu_import_id": { "type": "string", "maxLength": 160 },
+    "local_item_key": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,80}$" },
+    "deterministic_handle": { "type": "string", "maxLength": 255 },
+    "shopify_product_id": { "type": "string", "maxLength": 160 },
+    "shopify_variant_ids": { "type": "array", "items": { "type": "string", "maxLength": 160 } },
+    "publication_status": { "type": "string", "enum": ["draft_created", "published", "sync_failed", "reset_orphaned"] },
+    "last_synced_at": { "type": "string", "format": "date-time" },
+    "last_error_code": { "type": "string", "maxLength": 100 },
+    "provenance": { "type": "object" }
+  },
+  "required": [
+    "demo_session_id",
+    "prototype_account_id",
+    "menu_import_id",
+    "local_item_key",
+    "deterministic_handle",
+    "shopify_product_id",
+    "shopify_variant_ids",
+    "publication_status",
+    "last_synced_at",
+    "provenance"
+  ],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

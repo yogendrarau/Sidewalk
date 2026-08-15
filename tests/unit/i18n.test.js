@@ -22,6 +22,7 @@ const EXPECTED_NAMESPACES = [
   "proof",
   "roadmap",
   "marketplace",
+  "shopify",
 ];
 
 const EXPECTED_META = {
@@ -147,7 +148,7 @@ describe("translation catalog contracts", () => {
       for (const namespace of EXPECTED_NAMESPACES) {
         for (const [key, value] of flattenCatalog(resources[locale][namespace])) {
           expect(value, `${locale}:${namespace}.${key}`).not.toMatch(
-            /^(?:common|vendor|console|safety|guidance|errors|proof|roadmap|marketplace)\.[\w.-]+$/,
+            /^(?:common|vendor|console|safety|guidance|errors|proof|roadmap|marketplace|shopify)\.[\w.-]+$/,
           );
         }
       }

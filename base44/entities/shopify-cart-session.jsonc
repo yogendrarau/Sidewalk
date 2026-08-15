@@ -1,0 +1,19 @@
+{
+  "name": "ShopifyCartSession",
+  "description": "Admin-only mapping from an opaque browser cart handle to Shopify's secret-bearing cart ID.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": { "type": "string", "minLength": 6, "maxLength": 32 },
+    "cart_handle": { "type": "string", "pattern": "^cart_[0-9a-f]{32}$" },
+    "shopify_cart_id": { "type": "string", "maxLength": 2048 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["demo_session_id", "cart_handle", "shopify_cart_id", "created_at", "updated_at"],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

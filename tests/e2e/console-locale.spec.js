@@ -1,13 +1,51 @@
 import { expect, test } from "@playwright/test";
 
 import { resources } from "../../src/i18n/resources.js";
+import { PROTOTYPE_ACCOUNT_STORAGE_KEY } from "../../src/lib/marketplaceAccount.js";
+import { SHOPIFY_DEMO_CONTEXT_STORAGE_KEY } from "../../src/lib/shopifyPoc.js";
 
 const LOCALES = ["en", "es", "wo", "ar", "bn", "zh-Hans", "fr"];
 
 async function forceSampleMode(page) {
-  await page.addInitScript(() => {
+  await page.addInitScript(({ accountKey, contextKey }) => {
     window.sessionStorage.setItem("sidewalk-safety-seen", "yes");
-  });
+    const accessKey = "sidewalk-shopify-desktop-e2e-access";
+    if (!window.localStorage.getItem(accessKey)) {
+      window.localStorage.setItem(accessKey, JSON.stringify({
+        certification_status: "unanswered",
+        selling_access_state: "locked_needs_status",
+        shopify_setup_state: "not_started",
+      }));
+    }
+    window.__SIDEWALK_SHOPIFY_TEST_INVOKE__ = async (name) => {
+      const access = JSON.parse(window.localStorage.getItem(accessKey));
+      const provenance = { mode: "fixture", source: "Playwright fictional demo state", retrievedAt: new Date().toISOString(), fixtureId: "desktop-e2e" };
+      const payload = () => ({
+        ...access,
+        ordering_status: "paused",
+        attested_at: access.certification_status === "self_attested_demo" ? "2026-08-15T12:00:00.000Z" : null,
+        disclosure_version: access.certification_status === "self_attested_demo" ? "shopify-poc-v1" : null,
+        is_fictional: true,
+        can_access_get_verified: access.certification_status === "not_verified",
+        can_prepare_menu: access.certification_status !== "unanswered",
+        can_open_shopify_setup: access.certification_status === "self_attested_demo",
+        can_publish: access.selling_access_state === "active_demo",
+      });
+      if (name === "get_selling_access") return { ok: true, data: payload(), provenance };
+      if (name === "set_certification_status") {
+        Object.assign(access, { certification_status: "not_verified", selling_access_state: "locked_needs_certification" });
+        window.localStorage.setItem(accessKey, JSON.stringify(access));
+        return { ok: true, data: payload(), provenance };
+      }
+      if (name === "confirm_certification_self_attestation") {
+        Object.assign(access, { certification_status: "self_attested_demo", selling_access_state: "locked_needs_shopify" });
+        window.localStorage.setItem(accessKey, JSON.stringify(access));
+        return { ok: true, data: payload(), provenance };
+      }
+      return { ok: false, error: "e2e_unavailable", provenance: { ...provenance, mode: "unavailable" } };
+    };
+    window.__SIDEWALK_DESKTOP_CONTEXT_KEYS__ = { accountKey, contextKey };
+  }, { accountKey: PROTOTYPE_ACCOUNT_STORAGE_KEY, contextKey: SHOPIFY_DEMO_CONTEXT_STORAGE_KEY });
   await page.route("**/*", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -31,6 +69,20 @@ async function createMarketplaceAccount(page, role) {
   const shell = page.getByTestId("marketplace-shell");
   await expect(shell).toBeVisible();
   await expect(shell).toHaveAttribute("data-role", role);
+  if (role === "vendor") {
+    await page.evaluate(({ accountKey, contextKey }) => {
+      const account = JSON.parse(window.localStorage.getItem(accountKey));
+      window.localStorage.setItem(contextKey, JSON.stringify({
+        schema_version: 1,
+        demo_session_id: "E2E-DESKTOP",
+        prototype_account_id: account.prototype_account_id,
+        locale: account.locale,
+        created_at: "2026-08-15T12:00:00.000Z",
+      }));
+    }, { accountKey: PROTOTYPE_ACCOUNT_STORAGE_KEY, contextKey: SHOPIFY_DEMO_CONTEXT_STORAGE_KEY });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(shell).toHaveAttribute("data-role", role);
+  }
   return shell;
 }
 
@@ -98,17 +150,20 @@ test("desktop buyer shell is role-safe, empty, persistent, and never exposes leg
   await expect(page.getByTestId("proof-surface")).toHaveCount(0);
 });
 
-test("desktop seller shell has exact zero metrics and preserves verification without legacy tools", async ({ page }) => {
+test("desktop seller shell marks unloaded metrics unavailable and preserves verification without legacy tools", async ({ page }) => {
   await forceSampleMode(page);
   await page.goto("/?lang=en", { waitUntil: "domcontentloaded" });
   const shell = await createMarketplaceAccount(page, "vendor");
 
   await expect(shell).toHaveAttribute("data-workspace", "dashboard");
   await expect(page.getByTestId("buyer-navigation")).toHaveCount(0);
-  await expect(page.getByTestId("seller-store-status")).toContainText("Store setup coming soon.");
-  await expect(page.getByTestId("seller-orders-count")).toHaveText("0");
-  await expect(page.getByTestId("seller-sales-total")).toHaveText("$0.00");
-  await expect(page.getByTestId("seller-products-count")).toHaveText("0");
+  await expect(page.getByTestId("seller-store-status")).toContainText(resources.en.shopify.notConnected);
+  await expect(page.getByTestId("seller-orders-count")).toHaveText(resources.en.shopify.unavailableBadge);
+  await expect(page.getByTestId("seller-sales-total")).toHaveText(resources.en.shopify.unavailableBadge);
+  await expect(page.getByTestId("seller-products-count")).toHaveText(resources.en.shopify.unavailableBadge);
+  await expect(page.getByTestId("seller-verification-status")).toContainText(resources.en.shopify.sellingLocked);
+  await expect(page.getByTestId("nav-get-verified")).toHaveCount(0);
+  await expect(page.getByTestId("certification-gate")).toBeVisible();
   await expect(page.getByTestId("seller-dashboard")).toContainText(
     resources.en.marketplace.noActivityNote,
   );
@@ -121,7 +176,9 @@ test("desktop seller shell has exact zero metrics and preserves verification wit
   await expect(page.getByTestId("seller-orders").locator("[data-order-id]")).toHaveCount(0);
   await expectNoHorizontalOverflow(page, "desktop seller Orders");
 
-  await page.getByTestId("nav-get-verified").click();
+  await page.getByTestId("nav-dashboard").click();
+  await page.getByTestId("certification-help").click();
+  await expect(page.getByTestId("nav-get-verified")).toBeVisible();
   await expect(page.getByTestId("seller-get-verified")).toContainText(
     resources.en.marketplace.verificationTitle,
   );

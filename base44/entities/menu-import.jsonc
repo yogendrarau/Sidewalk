@@ -1,0 +1,37 @@
+{
+  "name": "MenuImport",
+  "description": "Reviewed fictional menu import. Prices and duplicate decisions remain local until explicitly published.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": { "type": "string", "minLength": 6, "maxLength": 32 },
+    "prototype_account_id": { "type": "string", "pattern": "^proto_[0-9a-f]{32}$" },
+    "vendor_key": { "type": "string", "enum": ["rosa-v1"] },
+    "source_media_ids": { "type": "array", "items": { "type": "string", "maxLength": 160 } },
+    "status": { "type": "string", "enum": ["review_required", "confirmed", "publishing", "published", "partially_published", "sync_failed"] },
+    "currency": { "type": "string", "enum": ["USD"] },
+    "structured_items": { "type": "array", "items": { "type": "object" } },
+    "duplicate_groups": { "type": "array", "items": { "type": "object" } },
+    "extraction_provenance": { "type": "object" },
+    "confirmed_at": { "type": "string", "format": "date-time" },
+    "published_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "required": [
+    "demo_session_id",
+    "prototype_account_id",
+    "vendor_key",
+    "source_media_ids",
+    "status",
+    "currency",
+    "structured_items",
+    "duplicate_groups",
+    "extraction_provenance",
+    "updated_at"
+  ],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

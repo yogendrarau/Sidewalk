@@ -1,0 +1,39 @@
+{
+  "name": "ShopifyOrderSnapshot",
+  "description": "Optional non-identifying test-order summary. Customer PII and payment data are prohibited.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": { "type": "string", "minLength": 6, "maxLength": 32 },
+    "prototype_account_id": { "type": "string", "pattern": "^proto_[0-9a-f]{32}$" },
+    "shopify_order_id": { "type": "string", "maxLength": 160 },
+    "display_order_name": { "type": "string", "maxLength": 80 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "total_amount": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,2})?$" },
+    "currency": { "type": "string", "maxLength": 8 },
+    "financial_status": { "type": "string", "maxLength": 60 },
+    "fulfillment_status": { "type": "string", "maxLength": 60 },
+    "line_item_summary": { "type": "array", "items": { "type": "object" } },
+    "test_order": { "type": "boolean" },
+    "provenance": { "type": "object" }
+  },
+  "required": [
+    "demo_session_id",
+    "prototype_account_id",
+    "shopify_order_id",
+    "display_order_name",
+    "created_at",
+    "total_amount",
+    "currency",
+    "financial_status",
+    "fulfillment_status",
+    "line_item_summary",
+    "test_order",
+    "provenance"
+  ],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

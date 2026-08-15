@@ -1,0 +1,49 @@
+{
+  "name": "ShopifyMerchantConnection",
+  "description": "Redacted prepared-test-store connection metadata. Shopify tokens are never stored here.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": { "type": "string", "minLength": 6, "maxLength": 32 },
+    "prototype_account_id": { "type": "string", "pattern": "^proto_[0-9a-f]{32}$" },
+    "vendor_key": { "type": "string", "enum": ["rosa-v1"] },
+    "shop_domain": { "type": "string", "maxLength": 255 },
+    "setup_state": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "signup_started",
+        "merchant_action_required",
+        "prepared_test_store_available",
+        "connected_test_store",
+        "connected_oauth",
+        "reauthorization_required",
+        "unavailable"
+      ]
+    },
+    "integration_mode": { "type": "string", "enum": ["shopify_test_store", "fixture", "unavailable"] },
+    "connection_status": { "type": "string", "enum": ["not_connected", "connected", "needs_attention", "unavailable"] },
+    "granted_scopes": { "type": "array", "items": { "type": "string", "maxLength": 100 } },
+    "api_version": { "type": "string", "pattern": "^[0-9]{4}-(01|04|07|10)$" },
+    "publication_id": { "type": "string", "maxLength": 160 },
+    "connected_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "last_error_code": { "type": "string", "maxLength": 100 },
+    "provenance": { "type": "object" }
+  },
+  "required": [
+    "demo_session_id",
+    "prototype_account_id",
+    "vendor_key",
+    "setup_state",
+    "integration_mode",
+    "connection_status",
+    "granted_scopes",
+    "updated_at"
+  ],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

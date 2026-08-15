@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { resources } from "../../src/i18n/resources.js";
 import { PROTOTYPE_ACCOUNT_STORAGE_KEY } from "../../src/lib/marketplaceAccount.js";
+import { SHOPIFY_DEMO_CONTEXT_STORAGE_KEY } from "../../src/lib/shopifyPoc.js";
 
 const LOCALES = ["en", "es", "wo", "ar", "bn", "zh-Hans", "fr"];
 
@@ -10,25 +11,72 @@ async function forceSampleMode(
   { safetySeen = true, accountRole = null, accountLocale = "es" } = {},
 ) {
   await page.addInitScript(
-    ({ shouldSkipSafety, role, locale, storageKey }) => {
+    ({ shouldSkipSafety, role, locale, storageKey, shopifyContextKey }) => {
       if (shouldSkipSafety) window.sessionStorage.setItem("sidewalk-safety-seen", "yes");
+      const prototypeAccountId = "proto_eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
       if (role) {
         window.localStorage.setItem(storageKey, JSON.stringify({
           schema_version: 1,
-          prototype_account_id: "proto_eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          prototype_account_id: prototypeAccountId,
           account_role: role,
           locale,
           is_fictional: true,
           created_at: "2026-08-15T12:00:00.000Z",
           updated_at: "2026-08-15T12:00:00.000Z",
         }));
+        if (role === "vendor") {
+          window.localStorage.setItem(shopifyContextKey, JSON.stringify({
+            schema_version: 1,
+            demo_session_id: "E2E-LOCALE",
+            prototype_account_id: prototypeAccountId,
+            locale,
+            created_at: "2026-08-15T12:00:00.000Z",
+          }));
+        }
       }
+      const accessKey = "sidewalk-shopify-e2e-access";
+      if (!window.localStorage.getItem(accessKey)) {
+        window.localStorage.setItem(accessKey, JSON.stringify({
+          certification_status: role === "vendor" ? "not_verified" : "unanswered",
+          selling_access_state: role === "vendor" ? "locked_needs_certification" : "locked_needs_status",
+          shopify_setup_state: "not_started",
+        }));
+      }
+      window.__SIDEWALK_SHOPIFY_TEST_INVOKE__ = async (name) => {
+        const access = JSON.parse(window.localStorage.getItem(accessKey));
+        const provenance = { mode: "simulated", source: "Playwright fictional demo state", retrievedAt: new Date().toISOString() };
+        const payload = () => ({
+          ...access,
+          ordering_status: "paused",
+          attested_at: access.certification_status === "self_attested_demo" ? "2026-08-15T12:00:00.000Z" : null,
+          disclosure_version: access.certification_status === "self_attested_demo" ? "shopify-poc-v1" : null,
+          is_fictional: true,
+          can_access_get_verified: access.certification_status === "not_verified",
+          can_prepare_menu: access.certification_status !== "unanswered",
+          can_open_shopify_setup: access.certification_status === "self_attested_demo",
+          can_publish: access.selling_access_state === "active_demo",
+        });
+        if (name === "get_selling_access") return { ok: true, data: payload(), provenance };
+        if (name === "set_certification_status") {
+          Object.assign(access, { certification_status: "not_verified", selling_access_state: "locked_needs_certification" });
+          window.localStorage.setItem(accessKey, JSON.stringify(access));
+          return { ok: true, data: payload(), provenance };
+        }
+        if (name === "confirm_certification_self_attestation") {
+          Object.assign(access, { certification_status: "self_attested_demo", selling_access_state: "locked_needs_shopify" });
+          window.localStorage.setItem(accessKey, JSON.stringify(access));
+          return { ok: true, data: payload(), provenance };
+        }
+        if (name === "begin_shopify_signup") return { ok: true, data: { setup_state: "signup_started", merchant_action_required: true, signup_url: "https://www.shopify.com/free-trial" }, provenance };
+        return { ok: false, error: "e2e_unavailable", provenance: { ...provenance, mode: "unavailable" } };
+      };
     },
     {
       shouldSkipSafety: safetySeen,
       role: accountRole,
       locale: accountLocale,
       storageKey: PROTOTYPE_ACCOUNT_STORAGE_KEY,
+      shopifyContextKey: SHOPIFY_DEMO_CONTEXT_STORAGE_KEY,
     },
   );
   await page.route("**/*", async (route) => {
@@ -45,12 +93,12 @@ async function expectNoRawTranslationKeys(page) {
   const surface = page.getByTestId("vendor-surface");
   const text = await surface.innerText();
   expect(text).not.toMatch(
-    /\b(?:common|vendor|console|safety|guidance|errors|proof|roadmap)[.:][a-z][\w.-]+\b/,
+    /\b(?:common|vendor|console|safety|guidance|errors|proof|roadmap|marketplace|shopify)[.:][a-z][\w.-]+\b/,
   );
 }
 
-async function createMarketplaceAccount(page, role) {
-  const marketplace = resources.en.marketplace;
+async function createMarketplaceAccount(page, role, locale = "en") {
+  const marketplace = resources[locale].marketplace;
   const roleSelection = page.getByTestId("role-selection");
   await expect(roleSelection).toBeVisible();
   await expect(roleSelection).toContainText(marketplace.roleHeading);
@@ -73,6 +121,20 @@ async function createMarketplaceAccount(page, role) {
   const shell = page.getByTestId("marketplace-shell");
   await expect(shell).toBeVisible();
   await expect(shell).toHaveAttribute("data-role", role);
+  if (role === "vendor") {
+    await page.evaluate(({ accountKey, contextKey }) => {
+      const account = JSON.parse(window.localStorage.getItem(accountKey));
+      window.localStorage.setItem(contextKey, JSON.stringify({
+        schema_version: 1,
+        demo_session_id: "E2E-FIRST-RUN",
+        prototype_account_id: account.prototype_account_id,
+        locale: account.locale,
+        created_at: "2026-08-15T12:00:00.000Z",
+      }));
+    }, { accountKey: PROTOTYPE_ACCOUNT_STORAGE_KEY, contextKey: SHOPIFY_DEMO_CONTEXT_STORAGE_KEY });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(shell).toHaveAttribute("data-role", role);
+  }
   return shell;
 }
 
@@ -291,7 +353,11 @@ test("help routing explains verified destinations and prepares a local-only hand
   await expect(handoff).toContainText(/Street Vendor Project/i);
   await expect(handoff).toContainText(resources.en.vendor.helpNoTransmit);
   await expect(handoff.getByRole("button")).toHaveCount(0);
-  expect(attemptedRequests).toHaveLength(requestCountBeforeHelp);
+  const requestsDuringHelp = attemptedRequests.slice(requestCountBeforeHelp);
+  expect(requestsDuringHelp.filter((url) => {
+    const target = new URL(url);
+    return !["127.0.0.1", "localhost"].includes(target.hostname);
+  })).toEqual([]);
 });
 
 test("first-run buyer onboarding reaches truthful empty states and keeps its role", async ({ page }) => {
@@ -348,7 +414,7 @@ test("first-run buyer onboarding reaches truthful empty states and keeps its rol
   await expect(page.getByTestId("role-selection")).toBeVisible();
 });
 
-test("first-run vendor onboarding keeps zero metrics and embeds verification preparation", async ({ page }) => {
+test("first-run vendor onboarding marks unloaded metrics unavailable and embeds verification preparation", async ({ page }) => {
   const attemptedProviderRequests = [];
   page.on("request", (request) => {
     if (marketplaceProviderPattern().test(request.url())) attemptedProviderRequests.push(request.url());
@@ -362,13 +428,13 @@ test("first-run vendor onboarding keeps zero metrics and embeds verification pre
   await expect(page.getByTestId("buyer-navigation")).toHaveCount(0);
   const dashboard = page.getByTestId("seller-dashboard");
   await expect(dashboard).toBeVisible();
-  await expect(page.getByTestId("seller-store-status")).toContainText("Store setup coming soon.");
-  await expect(page.getByTestId("seller-orders-count")).toHaveText("0");
-  await expect(page.getByTestId("seller-sales-total")).toHaveText("$0.00");
-  await expect(page.getByTestId("seller-products-count")).toHaveText("0");
-  await expect(page.getByTestId("seller-verification-status")).toContainText(
-    resources.en.marketplace.officialDecisionPending,
-  );
+  await expect(page.getByTestId("seller-store-status")).toContainText(resources.en.shopify.notConnected);
+  await expect(page.getByTestId("seller-orders-count")).toHaveText(resources.en.shopify.unavailableBadge);
+  await expect(page.getByTestId("seller-sales-total")).toHaveText(resources.en.shopify.unavailableBadge);
+  await expect(page.getByTestId("seller-products-count")).toHaveText(resources.en.shopify.unavailableBadge);
+  await expect(page.getByTestId("seller-verification-status")).toContainText(resources.en.shopify.sellingLocked);
+  await expect(page.getByTestId("nav-get-verified")).toHaveCount(0);
+  await expect(page.getByTestId("certification-gate")).toBeVisible();
   await expect(dashboard).toContainText(resources.en.marketplace.noActivityNote);
   await expect(
     dashboard.locator("[data-customer-id], [data-order-id], [data-product-id], [data-store-id]"),
@@ -385,7 +451,7 @@ test("first-run vendor onboarding keeps zero metrics and embeds verification pre
   ).toHaveCount(0);
 
   await page.getByTestId("nav-dashboard").click();
-  await page.getByTestId("continue-verification").click();
+  await page.getByTestId("certification-help").click();
   await expect(shell).toHaveAttribute("data-workspace", "get-verified");
   await expect(page.getByTestId("seller-get-verified")).toBeVisible();
   await expect(page.getByTestId("embedded-verification")).toBeVisible();
@@ -452,6 +518,9 @@ test("seller marketplace has no horizontal overflow at 320 and 390 pixels", asyn
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await createMarketplaceAccount(page, "vendor");
 
+  await page.getByTestId("certification-help").click();
+  await expect(page.getByTestId("nav-get-verified")).toBeVisible();
+
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
     for (const destination of ["nav-dashboard", "nav-orders", "nav-get-verified", "nav-account"]) {
@@ -460,4 +529,101 @@ test("seller marketplace has no horizontal overflow at 320 and 390 pixels", asyn
       expect(overflow, "vendor " + destination + " at " + width + "px").toBeLessThanOrEqual(1);
     }
   }
+});
+
+test("vendor certification to explicit Shopify sample preview remains locked and truthful", async ({ page }) => {
+  await forceSampleMode(page, { accountRole: "vendor", accountLocale: "en" });
+  await page.goto("/?workspace=get-verified&demo_session_id=E2E-SHOPIFY&lang=en", {
+    waitUntil: "domcontentloaded",
+  });
+
+  await expect(page.getByTestId("seller-get-verified")).toBeVisible();
+  await expect(page.getByTestId("nav-get-verified")).toBeVisible();
+  await expect(page.getByTestId("nav-online-store")).toHaveCount(0);
+
+  await page.getByTestId("certification-complete-button").click();
+  const dialog = page.getByTestId("certification-dialog");
+  await expect(dialog).toBeVisible();
+  await expect(page.getByTestId("certification-submit")).toBeDisabled();
+  await page.getByTestId("certification-confirmation").check();
+  await page.getByTestId("certification-submit").click();
+
+  await expect(page.getByTestId("vendor-online-store")).toBeVisible();
+  await expect(page.getByTestId("nav-online-store")).toBeVisible();
+  await expect(page.getByTestId("nav-get-verified")).toHaveCount(0);
+  await expect(page.getByTestId("shopify-provenance-badge")).toContainText(
+    resources.en.shopify.simulatedBadge,
+  );
+  await expect(page.getByTestId("shopify-provenance-badge")).toHaveAttribute(
+    "data-provenance-mode",
+    "simulated",
+  );
+  await expect(page.getByTestId("shopify-setup")).not.toContainText(
+    resources.en.shopify.sampleBadge,
+  );
+  await page.getByTestId("connect-prepared-store").click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByTestId("view-sample-store")).toBeVisible();
+  await expect(page.getByTestId("shopify-provenance-badge")).toHaveAttribute(
+    "data-provenance-mode",
+    "unavailable",
+  );
+  await expect(page.getByTestId("shopify-setup")).not.toContainText(
+    resources.en.shopify.sampleBadge,
+  );
+
+  await page.getByTestId("view-sample-store").click();
+  await expect(page.getByTestId("selling-access-badge")).toContainText(resources.en.shopify.sellingLocked);
+  await expect(page.getByTestId("shopify-provenance-badge").first()).toHaveAttribute("data-provenance-mode", "fixture");
+  await expect(page.getByTestId("menu-review")).toHaveCount(0);
+
+  await page.getByTestId("load-shopify-menu-fixtures").click();
+  await expect(page.getByTestId("media-card-fixture-menu-board-1")).toBeVisible();
+  await expect(page.getByTestId("media-card-fixture-menu-board-2")).toBeVisible();
+  await expect(page.getByTestId("media-card-fixture-cart-photo")).toBeVisible();
+  await page.getByTestId("approve-media-fixture-cart-photo").check();
+  await page.getByTestId("confirm-media-kinds").click();
+
+  const review = page.getByTestId("menu-review");
+  await expect(review).toBeVisible();
+  await expect(page.getByTestId("menu-item-tacos_de_pollo")).toContainText("Tacos de pollo");
+  await expect(page.getByTestId("menu-item-tamales")).toContainText("Tamales");
+  await expect(page.getByTestId("menu-item-agua_jamaica")).toContainText("Agua de jamaica");
+  await expect(page.getByTestId("menu-item-empanada_de_queso")).toContainText("Empanada de queso");
+  await expect(page.getByTestId("menu-price-elote_preparado")).toHaveValue("");
+  await page.getByTestId("menu-price-elote_preparado").fill("5.00");
+  await page.getByTestId("menu-item-tamales").getByTestId("duplicate-resolution").locator("select").selectOption("merge");
+  for (const key of ["tacos_de_pollo", "tamales", "agua_jamaica", "empanada_de_queso", "elote_preparado"]) {
+    await page.getByTestId(`confirm-price-${key}`).check();
+  }
+  await page.getByTestId("confirm-menu-import").click();
+  await expect(page.getByTestId("confirm-menu-import")).toBeDisabled();
+  await page.getByTestId("publish-menu").click();
+
+  await expect(page.getByTestId("publish-status")).toHaveAttribute("data-sync-state", "sample_preview");
+  await expect(page.getByTestId("publish-status")).toContainText(resources.en.shopify.sampleOnly);
+  await expect(page.getByTestId("selling-access-badge")).toContainText(resources.en.shopify.sellingLocked);
+  await expect(page.getByTestId("copy-buyer-menu-link")).toBeVisible();
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
+});
+
+test("buyer explicitly opens the fictional store and reaches a no-charge sample checkout", async ({ page }) => {
+  await forceSampleMode(page);
+  await page.goto("/?lang=ar", { waitUntil: "domcontentloaded" });
+  await createMarketplaceAccount(page, "buyer", "ar");
+
+  await expect(page.getByTestId("marketplace-empty-state")).toBeVisible();
+  await page.getByTestId("view-sample-store").click();
+  await expect(page.getByTestId("buyer-storefront")).toBeVisible();
+  await expect(page.getByTestId("shopify-provenance-badge").first()).toHaveAttribute("data-provenance-mode", "fixture");
+  await page.getByTestId("add-to-cart-tacos_de_pollo").click();
+  await expect(page.getByTestId("cart-subtotal")).toContainText("$5.00");
+  await page.getByTestId("test-checkout").click();
+  await expect(page.getByRole("dialog")).toContainText(resources.ar.shopify.sampleCheckout);
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByTestId("console-surface")).toHaveCount(0);
+  await expect(page.getByTestId("proof-surface")).toHaveCount(0);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });

@@ -1,0 +1,45 @@
+{
+  "name": "VendorMediaAsset",
+  "description": "Fictional Base44-hosted vendor media with confirmed classification and source provenance.",
+  "type": "object",
+  "properties": {
+    "demo_session_id": { "type": "string", "minLength": 6, "maxLength": 32 },
+    "prototype_account_id": { "type": "string", "pattern": "^proto_[0-9a-f]{32}$" },
+    "vendor_key": { "type": "string", "enum": ["rosa-v1"] },
+    "source_file_url": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "confirmed_kind": {
+      "type": "string",
+      "enum": ["menu_or_price_board", "product_or_food_photo", "cart_truck_stand_or_venue", "other"]
+    },
+    "ai_suggested_kind": {
+      "type": "string",
+      "enum": ["menu_or_price_board", "product_or_food_photo", "cart_truck_stand_or_venue", "other"]
+    },
+    "source_locale": { "type": "string", "enum": ["en", "es", "wo", "ar", "bn", "zh-Hans", "fr"] },
+    "source_order": { "type": "integer", "minimum": 0, "maximum": 20 },
+    "processing_status": { "type": "string", "enum": ["uploaded", "classified", "processed", "unavailable"] },
+    "approved_for_storefront": { "type": "boolean", "default": false },
+    "display_metadata": { "type": "object" },
+    "provenance": { "type": "object" }
+  },
+  "required": [
+    "demo_session_id",
+    "prototype_account_id",
+    "vendor_key",
+    "source_file_url",
+    "sha256",
+    "confirmed_kind",
+    "source_locale",
+    "source_order",
+    "processing_status",
+    "approved_for_storefront",
+    "provenance"
+  ],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

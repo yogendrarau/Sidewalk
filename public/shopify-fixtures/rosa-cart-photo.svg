@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Fictional Rosa street cart illustration</title>
+  <desc id="desc">A stylized fictional food cart without people, addresses, license numbers, or real business information.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d6edf2"/><stop offset="1" stop-color="#f7e8c8"/></linearGradient>
+    <linearGradient id="cart" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ea6a42"/><stop offset="1" stop-color="#b73c2d"/></linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#sky)"/>
+  <path d="M0 640 Q300 590 600 640 T1200 620V900H0Z" fill="#b6ab91"/>
+  <g transform="translate(185 195)">
+    <path d="M120 120H760L700 35H180Z" fill="#f2c45c" stroke="#473a2f" stroke-width="12"/>
+    <path d="M190 35V0M680 35V0" stroke="#473a2f" stroke-width="14"/>
+    <rect x="135" y="115" width="610" height="360" rx="26" fill="url(#cart)" stroke="#473a2f" stroke-width="14"/>
+    <rect x="195" y="180" width="490" height="160" rx="16" fill="#fff4dd" stroke="#473a2f" stroke-width="8"/>
+    <text x="440" y="248" text-anchor="middle" fill="#26352f" font-family="Georgia, serif" font-size="58" font-weight="700">ROSA</text>
+    <text x="440" y="300" text-anchor="middle" fill="#7a3f2d" font-family="Arial, sans-serif" font-size="24" letter-spacing="4">CARRITO FICTICIO</text>
+    <circle cx="260" cy="500" r="72" fill="#2d3637"/><circle cx="650" cy="500" r="72" fill="#2d3637"/>
+    <circle cx="260" cy="500" r="30" fill="#bfc5c1"/><circle cx="650" cy="500" r="30" fill="#bfc5c1"/>
+    <path d="M70 475H810" stroke="#473a2f" stroke-width="18" stroke-linecap="round"/>
+  </g>
+  <rect x="0" y="725" width="1200" height="175" fill="#1f3d35" opacity=".94"/>
+  <text x="600" y="795" text-anchor="middle" fill="#fff2d1" font-family="Arial, sans-serif" font-size="42" font-weight="800">FICTIONAL HACKATHON PROP</text>
+  <text x="600" y="845" text-anchor="middle" fill="#e4c982" font-family="Arial, sans-serif" font-size="25">No people · No address · No credentials · No real business</text>
+</svg>

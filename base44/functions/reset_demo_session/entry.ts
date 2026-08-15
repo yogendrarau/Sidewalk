@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.DemoVendor.deleteMany({ demo_session_id: demoSessionId }),
     ]);
 
-    const seed = rosaSeed(demoSessionId);
+    const seed = rosaSeed(demoSessionId, session.locale);
     await Promise.all([
       base44.asServiceRole.entities.DemoVendor.create(seed.vendor),
       base44.asServiceRole.entities.DemoDocument.create(seed.document),
@@ -45,6 +45,7 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.DemoSession.update(session.id, {
       demo_session_id: demoSessionId,
       code: demoSessionId,
+      locale: seed.vendor.language,
       reset_at: resetAt,
     });
 
@@ -54,6 +55,7 @@ Deno.serve(async (req) => {
         reset: true,
         demo_session_id: demoSessionId,
         session_code: demoSessionId,
+        locale: seed.vendor.language,
         reset_at: resetAt,
       },
       provenance: makeProvenance("fixture", "Idempotent reset to Rosa's seeded demo state", { fixtureId: "rosa-v1" }),

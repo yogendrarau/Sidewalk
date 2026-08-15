@@ -1,0 +1,27 @@
+import { tr } from "./helpers";
+
+export default {
+  prototype: tr("Hackathon prototype", "Prototipo de hackathon", "Prototip bu hackathon", "نموذج أولي للهاكاثون", "হ্যাকাথন প্রোটোটাইপ", "黑客松原型", "Prototype de hackathon"),
+  disclosure: tr("Fictional demo data · Not affiliated with NYC · Not legal advice · No real payments, filings, or messages", "Datos ficticios de demostración · No afiliado con NYC · No es asesoría legal · Sin pagos, trámites ni mensajes reales", "Done yu sosu ngir demo · Du bokk ak NYC · Du ndigal yoon · Amul peymaa, dencal walla bataaxal bu dëgg", "بيانات تجريبية خيالية · غير تابع لمدينة نيويورك · ليست مشورة قانونية · لا مدفوعات أو إيداعات أو رسائل حقيقية", "কাল্পনিক ডেমো ডেটা · NYC-এর সঙ্গে যুক্ত নয় · আইনি পরামর্শ নয় · কোনো বাস্তব পেমেন্ট, দাখিল বা বার্তা নয়", "虚构演示数据 · 与纽约市政府无隶属关系 · 不构成法律建议 · 不进行真实付款、提交或发送消息", "Données de démonstration fictives · Non affilié à la ville de New York · Aucun conseil juridique · Aucun paiement, dépôt ou message réel"),
+  vendorView: tr("Vendor", "Vendedor", "Jaaykat", "البائع", "বিক্রেতা", "摊贩", "Vendeur"),
+  consoleView: tr("Console", "Consola", "Konsol", "لوحة المتابعة", "কনসোল", "工作台", "Console"),
+  proofView: tr("Proof", "Pruebas", "Firnde", "الأدلة", "প্রমাণ", "证明", "Preuves"),
+  prototypeViews: tr("Prototype views", "Vistas del prototipo", "Xoolin prototip bi", "واجهات النموذج الأولي", "প্রোটোটাইপ দৃশ্য", "原型视图", "Vues du prototype"),
+  session: tr("SESSION", "SESIÓN", "SESAAN", "الجلسة", "সেশন", "会话", "SESSION"),
+  backendConnected: tr("BASE44 CONNECTED", "BASE44 CONECTADO", "BASE44 JOKKOO NA", "BASE44 متصل", "BASE44 সংযুক্ত", "BASE44 已连接", "BASE44 CONNECTÉ"),
+  syncing: tr("SYNCING", "SINCRONIZANDO", "YEEWAL", "جارٍ المزامنة", "সিঙ্ক হচ্ছে", "正在同步", "SYNCHRONISATION"),
+  sampleMode: tr("SAMPLE MODE", "MODO DE MUESTRA", "ANAMU MISAAL", "وضع العينة", "নমুনা মোড", "样本模式", "MODE EXEMPLE"),
+  fictional: tr("FICTIONAL", "FICTICIO", "SOSU", "خيالي", "কাল্পনিক", "虚构", "FICTIF"),
+  language: tr("Language", "Idioma", "Làkk", "اللغة", "ভাষা", "语言", "Langue"),
+  close: tr("Close", "Cerrar", "Tëj", "إغلاق", "বন্ধ করুন", "关闭", "Fermer"),
+  modeLivePublic: tr("LIVE PUBLIC DATA", "DATOS PÚBLICOS EN VIVO", "DONE ALALU ÑÉPP CI JAMONO", "بيانات عامة مباشرة", "লাইভ পাবলিক ডেটা", "实时公共数据", "DONNÉES PUBLIQUES EN DIRECT"),
+  modeLiveAi: tr("LIVE AI", "IA EN VIVO", "AI CI JAMONO", "ذكاء اصطناعي مباشر", "লাইভ AI", "实时 AI", "IA EN DIRECT"),
+  modeFixture: tr("SAMPLE DATA", "DATOS DE MUESTRA", "DONE YU MISAAL", "بيانات عينة", "নমুনা ডেটা", "样本数据", "DONNÉES EXEMPLES"),
+  modeSimulated: tr("SIMULATED", "SIMULADO", "ÑU MEL NI", "محاكاة", "সিমুলেটেড", "模拟", "SIMULÉ"),
+  modeUnavailable: tr("UNAVAILABLE", "NO DISPONIBLE", "JËFEKOO TU", "غير متاح", "অনুপলভ্য", "不可用", "INDISPONIBLE"),
+  sampleSource: tr("SAMPLE SOURCE", "FUENTE DE MUESTRA", "GÀLLU MISAAL", "مصدر تجريبي", "নমুনা উৎস", "样本来源", "SOURCE EXEMPLE"),
+  dataset: tr("DATASET", "CONJUNTO DE DATOS", "MBOOLU DONE", "مجموعة البيانات", "ডেটাসেট", "数据集", "JEU DE DONNÉES"),
+  asOf: tr("AS OF", "CONSULTADO", "BA", "حتى", "যাচাইয়ের সময়", "查询时间", "CONSULTÉ LE"),
+  recordsCount: tr("{{count}} records", "{{count}} registros", "{{count}} dencukaay", "{{count}} سجلات", "{{count}}টি রেকর্ড", "{{count}} 条记录", "{{count}} enregistrements"),
+  noAccount: tr("No account required", "No se requiere cuenta", "Soxlawul kont", "لا يلزم حساب", "অ্যাকাউন্টের প্রয়োজন নেই", "无需账户", "Aucun compte requis"),
+};

@@ -6,14 +6,17 @@ const InputSchema = z.object({
   demo_session_id: z.string().trim().min(6).max(32),
 }).strict();
 
-function expandEvaluation(record) {
+function expandEvaluation(record: unknown) {
+  const evaluation = record as { trace?: unknown; [key: string]: unknown };
   let trace = [];
   try {
-    trace = typeof record.trace === "string" ? JSON.parse(record.trace) : record.trace ?? [];
+    trace = typeof evaluation.trace === "string"
+      ? JSON.parse(evaluation.trace)
+      : evaluation.trace ?? [];
   } catch {
     trace = [];
   }
-  return { ...record, trace };
+  return { ...evaluation, trace };
 }
 
 Deno.serve(async (req) => {

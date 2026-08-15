@@ -2,11 +2,11 @@
   "name": "SIDEWALK — Vendor Support Demo",
   "short_name": "SIDEWALK",
   "description": "A fictional hackathon prototype for multilingual vendor support.",
-  "start_url": "/?view=vendor&demo_session_id=ROSA-2026",
+  "start_url": "/?view=vendor&demo_session_id=ROSA-2026&lang=es",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f7f3e8",
   "theme_color": "#0f563d",
-  "lang": "es-US",
+  "lang": "es",
   "categories": ["civic", "productivity"]
 }

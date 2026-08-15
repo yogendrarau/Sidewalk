@@ -1,0 +1,26 @@
+import { tr } from "./helpers";
+
+export default {
+  whatNext: tr("WHAT COMES NEXT", "LO QUE SIGUE", "LIY TOPP", "ما التالي", "এরপর কী", "下一步愿景", "LA SUITE"),
+  broaderVision: tr("The broader vision, honestly labeled.", "La visión más amplia, etiquetada con honestidad.", "Gis-gis bu yaatu, ak màndarga bu leer.", "الرؤية الأوسع، موسومة بوضوح.", "বৃহত্তর ভাবনা, সৎভাবে লেবেল করা।", "更广阔的愿景，诚实标注。", "La vision élargie, clairement étiquetée."),
+  noninteractive: tr("NONINTERACTIVE PREVIEWS", "VISTAS PREVIAS NO INTERACTIVAS", "XOOLE YU DU DOX", "معاينات غير تفاعلية", "নন-ইন্টারঅ্যাকটিভ প্রিভিউ", "非交互式预览", "APERÇUS NON INTERACTIFS"),
+  concept: tr("ROADMAP CONCEPT", "CONCEPTO DE HOJA DE RUTA", "XALAATU YOONU ËLLËG", "مفهوم مستقبلي", "রোডম্যাপ ধারণা", "路线图概念", "CONCEPT DE FEUILLE DE ROUTE"),
+  letterTag: tr("LETTER", "CARTA", "BATAAXAL", "خطاب", "চিঠি", "信件", "LETTRE"),
+  letterTitle: tr("Universal Letter Reader", "Lector universal de cartas", "Jàngkatu bataaxal yépp", "قارئ الرسائل الشامل", "সর্বজনীন চিঠি পাঠক", "通用信件阅读器", "Lecteur universel de courriers"),
+  letterCopy: tr("Extract dates and amounts, then route to a human-reviewed next step.", "Extrae fechas y montos y deriva a un siguiente paso revisado por una persona.", "Génne bés ak xaalis, daldi jublu ci jéego ju nit seet.", "استخرج التواريخ والمبالغ ثم وجّه إلى خطوة تالية يراجعها إنسان.", "তারিখ ও পরিমাণ বের করে মানব-পর্যালোচিত পরবর্তী ধাপে পাঠান।", "提取日期和金额，再转入人工审查的下一步。", "Extraire dates et montants, puis orienter vers une étape examinée par un humain."),
+  packetTag: tr("PACKET", "PAQUETE", "PAKE", "حزمة", "প্যাকেট", "材料包", "DOSSIER"),
+  packetTitle: tr("Draft packet builder", "Creador de paquete borrador", "Sosukaayu pake bu njëkk", "منشئ حزمة المسودة", "খসড়া প্যাকেট নির্মাতা", "申请材料草稿生成器", "Créateur de dossier brouillon"),
+  packetCopy: tr("Assemble a watermarked, never-filed preview from confirmed evidence.", "Arma una vista previa con marca de agua, nunca presentada, a partir de evidencia confirmada.", "Dajal xoolin bu am màndarga te ñu dencu ko ci kenn, jóge ci firnde yi ñu dëggal.", "أنشئ معاينة بعلامة مائية لا تُودع أبدًا من الأدلة المؤكدة.", "নিশ্চিত প্রমাণ থেকে জলছাপযুক্ত, কখনও দাখিল না-করা প্রিভিউ তৈরি করুন।", "根据已确认的证据生成带水印、从未提交的预览。", "Assembler un aperçu filigrané, jamais déposé, à partir de preuves confirmées."),
+  guardTag: tr("GUARD", "PROTECCIÓN", "WÓOR", "حماية", "সুরক্ষা", "守护", "PROTECTION"),
+  guardTitle: tr("Scam Radar", "Radar de riesgo", "Radaru risk", "رادار المخاطر", "ঝুঁকি রাডার", "风险雷达", "Radar de risque"),
+  guardCopy: tr("Aggregate fictional neighborhood risk signals without naming people.", "Agrupa señales ficticias de riesgo de barrios sin nombrar personas.", "Dajal màndargay risk ci dëkk yu sosu te tuddu kenn.", "اجمع إشارات مخاطر لأحياء خيالية دون تسمية أشخاص.", "কারও নাম না নিয়ে কাল্পনিক এলাকার ঝুঁকির সংকেত একত্র করুন।", "汇总虚构社区的风险信号，不点名个人。", "Regrouper des signaux de risque de quartiers fictifs sans nommer de personnes."),
+  channelsTag: tr("CHANNELS", "CANALES", "YIITU JOKKOO", "قنوات", "চ্যানেল", "渠道", "CANAUX"),
+  channelsTitle: tr("WhatsApp + SMS", "WhatsApp + SMS", "WhatsApp + SMS", "واتساب + رسائل نصية", "WhatsApp + SMS", "WhatsApp + 短信", "WhatsApp + SMS"),
+  channelsCopy: tr("Bring the same channel-agnostic core to familiar conversations.", "Lleva el mismo núcleo a conversaciones conocidas sin depender del canal.", "Yóbbu xel mu mag mi ci waxtaan yi ñu xam te bañ a sukkandiku ci benn yoon.", "انقل النواة نفسها المستقلة عن القناة إلى محادثات مألوفة.", "একই চ্যানেল-স্বাধীন মূল ব্যবস্থা পরিচিত কথোপকথনে আনুন।", "把同一套与渠道无关的核心带入熟悉的对话方式。", "Apporter le même cœur indépendant du canal aux conversations habituelles."),
+  learningTag: tr("LEARNING", "APRENDIZAJE", "JÀNGALE", "تعلّم", "শেখা", "学习", "APPRENTISSAGE"),
+  learningTitle: tr("Course preparation", "Preparación de cursos", "Waajal njàng mi", "التحضير للدورات", "কোর্স প্রস্তুতি", "课程准备", "Préparation aux cours"),
+  learningCopy: tr("Short multilingual voice lessons with clear translation labels.", "Lecciones de voz breves y multilingües con etiquetas claras de traducción.", "Njàngat yu gàtt ci baat ak làkk yu bare, te tekki yi am màndarga bu leer.", "دروس صوتية قصيرة متعددة اللغات مع تسميات ترجمة واضحة.", "স্পষ্ট অনুবাদ লেবেলসহ ছোট বহুভাষিক ভয়েস পাঠ।", "带明确翻译标签的简短多语言语音课程。", "Courtes leçons vocales multilingues avec traductions clairement indiquées."),
+  autopilotTag: tr("AUTOPILOT", "AUTOMATIZACIÓN", "AUTOPILOT", "تشغيل مساعد", "অটোপাইলট", "自动辅助", "ASSISTANCE AUTO"),
+  autopilotTitle: tr("Outreach approval queue", "Cola de aprobación de contacto", "Rañey dëggal jokkoo", "قائمة موافقة التواصل", "আউটরিচ অনুমোদন সারি", "外联批准队列", "File d’approbation des contacts"),
+  autopilotCopy: tr("Draft reminders for a caseworker to review—never auto-send.", "Borradores de recordatorios para revisión; nunca se envían automáticamente.", "Bind fàttali yu topp-kàddast seet — duñu leen yónnee seen bopp.", "مسودات تذكير يراجعها مسؤول الحالة — لا تُرسل تلقائيًا أبدًا.", "কেসওয়ার্কার পর্যালোচনার জন্য স্মরণিকার খসড়া—কখনও স্বয়ংক্রিয়ভাবে পাঠানো নয়।", "生成供个案工作人员审查的提醒草稿—绝不自动发送。", "Brouillons de rappels à examiner par un gestionnaire — jamais envoyés automatiquement."),
+};

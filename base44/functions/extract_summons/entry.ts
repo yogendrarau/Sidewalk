@@ -17,7 +17,26 @@ const InputSchema = z.object({
   image_url: z.string().url().max(2048),
 }).strict();
 
-function allowedImageUrl(value) {
+type DocumentValues = {
+  imageUrl: string;
+  sha256: string;
+  ticket: string | null;
+  status: "extracted" | "unclear";
+  provenance: ReturnType<typeof makeProvenance>;
+};
+
+type DocumentStoreClient = {
+  asServiceRole: {
+    entities: {
+      DemoDocument: {
+        deleteMany: (query: Record<string, unknown>) => Promise<unknown>;
+        create: (values: Record<string, unknown>) => Promise<{ id: string }>;
+      };
+    };
+  };
+};
+
+function allowedImageUrl(value: string): boolean {
   try {
     const url = new URL(value);
     return url.protocol === "https:" &&
@@ -27,7 +46,7 @@ function allowedImageUrl(value) {
   }
 }
 
-async function imageHash(url) {
+async function imageHash(url: string): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
   try {
@@ -46,12 +65,17 @@ async function imageHash(url) {
   }
 }
 
-async function replaceDocument(base44, demoSessionId, values) {
-  await base44.asServiceRole.entities.DemoDocument.deleteMany({
+async function replaceDocument(
+  base44: unknown,
+  demoSessionId: string,
+  values: DocumentValues,
+): Promise<{ id: string }> {
+  const client = base44 as DocumentStoreClient;
+  await client.asServiceRole.entities.DemoDocument.deleteMany({
     demo_session_id: demoSessionId,
     kind: "summons",
   });
-  return await base44.asServiceRole.entities.DemoDocument.create({
+  return await client.asServiceRole.entities.DemoDocument.create({
     demo_session_id: demoSessionId,
     kind: "summons",
     source_image_url: values.imageUrl,
@@ -62,10 +86,10 @@ async function replaceDocument(base44, demoSessionId, values) {
   });
 }
 
-function timeout(promise, milliseconds) {
+function timeout<T>(promise: Promise<T>, milliseconds: number): Promise<T> {
   return Promise.race([
     promise,
-    new Promise((_, reject) =>
+    new Promise<T>((_, reject) =>
       setTimeout(() => reject(new Error("live_ai_timeout")), milliseconds)
     ),
   ]);
@@ -148,13 +172,17 @@ Deno.serve(async (req) => {
         }),
         8000,
       );
+      const extraction = result as {
+        ticket_number?: string | null;
+        confidence?: "clear" | "unclear";
+      };
 
       const rawTicket =
-        result?.ticket_number === null || result?.ticket_number === undefined
+        extraction.ticket_number === null || extraction.ticket_number === undefined
           ? null
-          : String(result.ticket_number);
+          : String(extraction.ticket_number);
       const ticket =
-        result?.confidence === "clear" ? normalizeTicket(rawTicket) : null;
+        extraction.confidence === "clear" ? normalizeTicket(rawTicket) : null;
       const status = ticket ? "extracted" : "unclear";
       const provenance = makeProvenance(
         "live_ai",

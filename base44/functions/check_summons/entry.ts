@@ -44,14 +44,33 @@ const PublicRecordSchema = z.object({
   charge_1_code_description: z.string().optional(),
 }).strict();
 
-function socrataHeaders() {
-  const headers = { Accept: "application/json" };
+type StoredVerificationValues = {
+  demoSessionId: string;
+  ticket: string;
+  result: "found" | "not_found" | "unavailable";
+  datasetTimestamp: string;
+  record: unknown | null;
+  provenance: ReturnType<typeof makeProvenance>;
+};
+
+type VerificationStoreClient = {
+  asServiceRole: {
+    entities: {
+      DemoVerificationCheck: {
+        create: (values: Record<string, unknown>) => Promise<{ id: string }>;
+      };
+    };
+  };
+};
+
+function socrataHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { Accept: "application/json" };
   const appToken = Deno.env.get("NYC_OPEN_DATA_APP_TOKEN");
   if (appToken) headers["X-App-Token"] = appToken;
   return headers;
 }
 
-function buildResourceUrl(ticket) {
+function buildResourceUrl(ticket: string): URL {
   const url = new URL(RESOURCE_ENDPOINT);
   url.searchParams.set("$select", [
     "ticket_number",
@@ -72,7 +91,7 @@ function buildResourceUrl(ticket) {
   return url;
 }
 
-async function fetchJson(url, signal) {
+async function fetchJson(url: string | URL, signal: AbortSignal): Promise<unknown> {
   const response = await fetch(url, {
     method: "GET",
     headers: socrataHeaders(),
@@ -82,7 +101,7 @@ async function fetchJson(url, signal) {
   return await response.json();
 }
 
-async function liveLookup(ticket) {
+async function liveLookup(ticket: string) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 9000);
   try {
@@ -102,8 +121,9 @@ async function liveLookup(ticket) {
   }
 }
 
-async function storeCheck(base44, values) {
-  return await base44.asServiceRole.entities.DemoVerificationCheck.create({
+async function storeCheck(base44: unknown, values: StoredVerificationValues) {
+  const client = base44 as VerificationStoreClient;
+  return await client.asServiceRole.entities.DemoVerificationCheck.create({
     demo_session_id: values.demoSessionId,
     ticket_number: values.ticket,
     normalized_ticket: values.ticket,

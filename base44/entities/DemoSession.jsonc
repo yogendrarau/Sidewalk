@@ -10,6 +10,15 @@
     },
     "locale": {
       "type": "string",
+      "enum": [
+        "en",
+        "es",
+        "wo",
+        "ar",
+        "bn",
+        "zh-Hans",
+        "fr"
+      ],
       "default": "es"
     },
     "provider_modes": {
@@ -25,6 +34,10 @@
     }
   },
   "required": [
-    "code"
+    "demo_session_id",
+    "code",
+    "locale",
+    "provider_modes",
+    "started_at"
   ]
 }

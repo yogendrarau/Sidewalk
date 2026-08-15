@@ -10,6 +10,15 @@
     },
     "language": {
       "type": "string",
+      "enum": [
+        "en",
+        "es",
+        "wo",
+        "ar",
+        "bn",
+        "zh-Hans",
+        "fr"
+      ],
       "default": "es"
     },
     "vendor_type": {
@@ -19,6 +28,18 @@
       "type": "boolean"
     },
     "case_summary": {
+      "type": "string"
+    },
+    "case_status_key": {
+      "type": "string"
+    },
+    "case_summary_key": {
+      "type": "string"
+    },
+    "next_step_key": {
+      "type": "string"
+    },
+    "missing_item_key": {
       "type": "string"
     },
     "next_step": {

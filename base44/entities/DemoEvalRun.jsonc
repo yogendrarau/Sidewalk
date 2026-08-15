@@ -12,7 +12,15 @@
       "type": "string",
       "maxLength": 300
     },
+    "metric_key": {
+      "type": "string",
+      "maxLength": 300
+    },
     "value": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "value_key": {
       "type": "string",
       "maxLength": 300
     },

@@ -8,8 +8,20 @@
     "question": {
       "type": "string"
     },
+    "original_transcript": {
+      "type": "string"
+    },
     "locale": {
       "type": "string",
+      "enum": [
+        "en",
+        "es",
+        "wo",
+        "ar",
+        "bn",
+        "zh-Hans",
+        "fr"
+      ],
       "default": "es"
     },
     "intent": {
@@ -23,6 +35,24 @@
     },
     "answer_text": {
       "type": "string"
+    },
+    "answer_text_en": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "answer",
+        "abstain"
+      ]
+    },
+    "error_code": {
+      "type": "string",
+      "enum": [
+        "unknown_intent",
+        "missing_facts",
+        "missing_translation"
+      ]
     },
     "trace": {
       "type": "string"

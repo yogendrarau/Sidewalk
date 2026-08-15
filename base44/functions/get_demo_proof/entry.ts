@@ -25,33 +25,39 @@ Deno.serve(async (req) => {
       100,
       0,
     );
+    const demonstratedKeys = [
+      "proof.demonstrated.fictional_data_only",
+      "proof.demonstrated.no_immigration_field",
+      "proof.demonstrated.cash_confirmation",
+      "proof.demonstrated.no_external_actions",
+      "proof.demonstrated.session_scope_and_reset",
+    ];
+    const productionDesignKeys = [
+      "proof.production.tenant_isolation",
+      "proof.production.expiring_document_links",
+      "proof.production.encryption",
+      "proof.production.deletion_workflows",
+      "proof.production.audit_logs",
+      "proof.production.security_review",
+    ];
+    const notEvaluatedKeys = [
+      "proof.not_evaluated.regulatory_compliance",
+      "proof.not_evaluated.legal_accuracy",
+      "proof.not_evaluated.production_security",
+      "proof.not_evaluated.accessibility_certification",
+      "proof.not_evaluated.real_world_outcomes",
+    ];
     return Response.json({
       ok: true,
       data: {
         provider_modes: session.provider_modes,
         eval_runs: evalRuns,
-        demonstrated: [
-          "Fictional-data-only flows",
-          "No immigration-status field",
-          "Explicit cash confirmation",
-          "No real payment, filing, messaging, or outreach calls",
-          "Session-scoped queries and reset",
-        ],
-        production_design: [
-          "Tenant isolation",
-          "Expiring document links",
-          "Encryption",
-          "Deletion workflows",
-          "Audit logs",
-          "Independent security review",
-        ],
-        not_evaluated: [
-          "Regulatory compliance",
-          "Legal accuracy",
-          "Production security",
-          "Accessibility certification",
-          "Real-world vendor outcomes",
-        ],
+        demonstrated: demonstratedKeys,
+        demonstrated_keys: demonstratedKeys,
+        production_design: productionDesignKeys,
+        production_design_keys: productionDesignKeys,
+        not_evaluated: notEvaluatedKeys,
+        not_evaluated_keys: notEvaluatedKeys,
       },
       provenance: makeProvenance("fixture", "Recorded prototype checks for this demo session", { fixtureId: "demo-eval-v1" }),
     });

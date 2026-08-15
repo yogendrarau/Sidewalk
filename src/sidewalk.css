@@ -58,7 +58,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(230, 96, 66,
 }
 .brand-lockup { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800; letter-spacing: .17em; }
 .brand-symbol { width: 32px; height: 32px; object-fit: contain; }
-.brand-wordmark { height: 64px; width: auto; object-fit: contain; margin-left: -6px; }
+.brand-wordmark { height: 64px; width: auto; object-fit: contain; margin-inline-start: -6px; }
 .brand-lockup.inverse .brand-symbol,
 .brand-lockup.inverse .brand-wordmark { filter: brightness(0) invert(1); }
 
@@ -134,7 +134,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(230, 96, 66,
 .vendor-header { min-height: 60px; padding: 13px 18px 8px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(23, 38, 31, .08); }
 .vendor-header .brand-lockup { font-size: 12px; }
 .vendor-header .brand-symbol { width: 28px; height: 28px; }
-.vendor-header .brand-wordmark { height: 16px; margin-left: 0; }
+.vendor-header .brand-wordmark { height: 16px; margin-inline-start: 0; }
 .vendor-header-actions { display: flex; align-items: center; gap: 6px; }
 .fictional-pill { padding: 5px 7px; border-color: #b9ddc6; background: #e6f4ea; color: var(--sw-green); font-size: 7px; }
 .language-button { min-height: 30px; padding: 0 8px; display: flex; align-items: center; gap: 5px; border: 1px solid var(--sw-line); border-radius: 9px; background: white; font-size: 9px; font-weight: 800; cursor: pointer; }

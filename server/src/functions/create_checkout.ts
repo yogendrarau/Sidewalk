@@ -19,6 +19,9 @@ const Input = z.object({
   slug: z.string(),
   items: z.array(z.object({ item_id: z.string(), qty: z.number().int().min(1).max(20) })).min(1),
   lang: z.string().default("en"),
+  // Optional buyer capability ref (device-held, no PII): attaches the order to the
+  // shopper's local account so /api/buyer/orders can list their history.
+  buyer_ref: z.string().max(64).optional(),
 });
 
 export type CheckoutOut =
@@ -56,7 +59,11 @@ export const create_checkout = defineFn<z.infer<typeof Input>, CheckoutOut>("cre
   const payload = Buffer.from(JSON.stringify({
     id: orderId, order_number: orderNumber, total_price: total.toFixed(2), currency,
     line_items: lines.map((l) => ({ product_id: l.shopify_product_id, title: l.title, quantity: l.qty, price: l.unit_price.toFixed(2) })),
-    note_attributes: [{ name: "vendor_id", value: vendorId }, { name: "order_token", value: token }],
+    note_attributes: [
+      { name: "vendor_id", value: vendorId },
+      { name: "order_token", value: token },
+      ...(input.buyer_ref ? [{ name: "buyer_ref", value: input.buyer_ref }] : []),
+    ],
   }));
   const hmac = createHmac("sha256", webhookSecret()).update(payload).digest("base64");
   const port = env("PORT", "4477");

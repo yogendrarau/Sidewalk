@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "../../api";
 import { t } from "../../i18n";
 import { navigate } from "../../App";
+import { buyerId } from "./buyer";
 
 export type PubItem = {
   id: string;
@@ -94,6 +95,9 @@ export default function Shop({ slug }: { slug: string }) {
             className="mt-5 w-full rounded-2xl bg-mango py-4 text-lg font-bold text-white shadow-lg active:scale-[0.98]">
             {t("s_track", lang)} →
           </button>
+          <button onClick={() => navigate("/orders")} className="mt-3 text-sm font-bold text-stone-400 active:opacity-70">
+            🧾 {t("s_my_orders", lang)}
+          </button>
         </div>
       </div>
     );
@@ -104,7 +108,7 @@ export default function Shop({ slug }: { slug: string }) {
     try {
       const lines = Object.entries(cart).filter(([, q]) => q > 0).map(([item_id, qty]) => ({ item_id, qty }));
       const res = await api<{ ok: boolean; data: (Placed & { mode: string; checkout_url?: string }) }>(
-        `/api/shop/${slug}/checkout`, { items: lines, lang });
+        `/api/shop/${slug}/checkout`, { items: lines, lang, buyer_ref: buyerId() });
       if (res.ok && res.data.mode === "shopify" && res.data.checkout_url) {
         window.location.href = res.data.checkout_url; // Shopify-hosted checkout (invariant 14)
       } else if (res.ok) {
@@ -121,7 +125,12 @@ export default function Shop({ slug }: { slug: string }) {
       {/* market-stall header */}
       <header className="bg-forest px-5 pb-6 pt-8 text-white">
         <div className="mx-auto max-w-md">
-          <p className="text-3xl">🧺</p>
+          <div className="flex items-start justify-between">
+            <p className="text-3xl">🧺</p>
+            <button onClick={() => navigate("/orders")} className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold active:scale-95">
+              🧾 {t("s_my_orders", lang)}
+            </button>
+          </div>
           <h1 className="mt-1 text-3xl font-black leading-tight">{sf.public_name}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
             <span className={`rounded-full px-3 py-1 font-bold ${isOpen ? "bg-emerald-400/30" : "bg-white/20"}`}>

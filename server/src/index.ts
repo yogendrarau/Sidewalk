@@ -331,8 +331,8 @@ app.get("/api/shop/:slug", wrap(async (req, res) => {
 }));
 
 app.post("/api/shop/:slug/checkout", wrap(async (req, res) => {
-  const b = req.body as { items: Array<{ item_id: string; qty: number }>; lang?: string };
-  const result = await create_checkout({ slug: req.params.slug, items: b.items, lang: b.lang ?? "en" });
+  const b = req.body as { items: Array<{ item_id: string; qty: number }>; lang?: string; buyer_ref?: string };
+  const result = await create_checkout({ slug: req.params.slug, items: b.items, lang: b.lang ?? "en", buyer_ref: b.buyer_ref });
   res.status(result.ok ? 200 : 400).json(result);
 }));
 
@@ -385,9 +385,29 @@ app.post("/webhooks/shopify", wrap(async (req, res) => {
     })),
     webhook_id: webhookId || undefined,
     order_token: attr("order_token"),
+    buyer_ref: attr("buyer_ref"),
     hmac_verified: true,
   });
   res.json(result);
+}));
+
+// buyer order history: the device-held buyer_ref is the capability (no PII, no login server-side)
+app.get("/api/buyer/orders", wrap(async (req, res) => {
+  const ref = String(req.query.buyer ?? "");
+  if (ref.length < 8) { res.status(400).json({ ok: false, error: "missing buyer ref" }); return; }
+  const orders = entities.list(sys, "CommerceOrder")
+    .filter((o) => o.buyer_ref === ref)
+    .sort((a, b) => String(b.placed_at).localeCompare(String(a.placed_at)))
+    .slice(0, 20)
+    .map((o) => {
+      const store = entities.list(sys, "Storefront").find((s) => s.id === o.storefront_id);
+      return {
+        ...(publicOrder(o) as Record<string, unknown>),
+        token: o.token, // the shopper already holds this capability class; needed to open /order/{token}
+        store: store ? { public_name: store.public_name, slug: store.slug } : null,
+      };
+    });
+  res.json({ ok: true, orders });
 }));
 
 // ---------- feedback (§3.4 loop)

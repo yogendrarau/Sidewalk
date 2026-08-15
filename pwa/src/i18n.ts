@@ -1,10 +1,10 @@
 /** UI copy — T1 languages full; honesty labels per config/lang_tiers.json. */
 export const T1 = ["es", "bn", "ar", "zh", "en"] as const;
-export const T2 = ["ru", "ht", "ko", "ur", "fr", "pl"] as const;
+export const T2 = ["ru", "ht", "ko", "ur", "fr", "pl", "wo"] as const;
 
 export const LANG_NAMES: Record<string, string> = {
   es: "Español", bn: "বাংলা", ar: "العربية", zh: "中文", en: "English",
-  ru: "Русский", ht: "Kreyòl", ko: "한국어", ur: "اردو", fr: "Français", pl: "Polski",
+  ru: "Русский", ht: "Kreyòl", ko: "한국어", ur: "اردو", fr: "Français", pl: "Polski", wo: "Wolof",
 };
 
 type Strings = Record<string, Record<string, string>>;
@@ -154,6 +154,9 @@ const S: Strings = {
   s_order_placed: { es: "¡Pedido realizado!", en: "Order placed!", bn: "অর্ডার হয়েছে!", ar: "تم الطلب!", zh: "下单成功！" },
   s_show_code: { es: "Muestre este código al recoger", en: "Show this code at pickup", bn: "পিকআপে এই কোড দেখান", ar: "اعرض هذا الرمز عند الاستلام", zh: "取货时出示此码" },
   s_track: { es: "Seguir mi pedido", en: "Track my order", bn: "অর্ডার ট্র্যাক করুন", ar: "تتبّع طلبي", zh: "跟踪我的订单" },
+  s_my_orders: { es: "Mis pedidos", en: "My orders", bn: "আমার অর্ডার", ar: "طلباتي", zh: "我的订单" },
+  s_no_orders_yet: { es: "Todavía no hay pedidos en este teléfono.", en: "No orders on this phone yet.", bn: "এই ফোনে এখনো কোনো অর্ডার নেই।", ar: "لا توجد طلبات على هذا الهاتف بعد.", zh: "此手机上还没有订单。" },
+  s_your_name: { es: "Su nombre (opcional)", en: "Your name (optional)", bn: "আপনার নাম (ঐচ্ছিক)", ar: "اسمك (اختياري)", zh: "您的姓名（可选）" },
   s_order: { es: "Pedido", en: "Order", bn: "অর্ডার", ar: "الطلب", zh: "订单" },
   s_status_new: { es: "Recibido", en: "Received", bn: "গৃহীত", ar: "استُلم", zh: "已收到" },
   s_status_accepted: { es: "Aceptado", en: "Accepted", bn: "গৃহীত হয়েছে", ar: "مقبول", zh: "已接受" },

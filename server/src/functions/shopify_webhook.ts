@@ -35,6 +35,7 @@ const Input = z.object({
   items: z.array(z.object({ shopify_product_id: z.string(), title: z.string(), qty: z.number().int().positive(), unit_price: z.number() })).default([]),
   webhook_id: z.string().optional(), // X-Shopify-Webhook-Id; replayed deliveries reuse it
   order_token: z.string().optional(), // shopper order-page capability (simulated checkout threads it through)
+  buyer_ref: z.string().max(64).optional(), // shopper's device-held account ref (no PII; never in public projections)
   hmac_verified: z.literal(true), // route layer verifies the raw-body HMAC before calling
 });
 
@@ -79,7 +80,8 @@ export const shopify_webhook = defineFn<z.infer<typeof Input>, WebhookOut>("shop
     shopify_order_id: input.order_id, order_number: orderNumber,
     items: input.items, total: input.amount, currency: input.currency,
     fulfillment: "new", placed_at: new Date().toISOString(),
-    token, pickup_code: code, fulfillment_code_hash: createHash("sha256").update(code).digest("hex"),
+    token, pickup_code: code, buyer_ref: input.buyer_ref ?? null,
+    fulfillment_code_hash: createHash("sha256").update(code).digest("hex"),
   });
   const rec = entities.create(ctx, "EvidenceRecord", {
     vendor_id: input.vendor_id, kind: "order", order_id: input.order_id,

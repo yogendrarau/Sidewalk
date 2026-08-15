@@ -133,6 +133,19 @@ export default function Today({ lang, onOpenAssistant }: { lang: string; onOpenA
         </button>
       </section>
 
+      {/* the assistant, always one tap away — the voice loop is the product's front door */}
+      <button
+        onClick={onOpenAssistant}
+        className="flex w-full items-center gap-4 rounded-3xl border-2 border-leaf/30 bg-white p-4 text-left shadow-sm transition active:scale-[0.98]"
+      >
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-leaf text-2xl text-white">🎤</span>
+        <span className="min-w-0">
+          <span className="block font-extrabold text-forest">{t("ask_anything", lang)}</span>
+          <span className="block truncate text-sm text-stone-500">{t("tap_mic_hint", lang)}</span>
+        </span>
+        <span className="ms-auto text-xl text-stone-300">›</span>
+      </button>
+
       {/* urgent deadline */}
       {caze.next_deadline && (
         <button onClick={() => navigate("/app/case")} className="block w-full rounded-3xl border-s-8 border-mango bg-white p-4 text-start shadow-sm active:scale-[0.99]">

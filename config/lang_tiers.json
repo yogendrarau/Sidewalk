@@ -6,7 +6,7 @@
     "criteria": "native-reviewed templates + vocabulary + measured WER; all demo flows"
   },
   "t2_silver": {
-    "langs": ["ru", "ht", "ko", "ur", "fr", "pl"],
+    "langs": ["ru", "ht", "ko", "ur", "fr", "pl", "wo"],
     "label": "Auto-translated",
     "honesty_line": "Responses in {lang} are automatically translated and not yet reviewed by a person.",
     "criteria": "full functionality, machine-translated templates"

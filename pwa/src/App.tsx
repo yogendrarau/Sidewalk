@@ -17,6 +17,7 @@ import Profile from "./screens/Profile";
 import Shop from "./screens/shop/Shop";
 import Discover from "./screens/shop/Discover";
 import OrderTrack from "./screens/shop/OrderTrack";
+import MyOrders from "./screens/shop/MyOrders";
 
 export function navigate(path: string) {
   if (window.location.pathname !== path) history.pushState({}, "", path);
@@ -85,6 +86,7 @@ export default function App() {
   if (path.startsWith("/shop/")) return <Shop slug={path.split("/")[2] ?? ""} />;
   if (path.startsWith("/order/")) return <OrderTrack token={path.split("/")[2] ?? ""} />;
   if (path === "/discover") return <Discover />;
+  if (path === "/orders") return <MyOrders />;
 
   // ---- merchant surface
   if (!onboarded) {

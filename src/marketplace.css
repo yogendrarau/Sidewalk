@@ -133,6 +133,17 @@
     linear-gradient(145deg, #fbf8ef 0%, #eef5eb 100%);
 }
 
+.marketplace-onboarding.role-selection-onboarding {
+  background-image:
+    url("assets/brand/cityremove.png"),
+    radial-gradient(circle at 8% 18%, rgba(216, 240, 155, .52), transparent 27%),
+    radial-gradient(circle at 91% 82%, rgba(239, 120, 92, .18), transparent 29%),
+    linear-gradient(145deg, #fbf8ef 0%, #eef5eb 100%);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+  background-position: bottom center, 8% 18%, 91% 82%, center;
+  background-size: 100% auto, auto, auto, cover;
+}
+
 .marketplace-onboarding::before,
 .marketplace-onboarding::after {
   position: absolute;
@@ -201,6 +212,8 @@
   letter-spacing: -.045em;
 }
 
+.role-selection-copy h1 { white-space: nowrap; }
+
 .role-selection-copy p,
 .prototype-account-intro {
   margin: 0;
@@ -237,46 +250,41 @@
   gap: 16px;
   width: 100%;
   min-width: 0;
-  padding: 22px;
-  border: 1px solid rgba(15, 86, 61, .16);
-  border-radius: 23px;
+  padding: 20px 22px;
+  border: 1px solid rgba(15, 86, 61, .18);
+  border-radius: 13px;
   color: var(--mp-ink);
   background: rgba(255, 254, 250, .92);
-  box-shadow: 0 15px 35px rgba(28, 58, 45, .08);
   text-align: start;
   cursor: pointer;
-  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  transition: border-color .16s ease, background .16s ease;
 }
 
 .role-option-card::before {
   position: absolute;
   inset-block: 13px;
   inset-inline-start: 0;
-  width: 4px;
+  width: 3px;
   content: "";
-  border-radius: 0 4px 4px 0;
   background: var(--mp-coral);
   opacity: 0;
-  transition: opacity .18s ease;
+  transition: opacity .16s ease;
 }
 
-[dir="rtl"] .role-option-card::before { border-radius: 4px 0 0 4px; }
+[dir="rtl"] .role-option-card::before { inset-inline-start: auto; inset-inline-end: 0; }
 
 .role-option-card.vendor::before { background: var(--mp-forest); }
-.role-option-card:hover { transform: translateY(-3px); border-color: rgba(15, 86, 61, .38); box-shadow: 0 20px 45px rgba(28, 58, 45, .13); }
+.role-option-card:hover { border-color: rgba(15, 86, 61, .4); background: #fffefb; }
 .role-option-card:hover::before { opacity: 1; }
 
 .role-option-icon {
   display: grid;
-  width: 55px;
-  height: 55px;
+  width: 46px;
+  height: 46px;
   place-items: center;
-  border-radius: 18px;
-  color: #9c402d;
-  background: #fee6df;
 }
 
-.role-option-card.vendor .role-option-icon { color: var(--mp-forest); background: var(--mp-mint); }
+.role-option-icon img { width: 46px; height: 46px; object-fit: contain; }
 .role-option-content { display: grid; min-width: 0; gap: 5px; }
 .role-option-content strong { font-size: 18px; line-height: 1.25; }
 .role-option-content span { color: var(--mp-muted); font-size: 13px; line-height: 1.55; }
@@ -784,9 +792,10 @@
   .marketplace-language select { max-width: 125px; height: 36px; font-size: 11px; }
   .role-selection-shell { margin-block-start: 20px; }
   .role-selection-copy { text-align: start; }
-  .role-selection-copy h1 { font-size: clamp(34px, 11vw, 46px); }
-  .role-option-card { padding: 17px; border-radius: 19px; }
-  .role-option-icon { width: 49px; height: 49px; border-radius: 15px; }
+  .role-selection-copy h1 { font-size: clamp(21px, 7.3vw, 46px); }
+  .role-option-card { padding: 17px; border-radius: 12px; }
+  .role-option-icon { width: 42px; height: 42px; }
+  .role-option-icon img { width: 42px; height: 42px; }
   .prototype-account-card { border-radius: 22px; }
   .prototype-account-summary > div { grid-template-columns: 1fr; gap: 6px; }
   .prototype-account-summary dd { justify-content: flex-start; text-align: start; }
@@ -817,5 +826,4 @@
 
 @media (prefers-reduced-motion: reduce) {
   .role-option-card { transition: none; }
-  .role-option-card:hover { transform: none; }
 }

@@ -12,6 +12,7 @@ import { createHmac, randomUUID } from "node:crypto";
 import { defineFn } from "./_fn.js";
 import { entities, type Ctx } from "../entities.js";
 import { env } from "../env.js";
+import { shopifyCreds, webhookSecret } from "../shopify.js";
 import { pickupCodeFor } from "./shopify_webhook.js";
 
 const Input = z.object({
@@ -42,10 +43,10 @@ export const create_checkout = defineFn<z.infer<typeof Input>, CheckoutOut>("cre
   const total = Math.round(lines.reduce((s, l) => s + l.unit_price * l.qty, 0) * 100) / 100;
   const currency = String(catalog[0]?.currency ?? "USD");
 
-  const shopifyStore = process.env.SHOPIFY_STORE;
-  if (shopifyStore && !lines.some((l) => l.shopify_product_id.startsWith("SIMP-"))) {
+  const creds = shopifyCreds();
+  if (creds && !lines.some((l) => l.shopify_product_id.startsWith("SIMP-"))) {
     const cart = lines.map((l) => `${l.shopify_product_id}:${l.qty}`).join(",");
-    return { mode: "shopify", checkout_url: `https://${shopifyStore}/cart/${cart}`, total, currency };
+    return { mode: "shopify", checkout_url: `https://${creds.shop}/cart/${cart}`, total, currency };
   }
 
   // Simulated card step: fire the real HMAC-signed orders/create webhook at ourselves.
@@ -57,7 +58,7 @@ export const create_checkout = defineFn<z.infer<typeof Input>, CheckoutOut>("cre
     line_items: lines.map((l) => ({ product_id: l.shopify_product_id, title: l.title, quantity: l.qty, price: l.unit_price.toFixed(2) })),
     note_attributes: [{ name: "vendor_id", value: vendorId }, { name: "order_token", value: token }],
   }));
-  const hmac = createHmac("sha256", env("SHOPIFY_WEBHOOK_SECRET", "dev-secret-change-me")).update(payload).digest("base64");
+  const hmac = createHmac("sha256", webhookSecret()).update(payload).digest("base64");
   const port = env("PORT", "4477");
   const r = await fetch(`http://localhost:${port}/webhooks/shopify`, {
     method: "POST",

@@ -12,6 +12,7 @@ import { z } from "zod";
 import { defineFn } from "./_fn.js";
 import { entities, type Ctx } from "../entities.js";
 import { runExtraction } from "../extraction.js";
+import { shopifyCreds } from "../shopify.js";
 import { publish } from "../realtime.js";
 
 const DraftInput = z.object({
@@ -61,16 +62,15 @@ const UpsertInput = z.object({
 export type UpsertOut = { item_id: string; shopify_product_id: string; mode: "shopify" | "simulated" };
 
 async function shopifyProductUpsert(existingId: string | null, title: string, priceUsd: number): Promise<{ id: string; mode: "shopify" | "simulated" }> {
-  const store = process.env.SHOPIFY_STORE;
-  const token = process.env.SHOPIFY_ADMIN_TOKEN;
-  if (!store || !token) return { id: existingId ?? `SIMP-${Math.random().toString(36).slice(2, 10).toUpperCase()}`, mode: "simulated" };
+  const creds = shopifyCreds(); // env token or the OAuth-minted IntegrationCredential
+  if (!creds) return { id: existingId ?? `SIMP-${Math.random().toString(36).slice(2, 10).toUpperCase()}`, mode: "simulated" };
   const isUpdate = existingId && !existingId.startsWith("SIMP-");
   const url = isUpdate
-    ? `https://${store}/admin/api/2025-01/products/${existingId}.json`
-    : `https://${store}/admin/api/2025-01/products.json`;
+    ? `https://${creds.shop}/admin/api/2025-01/products/${existingId}.json`
+    : `https://${creds.shop}/admin/api/2025-01/products.json`;
   const res = await fetch(url, {
     method: isUpdate ? "PUT" : "POST",
-    headers: { "X-Shopify-Access-Token": token, "content-type": "application/json" },
+    headers: { "X-Shopify-Access-Token": creds.token, "content-type": "application/json" },
     body: JSON.stringify({ product: { ...(isUpdate ? { id: Number(existingId) } : {}), title, variants: [{ price: priceUsd.toFixed(2) }] } }),
     signal: AbortSignal.timeout(15_000),
   });

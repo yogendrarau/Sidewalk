@@ -9,11 +9,11 @@ import { createHmac, createHash, timingSafeEqual, randomUUID } from "node:crypto
 import { defineFn } from "./_fn.js";
 import { entities, type Ctx } from "../entities.js";
 import { env } from "../env.js";
+import { webhookSecret } from "../shopify.js";
 import { publish } from "../realtime.js";
 
 export function verifyShopifyHmac(rawBody: Buffer, hmacHeader: string): boolean {
-  const secret = env("SHOPIFY_WEBHOOK_SECRET", "dev-secret-change-me");
-  const digest = createHmac("sha256", secret).update(rawBody).digest("base64");
+  const digest = createHmac("sha256", webhookSecret()).update(rawBody).digest("base64");
   try {
     return timingSafeEqual(Buffer.from(digest), Buffer.from(hmacHeader));
   } catch {
@@ -22,7 +22,7 @@ export function verifyShopifyHmac(rawBody: Buffer, hmacHeader: string): boolean 
 }
 
 export function pickupCodeFor(orderId: string): string {
-  const h = createHash("sha256").update(`pickup:${orderId}:${env("SHOPIFY_WEBHOOK_SECRET", "dev-secret-change-me")}`).digest("hex");
+  const h = createHash("sha256").update(`pickup:${orderId}:${webhookSecret()}`).digest("hex");
   return String(parseInt(h.slice(0, 8), 16) % 10000).padStart(4, "0");
 }
 

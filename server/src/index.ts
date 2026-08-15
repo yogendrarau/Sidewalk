@@ -23,6 +23,7 @@ import { update_order_status } from "./functions/update_order_status.js";
 import { capture_feedback } from "./functions/capture_feedback.js";
 import { deadline_nudges } from "./functions/deadline_nudges.js";
 import { shopify_webhook, verifyShopifyHmac } from "./functions/shopify_webhook.js";
+import { shopifyCreds, shopifyOauthHandler } from "./shopify.js";
 import { compose_packet } from "./functions/compose_packet.js";
 import { scam_radar } from "./functions/scam_radar.js";
 import { heat_watch, course_prep, find_commissary, socrata_sync } from "./functions/misc_flows.js";
@@ -81,7 +82,7 @@ app.get("/api/config", (_req, res) => {
       tts: process.env.ELEVENLABS_API_KEY ? "elevenlabs" : "browser",
       explain: process.env.ANTHROPIC_API_KEY ? "llm+gate" : "template",
       extract: process.env.ANTHROPIC_API_KEY ? "vlm" : "fixture",
-      shopify: process.env.SHOPIFY_ADMIN_TOKEN ? "shopify" : "simulated",
+      shopify: shopifyCreds() ? `shopify (${shopifyCreds()!.source})` : "simulated",
     },
   });
 });
@@ -352,6 +353,9 @@ app.get("/pay/:vendorId", (req, res) => {
   const store = entities.list(sys, "Storefront", { vendor_id: req.params.vendorId })[0];
   res.redirect(store?.slug ? `/shop/${store.slug}` : "/discover");
 });
+
+// ---------- Shopify OAuth install (real store; ported from Yogi's sidewalk-version-b)
+app.get("/shopify/oauth", wrap(shopifyOauthHandler));
 
 // ---------- Shopify webhook (HMAC wall + replay protection; §14)
 app.post("/webhooks/shopify", wrap(async (req, res) => {
@@ -638,7 +642,7 @@ if (env("SERVE_STATIC", "") === "1") {
   app.get("/console/*", (_req, res) => res.sendFile(join(consoleDist, "index.html")));
   app.use(express.static(pwaDist));
   app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api") || req.path.startsWith("/mcp") || req.path.startsWith("/media") || req.path.startsWith("/shop-media") || req.path.startsWith("/pay") || req.path.startsWith("/webhooks")) return next();
+    if (req.path.startsWith("/api") || req.path.startsWith("/mcp") || req.path.startsWith("/media") || req.path.startsWith("/shop-media") || req.path.startsWith("/pay") || req.path.startsWith("/webhooks") || req.path.startsWith("/shopify")) return next();
     res.sendFile(join(pwaDist, "index.html"));
   });
 }

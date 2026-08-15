@@ -39,6 +39,7 @@ const SCHEMA: Record<string, { rls: Rls; fls?: string[] }> = {
   ReferralPartner: { rls: "public" },
   WebhookReceipt: { rls: "public" }, // replay-protection + provenance ledger: ids and verdicts only
   AutomationRun: { rls: "public" }, // scheduled-automation proof for /demo/platform
+  IntegrationCredential: { rls: "org" }, // org_id never set → readable ONLY by system ctx; OAuth tokens never reach a browser
   Org: { rls: "org" },
   OutreachDraft: { rls: "org" },
 };

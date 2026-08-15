@@ -13,6 +13,7 @@ import { defineFn } from "./_fn.js";
 import { entities, signMediaUrl, type Ctx } from "../entities.js";
 import { MEDIA_DIR } from "../db.js";
 import { env } from "../env.js";
+import { shopifyCreds } from "../shopify.js";
 import { catalog_item_upsert } from "./catalog_item_upsert.js";
 import { publish } from "../realtime.js";
 
@@ -50,7 +51,7 @@ export const provision_storefront = defineFn<z.infer<typeof Input>, StorefrontOu
     const existing = entities.list(ctx, "Storefront", { vendor_id: input.vendor_id })[0];
     const slug = (existing?.slug as string) ?? slugFor(input.vendor_id, publicName);
     const shopper_url = `${base}/shop/${slug}`;
-    const mode: "shopify" | "simulated" = process.env.SHOPIFY_ADMIN_TOKEN ? "shopify" : "simulated";
+    const mode: "shopify" | "simulated" = shopifyCreds() ? "shopify" : "simulated";
 
     const png = await QRCode.toBuffer(shopper_url, { width: 512, margin: 1 });
     const sha = createHash("sha256").update(png).digest("hex");

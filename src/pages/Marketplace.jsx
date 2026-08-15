@@ -113,23 +113,6 @@ function Brand() {
   );
 }
 
-function PrototypeDisclosure({ locale }) {
-  const { t } = useSurfaceTranslation(locale, ["common"]);
-  return (
-    <div
-      data-testid="prototype-disclosure"
-      className="marketplace-disclosure"
-      lang={locale}
-      dir={localeDirection(locale)}
-    >
-      <span className="marketplace-disclosure-dot" aria-hidden="true" />
-      <strong>{t("common:prototype")}</strong>
-      <span aria-hidden="true"> · </span>
-      <span>{t("common:disclosure")}</span>
-    </div>
-  );
-}
-
 function TypewriterText({ texts, typeSpeedMs = 38, deleteSpeedMs = 20, pauseMs = 1600 }) {
   const phrases = useMemo(
     () => (Array.isArray(texts) ? texts : [texts]).filter(Boolean),
@@ -205,7 +188,6 @@ function LanguageSelect({ locale, onChange }) {
 function OnboardingFrame({ locale, onLocaleChange, children, className = "" }) {
   return (
     <div className={"marketplace-onboarding" + (className ? " " + className : "")} lang={locale} dir={localeDirection(locale)}>
-      <PrototypeDisclosure locale={locale} />
       <header className="marketplace-onboarding-header">
         <Brand />
         <LanguageSelect locale={locale} onChange={onLocaleChange} />
@@ -281,14 +263,10 @@ function PrototypeAccountSetup({ locale, role, onLocaleChange, onBack, onCreate,
           <span className="marketplace-eyebrow">{t("marketplace:prototypeAccount")}</span>
           <h1 id="prototype-account-title">{t("marketplace:accountHeading")}</h1>
           <p className="prototype-account-intro">{t("marketplace:accountIntro")}</p>
-          <div className="prototype-warning" role="note">
-            <LockKeyhole size={18} />
-            <span>{t("marketplace:prototypeWarning")}</span>
-          </div>
           <dl className="prototype-account-summary">
             <div>
               <dt>{t("marketplace:selectedRole")}</dt>
-              <dd data-testid="prototype-role"><span className={"role-chip " + role}>{label}</span><code>{role}</code></dd>
+              <dd data-testid="prototype-role"><span className={"role-chip " + role}>{label}</span></dd>
             </div>
             <div>
               <dt>{t("marketplace:prototypeName")}</dt>
@@ -445,7 +423,7 @@ function AccountView({ locale, role, onLogout, sellingAccess = null }) {
         <dl>
           <div>
             <dt>{t("marketplace:accountRole")}</dt>
-            <dd data-testid="account-role"><span className={"role-chip " + role}>{isBuyer ? t("marketplace:buyerRole") : t("marketplace:vendorRole")}</span><code>{role}</code></dd>
+            <dd data-testid="account-role"><span className={"role-chip " + role}>{isBuyer ? t("marketplace:buyerRole") : t("marketplace:vendorRole")}</span></dd>
           </div>
         </dl>
         <p className="account-role-note"><Check size={16} /> {t("marketplace:roleStored")}</p>
@@ -530,7 +508,6 @@ function SellerDashboard({ locale, state, busyAction, onNeedHelp, onOpenAttestat
           </button>
         </section>
       )}
-      <p className="dashboard-no-activity"><Construction size={15} /> {t("marketplace:noActivityNote")}</p>
     </div>
   );
 }
@@ -687,7 +664,6 @@ function MarketplaceShell({ locale, role, workspace, onNavigate, onLogout, onLoc
       lang={locale}
       dir={localeDirection(locale)}
     >
-      <PrototypeDisclosure locale={locale} />
       <header data-testid="marketplace-header" className="marketplace-header">
         <Brand />
         <div className="marketplace-header-role"><span className={"role-chip " + role}>{roleLabel}</span></div>
@@ -714,12 +690,6 @@ function MarketplaceShell({ locale, role, workspace, onNavigate, onLogout, onLoc
             onOpenAttestation={onOpenAttestation}
             commerce={commerce}
           />
-          {!['get-verified', 'online-store', 'store'].includes(workspace) && (
-            <footer className="marketplace-scope-note">
-              <Construction size={16} />
-              <span><strong>{t("marketplace:marketplaceNotLive")}</strong> · {t("marketplace:noActivityNote")}</span>
-            </footer>
-          )}
         </main>
       </div>
     </div>

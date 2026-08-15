@@ -163,9 +163,6 @@ test("desktop seller shell marks unloaded metrics unavailable and preserves veri
   await expect(page.getByTestId("seller-verification-status")).toContainText(resources.en.shopify.sellingLocked);
   await expect(page.getByTestId("nav-get-verified")).toHaveCount(0);
   await expect(page.getByTestId("certification-gate")).toBeVisible();
-  await expect(page.getByTestId("seller-dashboard")).toContainText(
-    resources.en.marketplace.noActivityNote,
-  );
   await expectNoHorizontalOverflow(page, "desktop seller Dashboard");
 
   await page.getByTestId("nav-orders").click();

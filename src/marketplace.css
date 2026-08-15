@@ -49,38 +49,6 @@
 .marketplace-directional { flex: 0 0 auto; }
 [dir="rtl"] .marketplace-directional { transform: rotate(180deg); }
 
-.marketplace-disclosure {
-  position: relative;
-  z-index: 25;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-height: 34px;
-  padding: 7px 18px;
-  color: #f8fff9;
-  background: var(--mp-forest-dark);
-  font-size: 11px;
-  line-height: 1.35;
-  letter-spacing: .01em;
-  text-align: center;
-}
-
-.marketplace-disclosure strong {
-  color: var(--mp-lime);
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.marketplace-disclosure-dot {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--mp-lime);
-  box-shadow: 0 0 0 4px rgba(216, 240, 155, .14);
-}
-
 .marketplace-brand {
   display: inline-flex;
   align-items: center;
@@ -316,22 +284,6 @@
 }
 
 .prototype-account-card h1 { font-size: clamp(32px, 6vw, 47px); }
-
-.prototype-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-block: 23px;
-  padding: 14px;
-  border: 1px solid #efc6b9;
-  border-radius: 14px;
-  color: #793929;
-  background: #fff2ed;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.prototype-warning svg { flex: 0 0 auto; margin-block-start: 1px; }
 
 .prototype-account-summary,
 .account-profile-card dl {
@@ -640,21 +592,6 @@
   cursor: pointer;
 }
 
-.dashboard-no-activity {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 13px 0 0;
-  padding: 11px 13px;
-  border: 1px dashed #c5cbc7;
-  border-radius: 12px;
-  color: var(--mp-muted);
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.dashboard-no-activity svg { flex: 0 0 auto; }
-
 .official-authority-banner {
   display: flex;
   align-items: flex-start;
@@ -691,22 +628,6 @@
 .account-role-note svg { flex: 0 0 auto; }
 .account-no-switch { margin: 0; color: var(--mp-muted); font-size: 11px; }
 .marketplace-logout { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; margin-block-start: 22px; padding: 8px 12px; border: 1px solid #d9a99d; border-radius: 11px; color: #8b3d2c; background: #fff5f1; font-size: 12px; font-weight: 800; cursor: pointer; }
-
-.marketplace-scope-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin-block-start: 17px;
-  padding: 12px 14px;
-  border: 1px dashed #c5cbc7;
-  border-radius: 13px;
-  color: var(--mp-muted);
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.marketplace-scope-note svg { flex: 0 0 auto; }
-.marketplace-scope-note strong { color: var(--mp-ink); }
 
 @media (min-width: 640px) {
   .role-option-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -754,8 +675,6 @@
 }
 
 @media (max-width: 639px) {
-  .marketplace-disclosure { align-items: flex-start; flex-wrap: wrap; padding-inline: 10px; font-size: 9px; }
-  .marketplace-disclosure-dot { margin-block-start: 3px; }
   .marketplace-onboarding-header { padding-block: 17px; }
   .marketplace-brand { gap: 7px; font-size: 14px; }
   .marketplace-brand-mark { width: 31px; height: 31px; }

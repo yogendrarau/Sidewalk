@@ -5,7 +5,6 @@ import {
   BadgeCheck,
   Boxes,
   Check,
-  CircleDollarSign,
   CircleUserRound,
   ClipboardList,
   Compass,
@@ -13,7 +12,6 @@ import {
   LayoutDashboard,
   LockKeyhole,
   LogOut,
-  PackageOpen,
   Search,
   ShieldCheck,
   Sparkles,
@@ -23,6 +21,11 @@ import {
 import SidewalkApp from "./Sidewalk";
 import sidewalkMark from "@/assets/brand/sidewalk-mark.png";
 import sidewalkWordmark from "@/assets/brand/sidewalk-wordmark.png";
+import findLocationIcon from "@/assets/brand/find-location.png";
+import checkNoticeIcon from "@/assets/brand/checknotice.png";
+import progressIcon from "@/assets/brand/progress.png";
+import dollarSignIcon from "@/assets/brand/dollarsign.png";
+import vendorLicenseIcon from "@/assets/brand/vendor.png";
 import { Image } from "@/components/ui/image";
 import BuyerStorefront, { BuyerStoreCard } from "@/components/shopify/BuyerStorefront";
 import CertificationGate, { CertificationDialog } from "@/components/shopify/CertificationGate";
@@ -92,9 +95,9 @@ function sanitizeWorkspaceForAccess(role, requestedWorkspace, sellingAccess) {
   return allowed.includes(requested) ? requested : "dashboard";
 }
 
-function Brand({ compact = false }) {
+function Brand() {
   return (
-    <div className={"marketplace-brand" + (compact ? " compact" : "")} aria-label="SIDEWALK">
+    <div className="marketplace-brand" aria-label="SIDEWALK">
       <img className="marketplace-brand-mark" src={sidewalkMark} alt="" />
       <img className="marketplace-brand-wordmark" src={sidewalkWordmark} alt="" />
     </div>
@@ -190,9 +193,9 @@ function LanguageSelect({ locale, onChange }) {
   );
 }
 
-function OnboardingFrame({ locale, onLocaleChange, children }) {
+function OnboardingFrame({ locale, onLocaleChange, children, className = "" }) {
   return (
-    <div className="marketplace-onboarding" lang={locale} dir={localeDirection(locale)}>
+    <div className={"marketplace-onboarding" + (className ? " " + className : "")} lang={locale} dir={localeDirection(locale)}>
       <PrototypeDisclosure locale={locale} />
       <header className="marketplace-onboarding-header">
         <Brand />
@@ -206,7 +209,7 @@ function OnboardingFrame({ locale, onLocaleChange, children }) {
 function RoleSelection({ locale, onLocaleChange, onSelect }) {
   const { t } = useSurfaceTranslation(locale, ["marketplace"]);
   return (
-    <OnboardingFrame locale={locale} onLocaleChange={onLocaleChange}>
+    <OnboardingFrame locale={locale} onLocaleChange={onLocaleChange} className="role-selection-onboarding">
       <main data-testid="role-selection" className="role-selection-shell">
         <div className="role-selection-copy">
           <span className="marketplace-eyebrow"><Sparkles size={15} /> SIDEWALK MARKETPLACE</span>
@@ -307,10 +310,12 @@ function PrototypeAccountSetup({ locale, role, onLocaleChange, onBack, onCreate,
   );
 }
 
-function EmptyState({ testId, icon: Icon, eyebrow, title, body = null, secondary = null }) {
+function EmptyState({ testId, icon: Icon, image, eyebrow, title, body = null, secondary = null }) {
   return (
     <section data-testid={testId} className="marketplace-empty-card">
-      <div className="marketplace-empty-icon"><Icon size={30} /></div>
+      <div className="marketplace-empty-icon">
+        {image ? <img src={image} alt="" /> : <Icon size={26} />}
+      </div>
       <span className="marketplace-empty-eyebrow">{eyebrow}</span>
       <h2>{title}</h2>
       {body && <p>{body}</p>}
@@ -341,7 +346,7 @@ function BuyerExplore({ locale, storefront, onOpenStore, onViewSample }) {
         <>
           <EmptyState
             testId="marketplace-empty-state"
-            icon={Store}
+            image={findLocationIcon}
             eyebrow={t("marketplace:intentionallyEmpty")}
             title={t("marketplace:buyerEmpty")}
             secondary={t("marketplace:buyerEmptySecondary")}
@@ -362,7 +367,7 @@ function BuyerOrders({ locale }) {
       <div className="workspace-title-row"><div><span className="marketplace-eyebrow">{t("marketplace:buyerWorkspace")}</span><h1>{t("marketplace:buyerOrdersTitle")}</h1></div></div>
       <EmptyState
         testId="buyer-orders-empty"
-        icon={PackageOpen}
+        image={checkNoticeIcon}
         eyebrow={t("marketplace:intentionallyEmpty")}
         title={t("marketplace:buyerOrdersEmpty")}
         secondary={t("marketplace:buyerOrdersSecondary")}
@@ -378,7 +383,7 @@ function AccountView({ locale, role, onLogout, sellingAccess = null }) {
     <div data-testid={isBuyer ? "buyer-account" : "seller-account"} className="marketplace-workspace-view account-workspace">
       <div className="workspace-title-row"><div><span className="marketplace-eyebrow">{t("marketplace:prototypeProfile")}</span><h1>{t("marketplace:accountTitle")}</h1></div></div>
       <section className="account-profile-card">
-        <div className="account-avatar"><CircleUserRound size={34} /></div>
+        <div className="account-avatar"><img src={progressIcon} alt="" /></div>
         <div className="account-profile-heading">
           <span>{t("marketplace:prototypeAccount")}</span>
           <strong>{isBuyer ? t("marketplace:demoBuyerName") : t("marketplace:demoVendorName")}</strong>
@@ -432,7 +437,7 @@ function SellerDashboard({ locale, state, busyAction, onNeedHelp, onOpenAttestat
           <div><small>{t("marketplace:ordersMetric")}</small><strong data-testid="seller-orders-count">{unavailableMetric}</strong></div>
         </article>
         <article className="seller-metric-card">
-          <span className="seller-metric-icon"><CircleDollarSign size={19} /></span>
+          <span className="seller-metric-icon"><img src={dollarSignIcon} alt="" /></span>
           <div><small>{t("marketplace:salesMetric")}</small><strong data-testid="seller-sales-total">{unavailableMetric}</strong></div>
         </article>
         <article className="seller-metric-card">
@@ -456,7 +461,7 @@ function SellerDashboard({ locale, state, busyAction, onNeedHelp, onOpenAttestat
       )}
       {needsHelp && (
         <section className="verification-cta-card">
-          <div className="verification-cta-icon"><ShieldCheck size={24} /></div>
+          <div className="verification-cta-icon"><img src={vendorLicenseIcon} alt="" /></div>
           <div><h2>{t("marketplace:verificationTitle")}</h2><p>{t("marketplace:dashboardPreparationNote")}</p></div>
           <button data-testid="continue-verification" type="button" onClick={onContinueVerification}>
             {t("marketplace:continueVerification")} <ArrowRight className="marketplace-directional" size={17} />
@@ -484,7 +489,7 @@ function SellerOrders({ locale }) {
       <div className="workspace-title-row"><div><span className="marketplace-eyebrow">{t("marketplace:sellerWorkspace")}</span><h1>{t("marketplace:sellerOrdersTitle")}</h1></div></div>
       <EmptyState
         testId="seller-orders-empty"
-        icon={ClipboardList}
+        image={checkNoticeIcon}
         eyebrow={t("marketplace:intentionallyEmpty")}
         title={t("marketplace:sellerOrdersEmpty")}
         secondary={t("marketplace:sellerOrdersSecondary")}
@@ -615,7 +620,7 @@ function MarketplaceShell({ locale, role, workspace, onNavigate, onLogout, onLoc
     >
       <PrototypeDisclosure locale={locale} />
       <header data-testid="marketplace-header" className="marketplace-header">
-        <Brand compact />
+        <Brand />
         <div className="marketplace-header-role"><span className={"role-chip " + role}>{roleLabel}</span></div>
         <div className="marketplace-header-actions">
           <LanguageSelect locale={locale} onChange={onLocaleChange} />

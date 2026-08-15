@@ -1,0 +1,205 @@
+{
+  "version": "v1",
+  "notes": "Every rule carries a human-transcribed citation. A rule without a verified citation is treated as absent: the engine abstains. Numeric values marked TODO(law)/TODO(data) are not computable; the engine abstains and emits the physical checklist instead.",
+  "records": [
+    {
+      "rule_id": "ELIG-SUPERV-001",
+      "type": "eligibility",
+      "if": { "vending_kind": "food", "wants": "license" },
+      "then": {
+        "track": "supervisory_food",
+        "annual_slots": 2200,
+        "window": "through 2031",
+        "summary": "Experienced food vendors apply on the supervisory food-vendor track: 2,200 licenses per year through 2031."
+      },
+      "citation": "Intro 1251 / Local Law of 2026; Admin Code Title 17 TODO(law: §)",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "ELIG-GEN-001",
+      "type": "eligibility",
+      "if": { "vending_kind": "merchandise", "wants": "license" },
+      "then": {
+        "track": "general_2027",
+        "approx_new_licenses": 10500,
+        "window": "starting 2027",
+        "summary": "Merchandise (general) vendors: roughly 10,500 new licenses start in 2027. The old cap was 853 (set 1979) and the waitlist has been closed since 2016."
+      },
+      "citation": "Intro 431-B (enacted, veto overridden late Jan 2026); build master §20.2 verified facts 2026-08-14",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "CLASS-INSTR-001",
+      "type": "eligibility",
+      "if": { "instrument": "civil_summons" },
+      "then": {
+        "path": "oath_hearing",
+        "summary": "Since March 9, 2026, vending violations are civil. A civil summons goes to an OATH administrative hearing; the worst outcome is a fine."
+      },
+      "citation": "Local Law 122 of 2025, effective 2026-03-09",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "CLASS-INSTR-002",
+      "type": "eligibility",
+      "if": { "instrument": "criminal_looking" },
+      "then": {
+        "path": "legal_referral_only",
+        "summary": "A criminal summons requires a court appearance and is a different instrument from a civil OATH summons. Criminal summonses have continued in practice after decriminalization. Sidewalk explains the difference and refers to a legal clinic; it never gives advice on a criminal matter.",
+        "referral_kind": "legal_clinic"
+      },
+      "citation": "Local Law 122 of 2025 eff. 2026-03-09; Q1 2026 practice: 564 criminal summonses (verified 2026-08-14)",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "ENF-SUSP-001",
+      "type": "eligibility",
+      "if": { "topic": "enforcement_model" },
+      "then": {
+        "summary": "For licensed vendors, discipline runs through suspension or revocation of the license — an administrative process with hearings and records — rather than cart confiscation.",
+        "path": "administrative_process"
+      },
+      "citation": "Intro 431-B (enacted package, Dec 2025, veto overridden late Jan 2026)",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "SEQ-FOOD-001",
+      "type": "sequence",
+      "track": "supervisory_food",
+      "step": "nys_sales_tax_certificate",
+      "depends_on": [],
+      "duration_days_range": [28, 42],
+      "note": "state processing 4–6 weeks; the application's critical path",
+      "citation": "DOHMH MFV application package",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "SEQ-FOOD-002",
+      "type": "sequence",
+      "track": "supervisory_food",
+      "step": "food_protection_course",
+      "depends_on": [],
+      "duration_days_range": [2, 21],
+      "note": "in-person only, 8h over 2 days, EN/BN only, $53; register at DCWP (42 Broadway or Jamaica) by appointment",
+      "citation": "DOHMH course page",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "SEQ-FOOD-003",
+      "type": "sequence",
+      "track": "supervisory_food",
+      "step": "submit_license_application",
+      "depends_on": ["nys_sales_tax_certificate", "food_protection_course"],
+      "duration_days_range": [7, 14],
+      "citation": "DOHMH MFV application package",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "SEQ-GEN-001",
+      "type": "sequence",
+      "track": "general_2027",
+      "step": "await_general_window_2027",
+      "depends_on": [],
+      "duration_days_range": null,
+      "note": "the new general-license window opens in 2027; assemble identity and address documents now so the file is ready",
+      "citation": "Intro 431-B (enacted package); build master §20.2 verified facts 2026-08-14",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "DOC-SUPERV-001",
+      "type": "document_requirement",
+      "track": "supervisory_food",
+      "requires": ["identity_document", "proof_of_address", "nys_sales_tax_certificate", "food_protection_certificate"],
+      "notes": {
+        "identity_document": "driver's license/non-driver ID, Alien Registration Card or Naturalization Certificate, or US or FOREIGN passport — a foreign passport is accepted",
+        "proof_of_address": "lease, utility bill/bank statement ≤90 days, or affidavit path"
+      },
+      "citation": "DOHMH MFV application package",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "FEE-001",
+      "type": "fee",
+      "item": "mfv_license",
+      "amount_usd": 50,
+      "term_years": 2,
+      "waiver": "honorably discharged veterans and surviving spouses/domestic partners — engine surfaces automatically",
+      "citation": "DOHMH MFV application package",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "PLACE-001",
+      "type": "placement",
+      "computable": false,
+      "params": {
+        "crosswalk_distance_ft": "TODO(law: Admin Code §)",
+        "subway_entrance_distance_ft": "TODO(law: Admin Code §)",
+        "building_entrance_distance_ft": "TODO(law: Admin Code §)",
+        "cart_max_dimensions": "TODO(law: Admin Code §)",
+        "clear_pedestrian_path_ft": "TODO(law: Admin Code §; 12-ft figure reported by Public Advocate 'Pushing Forward' report, pending § transcription)"
+      },
+      "checklist": [
+        "Not on the crosswalk side of the corner — keep back from the crosswalk",
+        "Not blocking a subway entrance or stairwell",
+        "Not blocking a building doorway",
+        "A wide clear path must remain for pedestrians on the sidewalk",
+        "Cart within the legal size limits",
+        "Restricted streets exist — check the street list for your block: TODO(data: restricted-street list)"
+      ],
+      "abstain_reason": "placement distances are statutory numbers not yet transcribed from the Admin Code",
+      "citation": "NYC Admin Code TODO(law: §§); checklist categories per Public Advocate 'Pushing Forward' report",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "CART-REC-001",
+      "type": "sequence",
+      "track": "any",
+      "step": "cart_recovery",
+      "depends_on": [],
+      "duration_days_range": null,
+      "note": "if a cart was confiscated: get the property-clerk voucher number, deadlines TODO(law), and use a legal-aid property guide; Sidewalk drafts the retrieval letter and refers",
+      "citation": "NYPD property-clerk procedure TODO(law: deadline §§); Bronx Defenders property guide (referral)",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "HEAT-001",
+      "type": "eligibility",
+      "if": { "topic": "heat_rights" },
+      "then": {
+        "summary": "During extreme heat, vendors have rights to shade, water, and breaks under the June 2026 executive order. A state cooling-equipment credit exists.",
+        "path": "heat_protocol"
+      },
+      "citation": "June 2026 executive order (heat protocol); state cooling-equipment credit pointer",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "COMM-001",
+      "type": "document_requirement",
+      "track": "supervisory_food",
+      "requires": ["commissary_agreement"],
+      "notes": {
+        "commissary_agreement": "food carts must operate from a licensed commissary; benchmark fee ranges TODO(data); Sidewalk can list nearby options"
+      },
+      "citation": "DOHMH commissary requirement; fee benchmarks TODO(data)",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "PRICE-001",
+      "type": "price",
+      "item": "underground_permit_rental_reported",
+      "range_usd": "thousands",
+      "source": "press reporting; used only to anchor Guard scam detection",
+      "citation": "press reporting (no official statistics for illegal transactions)",
+      "last_verified": "2026-08-14"
+    },
+    {
+      "rule_id": "VOCAB-ES-001",
+      "type": "vocabulary",
+      "lang": "es",
+      "surface": ["permiso de comida", "la placa"],
+      "maps_to": "mobile_food_vending_permit",
+      "citation": "vendor vocabulary (community usage)",
+      "last_verified": "2026-08-14"
+    }
+  ]
+}

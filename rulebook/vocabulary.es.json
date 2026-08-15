@@ -1,0 +1,13 @@
+{
+  "lang": "es",
+  "terms": [
+    { "surface": ["permiso de comida", "la placa"], "maps_to": "mobile_food_vending_permit" },
+    { "surface": ["licencia", "la licencia de vendedor"], "maps_to": "vendor_license" },
+    { "surface": ["multa", "el ticket", "la boleta"], "maps_to": "summons" },
+    { "surface": ["la corte", "la audiencia"], "maps_to": "oath_hearing" },
+    { "surface": ["el curso de comida", "el curso de proteccion de alimentos"], "maps_to": "food_protection_course" },
+    { "surface": ["el certificado de impuestos", "el permiso de taxes"], "maps_to": "nys_sales_tax_certificate" },
+    { "surface": ["el carrito", "el puesto"], "maps_to": "cart" },
+    { "surface": ["la comisaria de comida", "el comisariato"], "maps_to": "commissary" }
+  ]
+}

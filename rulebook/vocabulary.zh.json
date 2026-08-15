@@ -1,0 +1,12 @@
+{
+  "lang": "zh",
+  "terms": [
+    { "surface": ["执照", "小贩执照"], "maps_to": "vendor_license" },
+    { "surface": ["许可证", "餐车许可证"], "maps_to": "mobile_food_vending_permit" },
+    { "surface": ["罚单", "传票"], "maps_to": "summons" },
+    { "surface": ["听证会", "法庭"], "maps_to": "oath_hearing" },
+    { "surface": ["食品保护课程"], "maps_to": "food_protection_course" },
+    { "surface": ["销售税证书"], "maps_to": "nys_sales_tax_certificate" },
+    { "surface": ["推车", "摊位"], "maps_to": "cart" }
+  ]
+}

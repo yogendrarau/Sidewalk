@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0f172a;
+  --color-paper: #f1f5f9;
+  --color-forest: #14532d;
+  --color-leaf: #1c7c54;
+  --color-mango: #f59e0b;
+  --color-chili: #dc2626;
+}
+
+body { background: var(--color-paper); color: var(--color-ink); font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif; }

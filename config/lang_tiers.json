@@ -1,0 +1,21 @@
+{
+  "t1_gold": {
+    "langs": ["es", "bn", "ar", "zh", "en"],
+    "label": "Reviewed",
+    "honesty_line": null,
+    "criteria": "native-reviewed templates + vocabulary + measured WER; all demo flows"
+  },
+  "t2_silver": {
+    "langs": ["ru", "ht", "ko", "ur", "fr", "pl"],
+    "label": "Auto-translated",
+    "honesty_line": "Responses in {lang} are automatically translated and not yet reviewed by a person.",
+    "criteria": "full functionality, machine-translated templates"
+  },
+  "t3_best_effort": {
+    "langs": "auto-detected (~100)",
+    "label": "Best effort",
+    "honesty_line": "Responses in {lang} are automatically translated and not yet reviewed by a person.",
+    "criteria": "best effort, TTS where a voice exists, never silently downgraded"
+  },
+  "promotion_t2_to_t1": "native reviewer signs the template pack + 10 WER clips measured (README checklist)"
+}

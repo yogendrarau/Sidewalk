@@ -1,0 +1,24 @@
+{
+  "name": "sidewalk",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Trust, licensing, and payments system for NYC street vendors — Version B (web-only)",
+  "type": "module",
+  "workspaces": ["server", "pwa", "console"],
+  "scripts": {
+    "dev": "concurrently -n server,pwa,console -c blue,green,magenta \"npm:dev -w server\" \"npm:dev -w pwa\" \"npm:dev -w console\"",
+    "demo": "npm run build -w pwa && npm run build -w console && DEMO_MODE=1 SERVE_STATIC=1 npm run start -w server",
+    "seed": "tsx scripts/seed_demo.ts",
+    "rights-card": "tsx scripts/print_rights_card.ts",
+    "test": "vitest run --root server",
+    "evals": "tsx evals/runner.ts",
+    "tunnel": "cloudflared tunnel --url http://localhost:4477"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  },
+  "engines": { "node": ">=22.5" }
+}

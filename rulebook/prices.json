@@ -1,0 +1,19 @@
+{
+  "legitimate": {
+    "mfv_license": { "amount_usd": 50, "term_years": 2, "citation": "DOHMH MFV application package" },
+    "food_protection_course": { "amount_usd": 53, "citation": "DOHMH course page" }
+  },
+  "scam_anchors": {
+    "underground_permit_rental_reported": {
+      "range": "thousands of USD per 2-year cycle",
+      "min_suspicious_usd": 500,
+      "note": "used only to anchor Guard scam detection: any ask above min_suspicious_usd attached to 'license/permit help' is flagged; the legitimate license fee is $50",
+      "citation": "press reporting; build master §7 price record"
+    },
+    "advance_fee_broker": {
+      "min_suspicious_usd": 200,
+      "note": "brokers charging advance fees to 'get you a license faster' — no such paid fast lane exists",
+      "citation": "build master §8 Broker Verifier"
+    }
+  }
+}

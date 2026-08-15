@@ -1,0 +1,12 @@
+{
+  "lang": "bn",
+  "terms": [
+    { "surface": ["লাইসেন্স", "ভেন্ডর লাইসেন্স"], "maps_to": "vendor_license" },
+    { "surface": ["পারমিট", "খাবারের পারমিট"], "maps_to": "mobile_food_vending_permit" },
+    { "surface": ["জরিমানা", "টিকিট", "সমন"], "maps_to": "summons" },
+    { "surface": ["শুনানি", "আদালত"], "maps_to": "oath_hearing" },
+    { "surface": ["খাদ্য সুরক্ষা কোর্স"], "maps_to": "food_protection_course" },
+    { "surface": ["সেলস ট্যাক্স সার্টিফিকেট"], "maps_to": "nys_sales_tax_certificate" },
+    { "surface": ["ঠেলাগাড়ি", "কার্ট"], "maps_to": "cart" }
+  ]
+}

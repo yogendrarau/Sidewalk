@@ -1,0 +1,11 @@
+node_modules/
+server/data/
+dist/
+.env
+*.log
+fixtures/gold_by_sha.json
+fixtures/demo_props.json
+fixtures/media/
+fixtures/letters/
+evals/proof_slide.json
+DEMO_RUNBOOK.md

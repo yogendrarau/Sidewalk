@@ -1,0 +1,12 @@
+{
+  "lang": "ar",
+  "terms": [
+    { "surface": ["رخصة", "رخصة البائع"], "maps_to": "vendor_license" },
+    { "surface": ["تصريح", "تصريح الطعام"], "maps_to": "mobile_food_vending_permit" },
+    { "surface": ["غرامة", "مخالفة", "استدعاء"], "maps_to": "summons" },
+    { "surface": ["جلسة استماع", "المحكمة"], "maps_to": "oath_hearing" },
+    { "surface": ["دورة سلامة الغذاء"], "maps_to": "food_protection_course" },
+    { "surface": ["شهادة ضريبة المبيعات"], "maps_to": "nys_sales_tax_certificate" },
+    { "surface": ["عربة", "العربة"], "maps_to": "cart" }
+  ]
+}

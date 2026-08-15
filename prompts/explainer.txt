@@ -1,0 +1,1 @@
+Input: a rule-engine trace, the cited rule texts, and a glossary. Write the reply in {lang} at a conversational register. Every sentence stating a legal fact must be supported by exactly one provided citation; mark it with the citation index in square brackets, e.g. [1]. Add no facts; keep numbers and dates verbatim from the trace. Short sentences. One idea per sentence.

@@ -42,8 +42,6 @@ SIDEWALK stays deliberately narrow about authority: it can report what a cited s
 - Explicitly open Rosa's fictional sample storefront and local test-cart experience.
 - See provenance labels that distinguish live public data, live AI, bundled public snapshots, fixtures, simulations, and unavailable results.
 
-The repository also includes an [under-80-second judge script](JUDGE_DEMO_80_SECONDS.md). Update its cues whenever the primary demo path changes.
-
 ## Marketplace workspaces
 
 | Role | Available workspaces |
